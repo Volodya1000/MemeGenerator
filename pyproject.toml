@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "meme-generator"
+version = "0.1.0"
+description = "Generate themed reaction videos from a curated catalog"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "httpx>=0.28,<1",
+  "pydantic>=2.10,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "flake8>=7.3,<8",
+  "mypy>=1.18,<2",
+  "pytest>=8.4,<10",
+  "pytest-cov>=6,<8",
+  "ruff>=0.14,<1",
+  "wemake-python-styleguide==1.8.1",
+]
+
+[project.scripts]
+meme-generator = "meme_generator.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/meme_generator"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 79
+preview = true
+
+[tool.ruff.lint]
+select = ["A", "B", "C4", "C90", "COM", "D", "DTZ", "E", "ERA", "EXE", "F", "FA", "FBT", "FLY", "FURB", "G", "I", "ICN", "ISC", "LOG", "N", "PERF", "PIE", "PL", "PT", "PTH", "Q", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "TRY", "UP", "W", "YTT"]
+ignore = ["D203", "D213", "ISC001", "COM812"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unreachable = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--strict-config", "--strict-markers", "-ra"]
+xfail_strict = true
+
+[tool.coverage.run]
+branch = true
+source = ["meme_generator"]
