@@ -1,6 +1,6 @@
 """Relational persistence model; never exposed as a domain entity."""
 
-from sqlalchemy import String, Text
+from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -21,3 +21,4 @@ class MemeRow(CatalogBase):
     )
     phrase: Mapped[str] = mapped_column(Text, nullable=False)
     video_path: Mapped[str] = mapped_column(Text, nullable=False)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)

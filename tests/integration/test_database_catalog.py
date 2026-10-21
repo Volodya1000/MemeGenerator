@@ -29,7 +29,7 @@ def test_reactions_persist_across_instances(
     )
     sql_repository.replace_all([second, first])
     reopened = SqlAlchemyMemeRepository(database_engine)
-    assert reopened.all() == [first, second]
+    assert reopened.all() == [second, first]
     assert reopened.get('beta') == second
 
 

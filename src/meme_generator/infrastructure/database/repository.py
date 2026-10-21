@@ -44,7 +44,7 @@ class SqlAlchemyMemeRepository:
         """Return a deterministic snapshot using a short-lived session."""
         with Session(self._engine) as session:
             records = session.scalars(
-                select(MemeRow).order_by(MemeRow.meme_id),
+                select(MemeRow).order_by(MemeRow.position),
             ).all()
             return [to_domain(record) for record in records]
 
@@ -60,8 +60,9 @@ class SqlAlchemyMemeRepository:
                 meme_id=meme.meme_id,
                 phrase=meme.phrase,
                 video_path=str(meme.video_path),
+                position=index,
             )
-            for meme in memes
+            for index, meme in enumerate(memes)
         ]
         with Session(self._engine) as session, session.begin():
             session.execute(delete(MemeRow))
