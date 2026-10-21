@@ -39,3 +39,7 @@
 - SQL credentials and connection URLs belong in environment variables, never checked-in YAML or generated video manifests.
 - Use real SQLite-backed integration tests for repository state and transaction semantics, and PostgreSQL tests where a CI service is available; do not mock the ORM.
 - Database schema initialization is explicit for local imports. Introduce migrations before production schema changes.
+
+- Keep SQL writer operations behind a separate typed write port. A read-only repository interface should not grow mutating methods solely for one adapter.
+- Use temporary SQLite databases for fast integration tests, an actual PostgreSQL service in CI, and verify durable reads, consistent contracts, and atomic rollback on failed writes.
+- Shared fixtures belong in a local conftest.py near the tests that use them. Avoid global fixture collections without a clear responsibility.
