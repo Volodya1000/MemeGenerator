@@ -10,7 +10,9 @@ from meme_generator.domain.meme import Meme
 
 def test_demo_is_deterministic() -> None:
     """Offline planning preserves contiguous scene order."""
-    memes = [Meme(meme_id='known', phrase='Surprise', video_path=Path('clip.mp4'))]
+    memes = [
+        Meme(meme_id='known', phrase='Surprise', video_path=Path('clip.mp4')),
+    ]
     scenario = DemoPlanner().plan('Developer life', memes, 2)
     assert [scene.order for scene in scenario.scenes] == [1, 2]
     assert {scene.meme_id for scene in scenario.scenes} == {'known'}

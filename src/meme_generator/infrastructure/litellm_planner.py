@@ -80,5 +80,5 @@ class LiteLLMPlanner:
             raise ValueError('LLM returned an invalid completion response')
         response_text: object = response.choices[0].message.content
         if not isinstance(response_text, str):
-            raise ValueError('LLM returned no textual scenario')
+            raise TypeError('LLM returned no textual scenario')
         return response_text

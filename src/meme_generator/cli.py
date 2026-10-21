@@ -5,7 +5,7 @@ from typing import Annotated
 
 import typer
 
-from meme_generator.application.bootstrap import create_pipeline
+from meme_generator.bootstrap import create_pipeline
 from meme_generator.config.loader import load_settings
 from meme_generator.config.settings import GenerationSettings
 
@@ -20,7 +20,9 @@ def application() -> None:
 @app.command()
 def generate(
     topic: Annotated[str, typer.Option(help='Video theme or situation.')],
-    config: Annotated[Path | None, typer.Option(help='YAML settings file.')] = None,
+    config: Annotated[
+        Path | None, typer.Option(help='YAML settings file.')
+    ] = None,
     scenes: Annotated[int | None, typer.Option(min=1)] = None,
     output: Annotated[Path | None, typer.Option()] = None,
 ) -> None:

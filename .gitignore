@@ -13,3 +13,11 @@ work/
 assets/memes/*.mp4
 assets/memes/*.mov
 assets/memes/*.webm
+
+# Credentials and local user settings
+.env
+.env.*
+!.env.example
+config.yaml
+assets/memes.json
+assets/context/

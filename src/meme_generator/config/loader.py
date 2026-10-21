@@ -18,7 +18,7 @@ def load_settings(path: Path | None) -> GenerationSettings:
     if raw is None:
         raw = {}
     if not isinstance(raw, dict):
-        raise ValueError('Configuration must contain a YAML mapping')
+        raise TypeError('Configuration must contain a YAML mapping')
     config = dict(raw)
     model = os.getenv('MEMEGEN_MODEL')
     base_url = os.getenv('MEMEGEN_BASE_URL')
