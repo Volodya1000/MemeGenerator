@@ -2,8 +2,8 @@
 
 from pathlib import Path
 
-from meme_generator.domain.meme_sources import MemeSource
 from meme_generator.domain.meme import Meme
+from meme_generator.domain.meme_sources import MemeSource
 from meme_generator.infrastructure.assets.download import download_media
 from meme_generator.infrastructure.assets.normalize import normalize_media
 from meme_generator.infrastructure.assets.probe import (

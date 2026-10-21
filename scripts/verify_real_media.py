@@ -6,8 +6,8 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from meme_generator.domain.meme_sources import MemeSource, MemeSources
 from meme_generator.domain.meme import Meme
+from meme_generator.domain.meme_sources import MemeSource, MemeSources
 from meme_generator.infrastructure.assets.probe import (
     check_source,
     verify_normalized,

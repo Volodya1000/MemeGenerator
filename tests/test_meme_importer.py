@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from from meme_generator.infrastructure.assets import (
+from meme_generator.infrastructure.assets import (
     clip_importer as meme_clip_importer,
     catalog_importer as meme_importer,
 )

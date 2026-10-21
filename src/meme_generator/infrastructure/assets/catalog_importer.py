@@ -5,9 +5,9 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from meme_generator.infrastructure.assets.clip_importer import import_meme
-from meme_generator.domain.meme_sources import MemeSources
 from meme_generator.domain.meme import Meme
+from meme_generator.domain.meme_sources import MemeSources
+from meme_generator.infrastructure.assets.clip_importer import import_meme
 
 CATALOG_FILENAME = Path('assets/catalog.json')
 

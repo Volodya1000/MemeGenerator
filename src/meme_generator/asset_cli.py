@@ -7,7 +7,9 @@ from pathlib import Path
 
 import httpx
 
-from meme_generator.infrastructure.assets.catalog_importer import import_catalog
+from meme_generator.infrastructure.assets.catalog_importer import (
+    import_catalog,
+)
 
 logger = logging.getLogger(__name__)
 IMPORT_ERRORS = (
