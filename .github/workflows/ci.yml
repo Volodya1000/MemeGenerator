@@ -21,9 +21,9 @@ jobs:
       - name: Formatting
         run: uv run ruff format --check .
       - name: Mypy
-        run: uv run mypy src
+        run: uv run mypy src tests
       - name: Tests
-        run: uv run pytest -q
+        run: uv run pytest -q --cov=meme_generator --cov-branch --cov-report=term-missing
 
   video-integration:
     runs-on: ubuntu-latest
