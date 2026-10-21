@@ -65,7 +65,9 @@ use their SHA-256 digests to verify downloaded copies.
 Unit tests are offline. Standard CI FFmpeg tests use a **synthetic** clip and
 never require third-party video hosting or copyright-restricted files.
 A separate `Real meme media smoke test` workflow, normally started manually,
-downloads and validates all seven source videos on an ephemeral GitHub runner.
+downloads all seven source videos and runs `scripts/verify_real_media.py` on
+an ephemeral GitHub runner. Media models and validation live in reusable
+application modules, not inside the workflow YAML.
 It prints only technical metadata and never commits or publishes MP4 files.
 The initial end-to-end smoke test passed on 2026-10-21:
 https://github.com/Volodya1000/MemeGenerator/actions/runs/39564344286.

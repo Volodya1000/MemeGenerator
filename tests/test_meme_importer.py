@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from meme_generator.application import meme_importer
+from meme_generator.application import meme_clip_importer, meme_importer
 
 ASSETS = Path('assets')
 UTF8 = 'utf-8'
@@ -69,8 +69,8 @@ def test_import_creates_compatible_catalog(
             b'mp4',
         ),
     )
-    monkeypatch.setattr(meme_importer, 'check_source', validation)
-    monkeypatch.setattr(meme_importer, 'normalize_media', normalization)
+    monkeypatch.setattr(meme_clip_importer, 'check_source', validation)
+    monkeypatch.setattr(meme_clip_importer, 'normalize_media', normalization)
     catalog = meme_importer.import_catalog(manifest, tmp_path)
     records = json.loads(
         (tmp_path / ASSETS / 'catalog.json').read_text(encoding=UTF8),
@@ -99,8 +99,8 @@ def test_reimport_reuses_verified_files(
     _create_stub(ready, b'output')
     validation = Mock()
     normalization = Mock()
-    monkeypatch.setattr(meme_importer, 'check_source', validation)
-    monkeypatch.setattr(meme_importer, 'verify_normalized', validation)
-    monkeypatch.setattr(meme_importer, 'normalize_media', normalization)
+    monkeypatch.setattr(meme_clip_importer, 'check_source', validation)
+    monkeypatch.setattr(meme_clip_importer, 'verify_normalized', validation)
+    monkeypatch.setattr(meme_clip_importer, 'normalize_media', normalization)
     meme_importer.import_catalog(manifest, tmp_path)
     normalization.assert_not_called()

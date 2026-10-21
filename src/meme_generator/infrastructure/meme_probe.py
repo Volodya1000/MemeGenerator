@@ -1,44 +1,14 @@
-"""Typed FFprobe results and media validation for short reactions."""
+"""Probe and validate real media using typed FFprobe metadata."""
 
 import hashlib
 import subprocess
 from pathlib import Path
 
-from pydantic import BaseModel
+from meme_generator.infrastructure.meme_media_models import MediaInfo
 
 MAX_MEDIA_BYTES = 52_428_800
 MIN_DURATION_SECONDS = 0.1
 MAX_DURATION_SECONDS = 60.0
-
-
-class MediaStream(BaseModel):
-    """Relevant media stream properties reported by ffprobe."""
-
-    codec_type: str
-    codec_name: str | None = None
-    width: int | None = None
-    height: int | None = None
-    avg_frame_rate: str | None = None
-
-
-class MediaFormat(BaseModel):
-    """Container properties returned by ffprobe."""
-
-    duration: float
-
-
-class MediaInfo(BaseModel):
-    """Typed output of ffprobe's JSON writer."""
-
-    streams: list[MediaStream]
-    format: MediaFormat
-
-    def get_stream(self, stream_type: str) -> MediaStream:
-        """Require an audio or video stream in a usable clip."""
-        for stream in self.streams:
-            if stream.codec_type == stream_type:
-                return stream
-        raise ValueError(f'Media must contain a {stream_type} stream')
 
 
 def probe_media(path: Path) -> MediaInfo:
@@ -67,8 +37,8 @@ def probe_media(path: Path) -> MediaInfo:
     return media
 
 
-def verify_normalized(path: Path) -> None:
-    """Check the codec, resolution, and frame rate of the final clip."""
+def verify_normalized(path: Path) -> MediaInfo:
+    """Validate final codec, size, and FPS and return probed metadata."""
     media = probe_media(path)
     video = media.get_stream('video')
     audio = media.get_stream('audio')
@@ -81,6 +51,7 @@ def verify_normalized(path: Path) -> None:
     )
     if actual_video != expected_video or audio.codec_name != 'aac':
         raise ValueError(f'Unexpected output media format: {path}')
+    return media
 
 
 def check_source(path: Path, sha256: str | None) -> None:
