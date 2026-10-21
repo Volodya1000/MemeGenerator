@@ -37,9 +37,9 @@ def import_catalog(
     with tempfile.TemporaryDirectory(dir=output.parent) as directory:
         temporary = Path(directory) / 'catalog.json'
         temporary.write_text(
-            TypeAdapter(list[Meme]).dump_json(
-                catalog, indent=2, ensure_ascii=False
-            ).decode('utf-8'),
+            TypeAdapter(list[Meme])
+            .dump_json(catalog, indent=2, ensure_ascii=False)
+            .decode('utf-8'),
             encoding='utf-8',
         )
         temporary.replace(output)
