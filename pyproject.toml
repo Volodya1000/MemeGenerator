@@ -25,6 +25,7 @@ dev = [
 
 [project.scripts]
 meme-generator = "meme_generator.cli:main"
+meme-assets = "meme_generator.asset_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/meme_generator"]
@@ -54,6 +55,7 @@ warn_unused_configs = true
 testpaths = ["tests"]
 addopts = ["--strict-config", "--strict-markers", "-ra"]
 xfail_strict = true
+markers = ["integration: requires installed FFmpeg binaries"]
 
 [tool.coverage.run]
 branch = true

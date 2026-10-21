@@ -10,6 +10,6 @@ build/
 *.egg-info/
 output/
 work/
-assets/memes/*.mp4
-assets/memes/*.mov
-assets/memes/*.webm
+assets/raw/
+assets/memes/
+assets/catalog.json

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "clips": [
+    {
+      "meme_id": "tinkov_somnitelno_no_okey",
+      "phrase": "Сомнительно, но окей",
+      "source_page": "https://cutzo.ru/video/somnitelno-no-okey"
+    },
+    {
+      "meme_id": "tinkov_kruto",
+      "phrase": "Круто, да это ж круто!",
+      "source_page": "https://cutzo.ru/video/kruto-da-eto-zh-kruto"
+    },
+    {
+      "meme_id": "tinkov_netu_nihuya",
+      "phrase": "Нету нихуя, вот просто ни-ху-я",
+      "source_page": "https://cutzo.ru/video/netu-nihuya-vot-prosto-ni-hu-ya"
+    },
+    {
+      "meme_id": "tinkov_smelo",
+      "phrase": "Это было не просто смело, это было пиздец как смело",
+      "source_page": "https://cutzo.ru/video/eto-bylo-ne-prosto-smelo-eto-bylo-pizdets-kak-smelo"
+    },
+    {
+      "meme_id": "tinkov_skolko_mozhno",
+      "phrase": "Ну это пиздец какой-то просто, ну сколько можно!",
+      "source_page": "https://cutzo.ru/video/nu-eto-pizdets-kakoy-to-prosto-nu-skolko-mozhno"
+    },
+    {
+      "meme_id": "tinkov_mne_pohuy",
+      "phrase": "Мне похуй, я так чувствую",
+      "source_page": "https://cutzo.ru/video/mne-pohuy-ya-tak-chuvstvuyu"
+    },
+    {
+      "meme_id": "tinkov_ya_zaplakal",
+      "phrase": "Блядь, я заплакал",
+      "source_page": "https://cutzo.ru/video/blyad-ya-zaplakal"
+    }
+  ]
+}

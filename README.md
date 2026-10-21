@@ -13,7 +13,17 @@ from a **curated library of real video clips**. No voice cloning or deepfakes.
 6. Integrated CLI, reproducible demos, integration tests.
 
 Python **3.13**, FFmpeg and ffprobe are required. Keep copyrighted source clips
-outside Git. The project never downloads celebrity clips automatically.
+outside Git. Importing clips is an explicit operation, never part of CI or
+normal application startup. See [curated asset import](docs/meme-assets.md).
+
+```bash
+uv sync --extra dev
+uv run meme-assets
+```
+
+The import requires locally available clips named in `assets/sources.json`.
+It can optionally download explicitly configured direct HTTPS media URLs with
+`--download`, but never fetches source pages or media without permission.
 
 ## Quality
 
@@ -28,5 +38,6 @@ uv run ruff check .
 uv run ruff format --check .
 uv run flake8 . --select WPS
 uv run mypy src
-uv run pytest
+uv run pytest -m 'not integration'
+uv run pytest -m integration
 ```
