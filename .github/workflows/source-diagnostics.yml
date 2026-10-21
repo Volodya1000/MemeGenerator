@@ -1,0 +1,91 @@
+name: Diagnose real meme sources (temporary)
+
+on:
+  push:
+    branches:
+      - feature/02-curated-meme-assets
+    paths:
+      - .github/workflows/source-diagnostics.yml
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect public source pages (no media is committed or uploaded)
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class MediaParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.refs = []
+
+              def handle_starttag(self, tag, attrs):
+                  fields = dict(attrs)
+                  if tag in ('video', 'source', 'a', 'meta', 'link', 'button'):
+                      for key in ('src', 'href', 'data-src', 'content', 'data-url', 'data-download-url'):
+                          candidate = fields.get(key)
+                          if candidate and (
+                              tag in ('video', 'source')
+                              or '.mp4' in candidate.lower()
+                              or 'download' in str(fields).lower()
+                              or 'video' in str(fields).lower()
+                          ):
+                              self.refs.append((tag, key, candidate))
+
+          clips = json.loads(Path('assets/sources.json').read_text())['clips']
+          for clip in clips:
+              url = clip['source_page']
+              print(f"\nSOURCE={clip['meme_id']} PAGE={url}", flush=True)
+              req = urllib.request.Request(
+                  url,
+                  headers={'User-Agent': 'MemeGenerator-source-verification/1.0',
+                           'Accept': 'text/html'},
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=12) as response:
+                      body = response.read(1_000_000)
+                      print('HTTP=', response.status,
+                            'TYPE=', response.headers.get('Content-Type'),
+                            'HTML_BYTES=', len(body), flush=True)
+              except (urllib.error.URLError, TimeoutError, OSError) as error:
+                  print('SOURCE_ERROR=', repr(error), flush=True)
+                  continue
+              html = body.decode('utf-8', 'replace')
+              parser = MediaParser()
+              parser.feed(html)
+              media_matches = re.findall(
+                  r'https?://[^\s"\x27<>]+?\.mp4(?:\?[^\s"\x27<>]*)?',
+                  html, re.I,
+              )
+              relative = re.findall(
+                  r'[/\w.%-]+\.mp4(?:\?[^\s"\x27<>]*)?', html, re.I,
+              )
+              print('MEDIA_TAGS=', len(parser.refs),
+                    'MP4_ABSOLUTE=', len(media_matches),
+                    'MP4_RELATIVE=', len(relative),
+                    'NEXT_DATA=', '__NEXT_DATA__' in html, flush=True)
+              for tag, key, value in parser.refs[:15]:
+                  safe = urllib.parse.urlsplit(
+                      urllib.parse.urljoin(url, value)
+                  )._replace(query='', fragment='').geturl()
+                  print('TAG=', tag, key, safe[:200], flush=True)
+              for value in dict.fromkeys(media_matches + relative):
+                  safe = urllib.parse.urlsplit(
+                      urllib.parse.urljoin(url, value)
+                  )._replace(query='', fragment='').geturl()
+                  print('MP4=', safe[:200], flush=True)
+          PY
