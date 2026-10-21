@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from meme_generator.domain.meme import Meme
 from meme_generator.infrastructure.catalog import MemeCatalog
 
 CLIP_NAME = 'clip.mp4'
@@ -59,3 +60,39 @@ def test_parent_path_escape_fails(tmp_path: Path) -> None:
     catalog_path.write_text(json.dumps(entries), encoding='utf-8')
     with pytest.raises(ValueError, match='inside'):
         MemeCatalog.from_json(catalog_path)
+
+
+def test_missing_clip_is_rejected(tmp_path: Path) -> None:
+    """The catalog never accepts a reference to an absent movie file."""
+    path = tmp_path / 'memes.json'
+    path.write_text(
+        json.dumps([
+            {'meme_id': REACTION_ID, 'phrase': 'surprise', 'video_path': CLIP_NAME},
+        ]),
+        encoding='utf-8',
+    )
+    with pytest.raises(FileNotFoundError):
+        MemeCatalog.from_json(path)
+
+
+def test_unsupported_video_extension_is_rejected(tmp_path: Path) -> None:
+    """A renamed image cannot be passed to the video renderer as a clip."""
+    path = tmp_path / 'memes.json'
+    (tmp_path / 'bad.txt').write_text('not a video', encoding='utf-8')
+    path.write_text(
+        json.dumps([
+            {'meme_id': REACTION_ID, 'phrase': 'surprise', 'video_path': 'bad.txt'},
+        ]),
+        encoding='utf-8',
+    )
+    with pytest.raises(ValueError, match='unsupported extension'):
+        MemeCatalog.from_json(path)
+
+
+def test_unknown_reaction_id_raises_key_error() -> None:
+    """Repository retrieval has explicit absent-identifier semantics."""
+    catalog = MemeCatalog([
+        Meme(meme_id='known', phrase='Known', video_path=Path('clip.mp4')),
+    ])
+    with pytest.raises(KeyError):
+        catalog.get('missing')
