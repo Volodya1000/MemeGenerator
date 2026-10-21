@@ -5,28 +5,10 @@ from pathlib import Path
 
 from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
-from meme_generator.application.ports.meme_repository import MemeRepository
-from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.meme import Meme
-from meme_generator.domain.scenario import Scenario
 from meme_generator.infrastructure.catalog import MemeCatalog
 from meme_generator.infrastructure.images import LocalImageProvider
-
-
-class FakeRenderer:
-    """File-producing external boundary for fast orchestration tests."""
-
-    def render(
-        self,
-        scenario: Scenario,
-        catalog: MemeRepository,
-        images: list[ImageAsset],
-        output_path: Path,
-    ) -> Path:
-        """Write a recognizable artifact without using FFmpeg."""
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_bytes(b'video stub')
-        return output_path
+from tests.fakes.video_renderer import FakeRenderer
 
 
 def test_pipeline_provenance(tmp_path: Path) -> None:
