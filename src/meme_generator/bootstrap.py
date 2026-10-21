@@ -2,8 +2,8 @@
 
 from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
-from meme_generator.application.ports.image_provider import ImageProvider
-from meme_generator.application.ports.scenario_planner import ScenarioPlanner
+from meme_generator.application.protocols.image_provider import ImageProviderProtocol
+from meme_generator.application.protocols.scenario_planner import ScenarioPlannerProtocol
 from meme_generator.composition.catalog import create_catalog
 from meme_generator.config.loader import llm_api_key
 from meme_generator.config.settings import GenerationSettings
@@ -13,7 +13,7 @@ from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
 
 
-def create_planner(settings: GenerationSettings) -> ScenarioPlanner:
+def create_planner(settings: GenerationSettings) -> ScenarioPlannerProtocol:
     """Choose between a deterministic and provider-neutral planner."""
     if settings.planner == 'demo':
         return DemoPlanner()
@@ -26,7 +26,7 @@ def create_planner(settings: GenerationSettings) -> ScenarioPlanner:
     )
 
 
-def create_images(settings: GenerationSettings) -> ImageProvider:
+def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
     """Use an explicit local directory or Wikimedia Commons images."""
     if settings.images == 'commons':
         return CommonsImageProvider()

@@ -5,7 +5,7 @@ from typing import Protocol
 from meme_generator.domain.meme import Meme
 
 
-class MemeRepository(Protocol):
+class MemeRepositoryProtocol(Protocol):
     """Provide approved reaction clips by stable identifier."""
 
     def get(self, meme_id: str) -> Meme:
