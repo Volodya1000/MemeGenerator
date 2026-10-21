@@ -33,8 +33,8 @@ def main() -> int:
             allow_download=arguments.download,
             force=arguments.force,
         )
-    except IMPORT_ERRORS as error:
-        logger.exception('Meme import failed: %s', error)
+    except IMPORT_ERRORS:
+        logger.exception('Meme import failed')
         return 1
     logger.info('Imported %d reaction clips.', len(catalog))
     return 0
