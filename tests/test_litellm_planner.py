@@ -75,3 +75,42 @@ def test_model_response_must_be_valid_json() -> None:
     planner = LiteLLMPlanner(MODEL_NAME, generate_text=lambda _: 'not json')
     with pytest.raises(ValidationError):
         planner.plan(TEST_TOPIC, sample_memes(), 1)
+
+def test_transient_connection_error_is_retried() -> None:
+    """A temporarily unavailable API is retried without retrying bad JSON."""
+    attempts: list[str] = []
+
+    def flaky_completion(request: str) -> str:
+        """Fail once, then return the canonical allowed reaction."""
+        attempts.append(request)
+        if len(attempts) == 1:
+            raise ConnectionError('transient model outage')
+        return response_content(REACTION_ID)
+
+    planner = LiteLLMPlanner(
+        MODEL_NAME,
+        generate_text=flaky_completion,
+        retry_attempts=2,
+    )
+    scenario = planner.plan(TEST_TOPIC, sample_memes(), 1)
+    assert scenario.scenes[0].meme_id == REACTION_ID
+    assert len(attempts) == 2
+
+
+def test_invalid_response_is_not_retried() -> None:
+    """Malformed model output is a permanent validation failure."""
+    attempts: list[str] = []
+
+    def invalid_completion(request: str) -> str:
+        """Record provider usage, then emit broken JSON."""
+        attempts.append(request)
+        return 'not json'
+
+    planner = LiteLLMPlanner(
+        MODEL_NAME,
+        generate_text=invalid_completion,
+        retry_attempts=3,
+    )
+    with pytest.raises(ValidationError):
+        planner.plan(TEST_TOPIC, sample_memes(), 1)
+    assert len(attempts) == 1

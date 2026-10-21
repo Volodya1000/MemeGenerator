@@ -1,30 +1,49 @@
-"""LiteLLM adapter for provider-neutral scene planning."""
+"""LiteLLM planning with typed requests and transient error retries."""
 
-import json
 from collections.abc import Callable
 
 from litellm import completion
+from litellm.exceptions import (
+    APIConnectionError,
+    RateLimitError,
+    ServiceUnavailableError,
+    Timeout,
+)
 from litellm.types.utils import ModelResponse
+from tenacity import (
+    Retrying,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from meme_generator.application.scenario_validation import validate_plan
 from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
+from meme_generator.infrastructure.planner_request import (
+    AvailableMeme,
+    PlannerRequest,
+)
+from meme_generator.infrastructure.prompts.scenario import (
+    PLANNER_SYSTEM_PROMPT,
+)
 
 LLM_TIMEOUT_SECONDS = 90
 PLANNER_TEMPERATURE = 0.6
+RETRY_MAX_WAIT_SECONDS = 8
 
-PLANNER_SYSTEM = (
-    'You plan a short humorous reaction video. Return only JSON with keys '
-    'theme and scenes. Each scene has order (1-based), description, '
-    'image_query, meme_id. Choose meme_id ONLY from available_memes. '
-    'Each image_query must be a concrete visual search query. '
-    'Select reactions whose tone matches the illustrated situation. '
-    'Keep situations connected and avoid unnecessary repetition.'
+TRANSIENT_ERRORS = (
+    TimeoutError,
+    ConnectionError,
+    APIConnectionError,
+    RateLimitError,
+    ServiceUnavailableError,
+    Timeout,
 )
 
 
 class LiteLLMPlanner:
-    """Use a named LiteLLM model or any compatible chat endpoint."""
+    """Plan scenes without binding callers to any one LLM provider."""
 
     def __init__(
         self,
@@ -32,12 +51,14 @@ class LiteLLMPlanner:
         api_base: str | None = None,
         api_key: str | None = None,
         generate_text: Callable[[str], str] | None = None,
+        retry_attempts: int = 3,
     ) -> None:
-        """Allow in-memory completion fakes for independent tests."""
+        """Allow deterministic fakes without mocking every SDK method."""
         self._model = model
         self._api_base = api_base
         self._api_key = api_key
         self._generate_text = generate_text or self._complete
+        self._retry_attempts = retry_attempts
 
     def plan(
         self,
@@ -45,36 +66,43 @@ class LiteLLMPlanner:
         memes: list[Meme],
         scene_count: int,
     ) -> Scenario:
-        """Validate response length and approved reaction membership."""
-        request = json.dumps(
-            {
-                'topic': theme,
-                'scene_count': scene_count,
-                'available_memes': [
-                    {'meme_id': meme.meme_id, 'phrase': meme.phrase}
-                    for meme in memes
-                ],
-            },
-            ensure_ascii=False,
+        """Retry transient failures, then validate strict domain invariants."""
+        request = PlannerRequest(
+            topic=theme,
+            scene_count=scene_count,
+            available_memes=[
+                AvailableMeme(meme_id=meme.meme_id, phrase=meme.phrase)
+                for meme in memes
+            ],
         )
-        raw = self._generate_text(request)
+        retrying = Retrying(
+            retry=retry_if_exception_type(TRANSIENT_ERRORS),
+            stop=stop_after_attempt(self._retry_attempts),
+            wait=wait_exponential(max=RETRY_MAX_WAIT_SECONDS),
+            reraise=True,
+        )
+        raw: str = retrying(
+            self._generate_text,
+            request.model_dump_json(),
+        )
         scenario = Scenario.model_validate_json(raw)
         validate_plan(scenario, memes, scene_count)
         return scenario.model_copy(update={'theme': theme})
 
     def _complete(self, user_prompt: str) -> str:
-        """Normalize the SDK response into a validated JSON string."""
+        """Normalize LiteLLM SDK objects into textual JSON responses."""
         response: object = completion(
             model=self._model,
             api_base=self._api_base,
             api_key=self._api_key,
             messages=[
-                {'role': 'system', 'content': PLANNER_SYSTEM},
+                {'role': 'system', 'content': PLANNER_SYSTEM_PROMPT},
                 {'role': 'user', 'content': user_prompt},
             ],
             response_format={'type': 'json_object'},
             temperature=PLANNER_TEMPERATURE,
             timeout=LLM_TIMEOUT_SECONDS,
+            num_retries=0,
         )
         if not isinstance(response, ModelResponse) or not response.choices:
             raise ValueError('LLM returned an invalid completion response')
