@@ -22,6 +22,15 @@ def run_migrations(connection: Connection) -> None:
         context.run_migrations()
 
 
+def migrate_database(database_url: str) -> None:
+    """Manage the configured engine lifetime even when migration fails."""
+    with ExitStack() as resources:
+        engine = create_catalog_engine(database_url)
+        resources.callback(engine.dispose)
+        with engine.connect() as connection:
+            run_migrations(connection)
+
+
 def run_online_migrations() -> None:
     """Use an injected test connection or an env-configured database."""
     supplied_connection: object = context.config.attributes.get('connection')
@@ -32,11 +41,7 @@ def run_online_migrations() -> None:
     database_url = settings.database.url
     if database_url is None:
         raise ValueError('Set MEMEGEN_DATABASE__URL before running migrations')
-    with ExitStack() as resources:
-        engine = create_catalog_engine(database_url.get_secret_value())
-        resources.callback(engine.dispose)
-        with engine.connect() as connection:
-            run_migrations(connection)
+    migrate_database(database_url.get_secret_value())
 
 
 if context.is_offline_mode():
