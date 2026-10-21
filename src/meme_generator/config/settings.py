@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class GenerationSettings(BaseModel):
     """Validated, non-secret settings for one video-generation request."""
 
-    model_config = ConfigDict(extra='forbid', strict=True)
+    model_config = ConfigDict(extra='forbid')
 
     planner: Literal['llm', 'demo'] = 'llm'
     model: str = ''
