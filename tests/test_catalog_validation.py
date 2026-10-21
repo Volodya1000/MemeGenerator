@@ -17,7 +17,8 @@ def test_missing_clip_is_rejected(tmp_path: Path) -> None:
     path = tmp_path / 'memes.json'
     path.write_text(
         json.dumps([
-            {'meme_id': REACTION_ID, 'phrase': 'surprise', 'video_path': CLIP_NAME},
+            {'meme_id': REACTION_ID,
+             'phrase': 'surprise', 'video_path': CLIP_NAME},
         ]),
         encoding='utf-8',
     )
@@ -31,7 +32,8 @@ def test_unsupported_video_extension_is_rejected(tmp_path: Path) -> None:
     (tmp_path / 'bad.txt').write_text('not a video', encoding='utf-8')
     path.write_text(
         json.dumps([
-            {'meme_id': REACTION_ID, 'phrase': 'surprise', 'video_path': 'bad.txt'},
+            {'meme_id': REACTION_ID,
+             'phrase': 'surprise', 'video_path': 'bad.txt'},
         ]),
         encoding='utf-8',
     )
