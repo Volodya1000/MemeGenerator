@@ -28,6 +28,26 @@ def prepare_pair(
     return context_path, reaction_path
 
 
+def create_playlist(
+    scenario: Scenario,
+    catalog: MemeRepository,
+    images: list[ImageAsset],
+    directory: Path,
+) -> Path:
+    """Prepare all paired segments and a safe relative concat playlist."""
+    segments = [
+        clip
+        for scene, image in zip(scenario.scenes, images, strict=True)
+        for clip in prepare_pair(scene, image, catalog, directory)
+    ]
+    playlist = directory / 'concat.txt'
+    playlist.write_text(
+        ''.join(f"file '{part.name}'\n" for part in segments),
+        encoding='utf-8',
+    )
+    return playlist
+
+
 class FFmpegRenderer:
     """Produce an MP4 atomically, preserving pre-existing output on error."""
 
@@ -47,15 +67,8 @@ class FFmpegRenderer:
             dir=output_path.parent,
         ) as temporary:
             directory = Path(temporary)
-            segments = [
-                clip
-                for scene, image in zip(scenario.scenes, images, strict=True)
-                for clip in prepare_pair(scene, image, catalog, directory)
-            ]
-            playlist = directory / 'concat.txt'
-            playlist.write_text(
-                ''.join(f"file '{part.name}'\n" for part in segments),
-                encoding='utf-8',
+            playlist = create_playlist(
+                scenario, catalog, images, directory
             )
             rendered = directory / 'complete.mp4'
             execute_ffmpeg(
