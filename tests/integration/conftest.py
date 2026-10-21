@@ -1,5 +1,6 @@
-"""Real SQL connection fixtures for repository integration tests."""
+"""Real SQLite or PostgreSQL connections, with isolated test schemas."""
 
+import os
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from sqlalchemy import Engine
 from meme_generator.infrastructure.database.engine import (
     create_catalog_engine,
 )
+from meme_generator.infrastructure.database.models import CatalogBase
 from meme_generator.infrastructure.database.repository import (
     SqlAlchemyMemeRepository,
 )
@@ -16,16 +18,19 @@ from meme_generator.infrastructure.database.repository import (
 
 @pytest.fixture
 def database_engine(tmp_path: Path) -> Iterator[Engine]:
-    """Use a fresh file database with realistic persistence per test."""
+    """Run real SQL tests on SQLite or a configured PostgreSQL service."""
     database_path = tmp_path / 'catalog.sqlite3'
-    engine = create_catalog_engine(f'sqlite+pysqlite:///{database_path}')
+    local_url = f'sqlite+pysqlite:///{database_path}'
+    database_url = os.getenv('MEMEGEN_TEST_POSTGRES_URL', local_url)
+    engine = create_catalog_engine(database_url)
     yield engine
+    CatalogBase.metadata.drop_all(engine)
     engine.dispose()
 
 
 @pytest.fixture
 def sql_repository(database_engine: Engine) -> SqlAlchemyMemeRepository:
-    """Create an isolated catalog schema before integration assertions."""
+    """Provision a clean catalog for behavioral integration tests."""
     repository = SqlAlchemyMemeRepository(database_engine)
     repository.create_schema()
     return repository

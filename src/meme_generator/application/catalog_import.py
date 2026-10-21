@@ -1,16 +1,10 @@
-"""Explicit application command for importing validated local clips."""
+"""Business-facing catalog import operation; no ORM dependencies."""
 
+from meme_generator.application.ports.catalog_writer import CatalogWriter
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.database.repository import (
-    SqlAlchemyMemeRepository,
-)
 
 
-def import_memes(
-    repository: SqlAlchemyMemeRepository,
-    memes: list[Meme],
-) -> int:
-    """Provision a database with an approved complete clip collection."""
-    repository.create_schema()
+def import_memes(repository: CatalogWriter, memes: list[Meme]) -> int:
+    """Write a complete approved catalog through a storage-independent port."""
     repository.replace_all(memes)
     return len(memes)
