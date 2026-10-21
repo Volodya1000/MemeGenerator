@@ -16,13 +16,17 @@ from meme_generator.infrastructure.ffmpeg.demo_context import (
 )
 
 
+DEFAULT_CATALOG = Path('assets/catalog.json')
+DEFAULT_OUTPUT = Path('output/demo.mp4')
+
+
 def demo(
     catalog: Annotated[
         Path, typer.Option(help='Validated local reaction catalog.')
-    ] = Path('assets/catalog.json'),
+    ] = DEFAULT_CATALOG,
     output: Annotated[
         Path, typer.Option(help='Destination MP4 for the demo.')
-    ] = Path('output/demo.mp4'),
+    ] = DEFAULT_OUTPUT,
     topic: Annotated[
         str, typer.Option(help='Demo reaction theme.')
     ] = 'Local demo',
