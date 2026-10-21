@@ -1,0 +1,23 @@
+# Remote acceptance without a local development environment
+
+On GitHub, open **Actions > Remote acceptance and downloadable synthetic demo**
+and choose **Run workflow**. The workflow needs no API keys or local tools.
+
+The first job runs `uv run meme-assets --download --force` against the seven
+pinned original source files and executes real-media importer and generator
+verification. No downloaded third-party MP4 or derivative is uploaded or
+committed; the GitHub runner discards them after the run.
+
+The second job uses FFmpeg to create **entirely synthetic** reaction audio/video
+and context pictures, then runs the same importer and generation pipeline.
+Its `meme-generator-synthetic-preview` artifact contains a playable MP4 and
+the scenario and attribution manifests. Download that artifact from the
+completed workflow page. GitHub retains it for three days.
+
+The synthetic video proves media assembly and publication, **not** the
+appearance or wording of the real Tinkov clips. Publishing downloaded real
+media requires checking the applicable rights and permission separately.
+
+Run the strict standard CI checks on the pull request before merging. The
+remote acceptance jobs are additional integration checks, not substitutes
+for the offline tests.

@@ -1,0 +1,60 @@
+name: Remote acceptance and downloadable synthetic demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/15-cloud-acceptance
+    paths:
+      - .github/workflows/cloud-acceptance.yml
+      - scripts/cloud_demo.py
+
+permissions:
+  contents: read
+
+jobs:
+  real-media:
+    name: Real seven-video integration check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Download and normalize original media
+        run: uv run meme-assets --download --force
+      - name: Validate seven source files and output catalog
+        run: uv run python scripts/verify_real_media.py
+      - name: Verify complete real-media generation
+        run: uv run python scripts/real_media_generation_smoke.py
+
+  synthetic-preview:
+    name: Generate safe preview artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Generate an independently publishable demo MP4
+        run: uv run python scripts/cloud_demo.py
+      - name: Upload the synthetic video and its manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: meme-generator-synthetic-preview
+          path: |
+            output/cloud-demo.mp4
+            output/cloud-demo.scenario.json
+            output/cloud-demo.attribution.json
+          if-no-files-found: error
+          retention-days: 3
