@@ -117,7 +117,7 @@ For PostgreSQL, install the optional driver with
 MEMEGEN_DATABASE__URL=postgresql+psycopg://user:password@localhost/memegen
 ```
 
-Import clips **explicitly** before attempting SQL-backed generation:
+Apply database schema migrations and then import approved clips **explicitly**:\n\n```bash\nuv run alembic upgrade head\n```\n\nOnce the schema is at its latest revision, import clips:
 
 ```bash
 uv run meme-generator catalog import --config config.yaml
@@ -132,7 +132,7 @@ remains the default for lightweight setups.
 SQLAlchemy selects its database dialect from the URL. The application
 uses only the `MemeRepositoryProtocol` port and can change storage without
 modifying planning or video assembly. For production systems, manage
-schema changes with Alembic rather than relying on `create_all`.
+schema changes with the included Alembic revisions. Production imports do\nnot create tables implicitly, and migration downgrades remain explicit.
 
 ## Verification
 

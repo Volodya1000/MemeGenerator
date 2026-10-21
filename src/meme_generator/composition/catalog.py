@@ -42,5 +42,4 @@ def import_catalog_file(
     """Validate local clips and atomically import them into SQL."""
     catalog = InMemoryMemeRepository.from_json(source)
     repository = create_database_catalog(settings)
-    repository.create_schema()
     return import_memes(repository, catalog.all())

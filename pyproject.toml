@@ -17,6 +17,7 @@ dependencies = [
   "tenacity>=9,<10",
   "typer>=0.20,<1",
   "sqlalchemy>=2.0,<3",
+  "alembic>=1.16,<2",
 ]
 
 [project.optional-dependencies]
