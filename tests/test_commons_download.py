@@ -36,9 +36,7 @@ def test_downloads_approved_image(tmp_path: Path) -> None:
         ),
     )
     with httpx.Client(transport=transport) as client:
-        path = download_image(
-            client, sample_image(WIKIMEDIA_URL), 2, tmp_path
-        )
+        path = download_image(client, sample_image(WIKIMEDIA_URL), 2, tmp_path)
     assert path.name == '2.png'
     assert path.read_bytes() == b'png'
 
@@ -68,7 +66,5 @@ def test_download_refuses_invalid_content_type(tmp_path: Path) -> None:
         httpx.Client(transport=transport) as client,
         pytest.raises(ValueError, match='response type'),
     ):
-        download_image(
-            client, sample_image(WIKIMEDIA_URL), 1, tmp_path
-        )
+        download_image(client, sample_image(WIKIMEDIA_URL), 1, tmp_path)
     assert not (tmp_path / '1.png').exists()
