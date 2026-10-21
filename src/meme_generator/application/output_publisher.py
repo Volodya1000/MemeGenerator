@@ -24,6 +24,19 @@ class PublicationTransaction:
         source.replace(target)
         self._published.append(target)
 
+    def publish_all(
+        self,
+        staged: OutputArtifacts,
+        target: OutputArtifacts,
+    ) -> None:
+        """Publish each artifact in the expected order."""
+        for source, destination in zip(
+            staged.publication_order(),
+            target.publication_order(),
+            strict=True,
+        ):
+            self.publish(source, destination)
+
     def rollback(self) -> None:
         """Restore the prior files after a failed publish operation."""
         for output in reversed(self._published):
@@ -35,10 +48,7 @@ class PublicationTransaction:
 def publish_bundle(staged_video: Path, final_video: Path) -> None:
     """Install all generation files, rolling back on I/O failures."""
     staged = OutputArtifacts.from_video(staged_video)
-    target = OutputArtifacts.from_video(final_video)
-    sources = staged.publication_order()
-    targets = target.publication_order()
-    for source in sources:
+    for source in staged.publication_order():
         if not source.is_file():
             raise FileNotFoundError(source)
     with TemporaryDirectory(
@@ -47,8 +57,10 @@ def publish_bundle(staged_video: Path, final_video: Path) -> None:
     ) as temporary:
         transaction = PublicationTransaction(Path(temporary))
         try:
-            for source, destination in zip(sources, targets, strict=True):
-                transaction.publish(source, destination)
+            transaction.publish_all(
+                staged,
+                OutputArtifacts.from_video(final_video),
+            )
         except OSError:
             transaction.rollback()
             raise
