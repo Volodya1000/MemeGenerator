@@ -26,6 +26,8 @@ WORKSPACE = Path('output/cloud-demo-fixtures')
 OUTPUT = Path('output/cloud-demo.mp4')
 POSTER = Path('output/cloud-demo-poster.png')
 LOGGER = logging.getLogger(__name__)
+
+
 def create_synthetic_clip(
     destination: Path,
     phrase: str,
