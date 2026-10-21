@@ -67,9 +67,7 @@ class FFmpegRenderer:
             dir=output_path.parent,
         ) as temporary:
             directory = Path(temporary)
-            playlist = create_playlist(
-                scenario, catalog, images, directory
-            )
+            playlist = create_playlist(scenario, catalog, images, directory)
             rendered = directory / 'complete.mp4'
             execute_ffmpeg(
                 [
