@@ -36,6 +36,7 @@ dev = [
 
 [project.scripts]
 meme-generator = "meme_generator.cli:main"
+meme-assets = "meme_generator.asset_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/meme_generator"]

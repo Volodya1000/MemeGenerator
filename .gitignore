@@ -24,3 +24,8 @@ assets/context/
 
 *.sqlite3
 *.sqlite3-journal
+
+# Downloaded and derived third-party media must never be committed.
+assets/raw/
+assets/memes/
+assets/catalog.json

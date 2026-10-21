@@ -7,7 +7,7 @@ llm:
 database:
   backend: json  # or sqlalchemy
 scenes: 5
-catalog: assets/memes.json
+catalog: assets/catalog.json
 output: output/result.mp4
 images: commons
 # Set images: local and image_dir: assets/context for offline images.
