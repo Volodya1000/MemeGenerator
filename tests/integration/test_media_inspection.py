@@ -39,24 +39,28 @@ def create_synthetic_video(path: Path, *, with_audio: bool) -> None:
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize('with_audio', (False, True))
-def test_media_inspection_preserves_audio_policy(
-    tmp_path: Path,
-    with_audio: bool,
-) -> None:
-    """Rendering allows silent video while catalog import requires audio."""
-    source = tmp_path / 'source.mp4'
-    create_synthetic_video(source, with_audio=with_audio)
+def test_renderer_accepts_silent_video(tmp_path: Path) -> None:
+    """The renderer can add silence to a video missing an audio stream."""
+    source = tmp_path / 'silent.mp4'
+    create_synthetic_video(source, with_audio=False)
 
     clip = probe_clip(source)
     assert clip.duration_seconds > 0
-    assert clip.has_audio is with_audio
+    assert not clip.has_audio
+    with pytest.raises(ValueError, match='audio'):
+        probe_media(source)
 
-    if with_audio:
-        assert probe_media(source).get_stream('audio').codec_type == 'audio'
-    else:
-        with pytest.raises(ValueError, match='audio'):
-            probe_media(source)
+
+@pytest.mark.integration
+def test_catalog_import_accepts_video_with_audio(tmp_path: Path) -> None:
+    """Imported reaction clips must provide an audio stream."""
+    source = tmp_path / 'reaction.mp4'
+    create_synthetic_video(source, with_audio=True)
+
+    clip = probe_clip(source)
+    assert clip.duration_seconds > 0
+    assert clip.has_audio
+    assert probe_media(source).get_stream('audio').codec_type == 'audio'
 
 
 @pytest.mark.integration
