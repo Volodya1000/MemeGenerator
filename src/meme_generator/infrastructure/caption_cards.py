@@ -76,15 +76,19 @@ def _draw_background(palette: int, label: str) -> Image.Image:
     return canvas
 
 
+def _line_position(index: int, count: int, font_size: int) -> int:
+    """Center complete lines vertically in the available text region."""
+    line_height = font_size + 24
+    return CARD_CENTER_Y - count * line_height // 2 + index * line_height
+
+
 def _draw_caption(canvas: Image.Image, text: str) -> None:
     """Fit words into the safe caption region of the rendered image."""
     drawing = ImageDraw.Draw(canvas)
     font, lines = _fit_caption(text, drawing)
-    line_height = font.size + 24
-    start_y = CARD_CENTER_Y - len(lines) * line_height // 2
     for index, line in enumerate(lines):
         drawing.text(
-            (155, start_y + index * line_height),
+            (155, _line_position(index, len(lines), font.size)),
             line,
             font=font,
             fill='#FFFFFF',
