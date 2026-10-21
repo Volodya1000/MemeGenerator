@@ -35,8 +35,9 @@ def load_settings(path: Path | None) -> GenerationSettings:
     if not path.is_file():
         raise FileNotFoundError(path)
     source = YamlConfigSettingsSource(GenerationSettings, yaml_file=path)
-    yaml_data: dict[str, object] = TypeAdapter(
+    yaml_data = source()
+    validated_yaml: dict[str, object] = TypeAdapter(
         dict[str, object]
-    ).validate_python(source())
-    _validate_secret_sources(yaml_data)
+    ).validate_python(yaml_data)
+    _validate_secret_sources(validated_yaml)
     return GenerationSettings(**yaml_data)
