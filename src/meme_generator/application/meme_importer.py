@@ -76,9 +76,12 @@ def import_catalog(
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=output.parent) as directory:
         temporary = Path(directory) / 'catalog.json'
-        records = [meme.model_dump(mode='json') for meme in catalog]
         temporary.write_text(
-            f'{json.dumps(records, ensure_ascii=False, indent=2)}\n',
+            json.dumps(
+                [meme.model_dump(mode='json') for meme in catalog],
+                ensure_ascii=False,
+                indent=2,
+            ),
             encoding='utf-8',
         )
         temporary.replace(output)
