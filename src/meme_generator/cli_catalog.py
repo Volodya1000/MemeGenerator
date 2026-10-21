@@ -6,7 +6,7 @@ from typing import Annotated
 import typer
 
 from meme_generator.application.catalog_import import import_memes
-from meme_generator.bootstrap import create_database_catalog
+from meme_generator.composition.catalog import create_database_catalog
 from meme_generator.config.loader import load_settings
 from meme_generator.infrastructure.catalog import MemeCatalog
 

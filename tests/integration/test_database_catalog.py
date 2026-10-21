@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 from sqlalchemy import Engine
-from sqlalchemy.exc import IntegrityError
 
 from meme_generator.domain.meme import Meme
 from meme_generator.infrastructure.database.repository import (
@@ -12,7 +11,7 @@ from meme_generator.infrastructure.database.repository import (
 )
 
 
-def test_database_persists_reactions_across_instances(
+def test_reactions_persist_across_instances(
     sql_repository: SqlAlchemyMemeRepository,
     database_engine: Engine,
     tmp_path: Path,
@@ -42,7 +41,7 @@ def test_missing_id_is_reported(
         sql_repository.get('not-present')
 
 
-def test_failed_validation_leaves_previous_catalog(
+def test_validation_preserves_existing_catalog(
     sql_repository: SqlAlchemyMemeRepository,
     tmp_path: Path,
 ) -> None:
@@ -74,7 +73,7 @@ def test_empty_import_does_not_clear_catalog(
     assert sql_repository.all() == [approved]
 
 
-def test_database_constraint_rollback_preserves_data(
+def test_repository_reopen_retains_commits(
     sql_repository: SqlAlchemyMemeRepository,
     database_engine: Engine,
     tmp_path: Path,

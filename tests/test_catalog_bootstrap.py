@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from meme_generator.bootstrap import create_catalog
+from meme_generator.composition.catalog import create_catalog
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.infrastructure.catalog import MemeCatalog
 from meme_generator.infrastructure.database.repository import (

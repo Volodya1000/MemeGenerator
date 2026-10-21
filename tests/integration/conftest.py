@@ -17,9 +17,8 @@ from meme_generator.infrastructure.database.repository import (
 @pytest.fixture
 def database_engine(tmp_path: Path) -> Iterator[Engine]:
     """Use a fresh file database with realistic persistence per test."""
-    engine = create_catalog_engine(
-        f'sqlite+pysqlite:///{tmp_path / "catalog.sqlite3"}'
-    )
+    database_path = tmp_path / 'catalog.sqlite3'
+    engine = create_catalog_engine(f'sqlite+pysqlite:///{database_path}')
     yield engine
     engine.dispose()
 
