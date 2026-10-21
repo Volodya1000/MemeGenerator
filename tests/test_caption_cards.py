@@ -10,8 +10,10 @@ from meme_generator.infrastructure.caption_cards import (
     render_caption,
 )
 
+COLOR_COUNT_LIMIT = 1_000_000
 
-def test_generated_caption_is_a_real_full_hd_ready_image(
+
+def test_caption_renders_readable_image(
     tmp_path: Path,
 ) -> None:
     """A contextual sentence produces a readable, nonuniform image."""
@@ -20,11 +22,11 @@ def test_generated_caption_is_a_real_full_hd_ready_image(
     )
     with Image.open(asset.image_path) as image:
         assert image.size == (1280, 720)
-        assert len(image.getcolors(maxcolors=1_000_000) or []) > 2
+        assert len(image.getcolors(maxcolors=COLOR_COUNT_LIMIT) or []) > 2
     assert asset.license_name == 'Original generated typography'
 
 
-def test_long_caption_wraps_instead_of_being_truncated(
+def test_caption_wraps_without_truncation(
     tmp_path: Path,
 ) -> None:
     """Multiple full words remain representable without cropping the card."""
