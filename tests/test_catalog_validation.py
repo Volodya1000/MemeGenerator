@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.catalog import MemeCatalog
+from meme_generator.infrastructure.in_memory_meme_repository import InMemoryMemeRepository
 
 REACTION_ID = 'reaction-1'
 CLIP_NAME = 'clip.mp4'
@@ -28,7 +28,7 @@ def test_missing_clip_is_rejected(tmp_path: Path) -> None:
         encoding='utf-8',
     )
     with pytest.raises(FileNotFoundError):
-        MemeCatalog.from_json(path)
+        InMemoryMemeRepository.from_json(path)
 
 
 def test_unsupported_video_extension_is_rejected(tmp_path: Path) -> None:
@@ -48,12 +48,12 @@ def test_unsupported_video_extension_is_rejected(tmp_path: Path) -> None:
         encoding='utf-8',
     )
     with pytest.raises(ValueError, match='unsupported extension'):
-        MemeCatalog.from_json(path)
+        InMemoryMemeRepository.from_json(path)
 
 
 def test_unknown_reaction_id_raises_key_error() -> None:
     """Repository lookup reports an unknown key consistently."""
-    catalog = MemeCatalog(
+    catalog = InMemoryMemeRepository(
         [
             Meme(meme_id='known', phrase='Known', video_path=Path('clip.mp4')),
         ]
