@@ -4,10 +4,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from meme_generator.application.manifest_writer import write_manifests
-from meme_generator.application.ports.image_provider import ImageProvider
-from meme_generator.application.ports.meme_repository import MemeRepository
-from meme_generator.application.ports.scenario_planner import ScenarioPlanner
-from meme_generator.application.ports.video_renderer import VideoRenderer
+from meme_generator.application.protocols.image_provider import ImageProviderProtocol
+from meme_generator.application.protocols.meme_repository import MemeRepositoryProtocol
+from meme_generator.application.protocols.scenario_planner import ScenarioPlannerProtocol
+from meme_generator.application.protocols.video_renderer import VideoRendererProtocol
 from meme_generator.domain.generated_video import GeneratedVideo
 
 
@@ -16,10 +16,10 @@ class GenerationPipeline:
 
     def __init__(
         self,
-        catalog: MemeRepository,
-        planner: ScenarioPlanner,
-        image_provider: ImageProvider,
-        renderer: VideoRenderer,
+        catalog: MemeRepositoryProtocol,
+        planner: ScenarioPlannerProtocol,
+        image_provider: ImageProviderProtocol,
+        renderer: VideoRendererProtocol,
     ) -> None:
         """Require only application-owned ports, not concrete adapters."""
         self._catalog = catalog

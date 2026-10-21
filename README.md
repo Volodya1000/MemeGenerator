@@ -124,7 +124,7 @@ so an uninitialized database must be provisioned deliberately. JSON
 remains the default for lightweight setups.
 
 SQLAlchemy selects its database dialect from the URL. The application
-uses only the `MemeRepository` port and can change storage without
+uses only the `MemeRepositoryProtocol` port and can change storage without
 modifying planning or video assembly. For production systems, manage
 schema changes with Alembic rather than relying on `create_all`.
 

@@ -34,7 +34,7 @@
 - Never check in user-supplied movie clips, API keys, downloaded third-party content, or generated video.
 
 ## SQL storage and persistence
-- Treat MemeRepository as the application query port; SQLAlchemy models, sessions, and DB URLs must not leak into domain or generation orchestration.
+- Treat MemeRepositoryProtocol as the application query port; SQLAlchemy models, sessions, and DB URLs must not leak into domain or generation orchestration.
 - Use SQLAlchemy 2.x sessions with explicit transaction boundaries; close sessions after operations.
 - SQL credentials and connection URLs belong in environment variables, never checked-in YAML or generated video manifests.
 - Use real SQLite-backed integration tests for repository state and transaction semantics, and PostgreSQL tests where a CI service is available; do not mock the ORM.
