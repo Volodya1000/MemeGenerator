@@ -2,6 +2,15 @@ name: Real meme media smoke test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - integration/13-generator-real-media
+    paths:
+      - .github/workflows/real-media-smoke.yml
+      - scripts/verify_real_media.py
+      - scripts/real_media_generation_smoke.py
+      - src/meme_generator/infrastructure/assets/**
+      - src/meme_generator/application/pipeline.py
 
 permissions:
   contents: read
@@ -25,3 +34,5 @@ jobs:
         run: sha256sum assets/raw/*.mp4
       - name: Verify output media and catalog (metadata only)
         run: uv run python scripts/verify_real_media.py
+      - name: Generate one real reaction MP4 with synthetic scene image
+        run: uv run python scripts/real_media_generation_smoke.py
