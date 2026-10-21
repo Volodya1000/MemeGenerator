@@ -93,9 +93,7 @@ def prepare_catalog() -> Path:
     raw = WORKSPACE / 'assets/raw'
     clips = preview_sources()
     for index, clip in enumerate(clips, start=1):
-        create_synthetic_clip(
-            raw / f'{clip.meme_id}.mp4', clip.phrase, index
-        )
+        create_synthetic_clip(raw / f'{clip.meme_id}.mp4', clip.phrase, index)
     manifest = WORKSPACE / 'assets/sources.json'
     manifest.parent.mkdir(parents=True, exist_ok=True)
     manifest.write_text(
@@ -127,9 +125,10 @@ def verify_demo() -> None:
     media = probe_clip(OUTPUT)
     if not media.has_audio or media.duration_seconds <= 8:
         raise ValueError('Generated preview lacks expected audio or scenes')
-    if not all(path.is_file() for path in (
-        OUTPUT.with_suffix('.attribution.json'), POSTER
-    )):
+    if not all(
+        path.is_file()
+        for path in (OUTPUT.with_suffix('.attribution.json'), POSTER)
+    ):
         raise FileNotFoundError('Attribution manifest is missing')
     scenario = Scenario.model_validate_json(
         OUTPUT.with_suffix('.scenario.json').read_text(encoding='utf-8')
