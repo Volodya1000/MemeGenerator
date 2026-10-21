@@ -22,7 +22,7 @@ def resolve_video(meme: Meme, directory: Path) -> Meme:
     return meme.model_copy(update={'video_path': resolved})
 
 
-class MemeCatalog:
+class InMemoryMemeRepository:
     """In-memory repository, optionally loaded from a JSON manifest."""
 
     def __init__(self, memes: list[Meme]) -> None:
@@ -38,7 +38,7 @@ class MemeCatalog:
         return len(self._memes)
 
     @classmethod
-    def from_json(cls, path: Path) -> 'MemeCatalog':
+    def from_json(cls, path: Path) -> 'InMemoryMemeRepository':
         """Load a file-backed repository with safe relative media paths."""
         directory = path.resolve().parent
         raw_data = json.loads(path.read_text(encoding='utf-8'))
