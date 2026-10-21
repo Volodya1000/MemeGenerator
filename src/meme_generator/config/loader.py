@@ -14,7 +14,7 @@ def load_settings(path: Path | None) -> GenerationSettings:
     if not path.is_file():
         raise FileNotFoundError(path)
     source = YamlConfigSettingsSource(GenerationSettings, yaml_file=path)
-    yaml_data: dict[str, object] = source()
+    yaml_data = source()
     database = yaml_data.get('database')
     if isinstance(database, dict) and 'url' in database:
         raise ValueError('Database connection URL must be set via environment')
