@@ -33,7 +33,8 @@ def test_sql_backend_uses_environment_url(
     """Database provider can be swapped without changing the use case."""
     db_path = tmp_path / 'memes.sqlite3'
     monkeypatch.setenv(
-        'MEMEGEN_DATABASE_URL', f'sqlite+pysqlite:///{db_path}',
+        'MEMEGEN_DATABASE_URL',
+        f'sqlite+pysqlite:///{db_path}',
     )
     repository = create_catalog(
         GenerationSettings(catalog_backend='sqlalchemy')

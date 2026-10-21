@@ -31,7 +31,7 @@ def test_failed_import_preserves_committed_rows(tmp_path: Path) -> None:
     with engine.begin() as connection:
         connection.execute(
             text(
-                "CREATE TRIGGER prevent_insert BEFORE INSERT ON meme_clips "
+                'CREATE TRIGGER prevent_insert BEFORE INSERT ON meme_clips '
                 "BEGIN SELECT RAISE(ABORT, 'import blocked'); END"
             ),
         )

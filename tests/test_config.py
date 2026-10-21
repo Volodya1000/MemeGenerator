@@ -46,6 +46,7 @@ def test_environment_overrides_yaml(
     path.write_text('model: openai/previous\n', encoding=TEXT_ENCODING)
     assert load_settings(path).model == 'openai/override'
 
+
 def test_yaml_file_paths_are_validated(tmp_path: Path) -> None:
     """YAML strings must be usable as Path values at the I/O boundary."""
     config_path = tmp_path / CONFIG_NAME
