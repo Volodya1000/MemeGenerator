@@ -1,11 +1,12 @@
-"""Generate grounded, validated scene plans from a fixed clip catalog."""
+"""Validated scene planning for online and deterministic offline modes."""
 
 import json
-from typing import Protocol
 
 import httpx
 
-from meme_generator.domain.models import Meme, Scenario, Scene
+from meme_generator.domain.meme import Meme
+from meme_generator.domain.scenario import Scenario
+from meme_generator.domain.scene import Scene
 
 LLM_TIMEOUT_SECONDS = 90
 
@@ -19,21 +20,8 @@ PLANNER_SYSTEM = (
 )
 
 
-class ScenarioPlanner(Protocol):
-    """Port allowing online and deterministic offline planning."""
-
-    def plan(
-        self,
-        theme: str,
-        memes: list[Meme],
-        scene_count: int,
-    ) -> Scenario:
-        """Produce a validated narrative using the available reactions."""
-        ...
-
-
 def validate_reactions(scenario: Scenario, memes: list[Meme]) -> None:
-    """Reject fabricated reactions and references to absent videos."""
+    """Reject fabricated reactions and references to absent clips."""
     known = {meme.meme_id for meme in memes}
     for scene in scenario.scenes:
         if scene.meme_id not in known:

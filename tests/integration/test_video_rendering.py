@@ -1,4 +1,4 @@
-"""Render short synthetic video to verify the FFmpeg montage contract."""
+"""Render synthetic media to verify the FFmpeg montage contract."""
 
 import shutil
 import subprocess
@@ -6,15 +6,15 @@ from pathlib import Path
 
 import pytest
 
+from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.models import Meme, Scenario, Scene
 from meme_generator.infrastructure.catalog import MemeCatalog
-from meme_generator.infrastructure.images import ImageAsset
 from meme_generator.infrastructure.media_probe import probe_clip
 from meme_generator.infrastructure.rendering import FFmpegRenderer
 
 
 def synthetic_media(directory: Path) -> tuple[Path, Path]:
-    """Create non-copyrighted still and recorded reaction test fixtures."""
+    """Create non-copyrighted still and reaction test fixtures."""
     image = directory / 'context.png'
     clip = directory / 'reaction.mp4'
     subprocess.run(
@@ -62,7 +62,7 @@ def synthetic_media(directory: Path) -> tuple[Path, Path]:
     reason='FFmpeg and FFprobe required',
 )
 def test_video_contains_context_and_reaction(tmp_path: Path) -> None:
-    """Both images and reaction clips produce a valid MP4 with audio."""
+    """A complete MP4 contains images, reactions, and audio."""
     image_path, clip_path = synthetic_media(tmp_path)
     scenario = Scenario(
         theme='An example',

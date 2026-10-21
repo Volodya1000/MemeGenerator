@@ -6,7 +6,8 @@ from urllib.parse import urlparse
 
 import httpx
 
-from meme_generator.infrastructure.images import IMAGE_SUFFIXES, ImageAsset
+from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.infrastructure.images import IMAGE_SUFFIXES
 
 COMMONS_API = 'https://commons.wikimedia.org/w/api.php'
 MIN_IMAGE_WIDTH = 640

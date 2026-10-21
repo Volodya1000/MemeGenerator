@@ -1,18 +1,20 @@
-"""Connect scenario planning, image acquisition, and video assembly."""
+"""Use-case orchestration; adapter details remain outside this module."""
 
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from meme_generator.application.planning import ScenarioPlanner
-from meme_generator.domain.models import GeneratedVideo, Scenario
-from meme_generator.infrastructure.catalog import MemeCatalog
-from meme_generator.infrastructure.images import ImageAsset, ImageProvider
-from meme_generator.infrastructure.rendering import FFmpegRenderer
+from meme_generator.application.ports.image_provider import ImageProvider
+from meme_generator.application.ports.meme_repository import MemeRepository
+from meme_generator.application.ports.scenario_planner import ScenarioPlanner
+from meme_generator.application.ports.video_renderer import VideoRenderer
+from meme_generator.domain.generated_video import GeneratedVideo
+from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.domain.scenario import Scenario
 
 
 def write_json(path: Path, payload: object) -> None:
-    """Serialize a reusable machine-readable manifest in UTF-8."""
+    """Persist a machine-readable file with proper Unicode handling."""
     path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2),
         encoding='utf-8',
@@ -24,7 +26,7 @@ def write_manifests(
     scenario: Scenario,
     images: list[ImageAsset],
 ) -> None:
-    """Persist the validated plan and the image license provenance."""
+    """Record the validated scenario and every image's provenance."""
     provenance = [
         {
             'scene_order': scene.order,
@@ -42,16 +44,16 @@ def write_manifests(
 
 
 class GenerationPipeline:
-    """Orchestrate adapters with no hidden mutable global state."""
+    """Orchestrate repository, planner, image provider, and renderer."""
 
     def __init__(
         self,
-        catalog: MemeCatalog,
+        catalog: MemeRepository,
         planner: ScenarioPlanner,
         image_provider: ImageProvider,
-        renderer: FFmpegRenderer,
+        renderer: VideoRenderer,
     ) -> None:
-        """Store the external dependencies of a generation request."""
+        """Inject contracts rather than concrete storage or media adapters."""
         self._catalog = catalog
         self._planner = planner
         self._images = image_provider
@@ -63,7 +65,7 @@ class GenerationPipeline:
         scene_count: int,
         output_path: Path,
     ) -> GeneratedVideo:
-        """Produce a video and source manifests for one requested topic."""
+        """Generate a video and its corresponding provenance manifests."""
         if not theme.strip():
             raise ValueError('Theme cannot be empty')
         if scene_count < 1:

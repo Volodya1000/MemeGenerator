@@ -1,12 +1,13 @@
-"""Normalize and concatenate image cards and recorded reaction clips."""
+"""Normalize and concatenate image cards and reaction clips."""
 
 import subprocess
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from meme_generator.domain.models import Scenario, Scene
-from meme_generator.infrastructure.catalog import MemeCatalog
-from meme_generator.infrastructure.images import ImageAsset
+from meme_generator.application.ports.meme_repository import MemeRepository
+from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.domain.scenario import Scenario
+from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.media_probe import probe_clip
 
 FPS = 30
@@ -111,10 +112,10 @@ def render_clip(source: Path, target: Path) -> None:
 def prepare_pair(
     scene: Scene,
     image: ImageAsset,
-    catalog: MemeCatalog,
+    catalog: MemeRepository,
     directory: Path,
 ) -> tuple[Path, Path]:
-    """Produce context then reaction segments for exactly one scene."""
+    """Encode one image and reaction pair in the proper order."""
     context_path = directory / f'{scene.order}-context.mp4'
     reaction_path = directory / f'{scene.order}-reaction.mp4'
     render_image(image.image_path, context_path)
@@ -128,7 +129,7 @@ class FFmpegRenderer:
     def render(
         self,
         scenario: Scenario,
-        catalog: MemeCatalog,
+        catalog: MemeRepository,
         images: list[ImageAsset],
         output_path: Path,
     ) -> Path:

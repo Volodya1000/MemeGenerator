@@ -1,0 +1,22 @@
+"""Port for assembling complete playable videos."""
+
+from pathlib import Path
+from typing import Protocol
+
+from meme_generator.application.ports.meme_repository import MemeRepository
+from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.domain.scenario import Scenario
+
+
+class VideoRenderer(Protocol):
+    """Write a playable video according to the supplied scene order."""
+
+    def render(
+        self,
+        scenario: Scenario,
+        catalog: MemeRepository,
+        images: list[ImageAsset],
+        output_path: Path,
+    ) -> Path:
+        """Render a complete MP4 at the requested location."""
+        ...
