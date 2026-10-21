@@ -3,6 +3,9 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from meme_generator.application.protocols.video_renderer import (
+    VideoRendererProtocol,
+)
 from meme_generator.application.protocols.meme_repository import (
     MemeRepositoryProtocol,
 )
@@ -50,7 +53,7 @@ def create_playlist(
     return playlist
 
 
-class FFmpegRenderer:
+class FFmpegRenderer(VideoRendererProtocol):
     """Produce an MP4 atomically, preserving pre-existing output on error."""
 
     def render(

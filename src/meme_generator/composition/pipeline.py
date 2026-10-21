@@ -13,7 +13,7 @@ from meme_generator.config.settings import GenerationSettings
 from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 from meme_generator.infrastructure.images import LocalImageProvider
-from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
+from meme_generator.infrastructure.llm.planner import LiteLLMPlanner
 
 
 def create_planner(settings: GenerationSettings) -> ScenarioPlannerProtocol:

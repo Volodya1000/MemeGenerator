@@ -3,12 +3,15 @@
 import shutil
 from pathlib import Path
 
+from meme_generator.application.protocols.image_provider import (
+    ImageProviderProtocol,
+)
 from meme_generator.domain.image_asset import ImageAsset
 
 IMAGE_SUFFIXES = ('.jpg', '.jpeg', '.png', '.webp')
 
 
-class LocalImageProvider:
+class LocalImageProvider(ImageProviderProtocol):
     """Copy preselected contextual images without remote requests."""
 
     def __init__(self, source_dir: Path) -> None:
