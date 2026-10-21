@@ -1,5 +1,7 @@
 """Run SQL migrations using Pydantic Settings and an explicit connection."""
 
+from contextlib import ExitStack
+
 from alembic import context
 from sqlalchemy import Connection
 
@@ -30,12 +32,11 @@ def run_online_migrations() -> None:
     database_url = settings.database.url
     if database_url is None:
         raise ValueError('Set MEMEGEN_DATABASE__URL before running migrations')
-    engine = create_catalog_engine(database_url.get_secret_value())
-    try:
+    with ExitStack() as resources:
+        engine = create_catalog_engine(database_url.get_secret_value())
+        resources.callback(engine.dispose)
         with engine.connect() as connection:
             run_migrations(connection)
-    finally:
-        engine.dispose()
 
 
 if context.is_offline_mode():
