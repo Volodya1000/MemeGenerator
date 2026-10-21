@@ -34,7 +34,7 @@ def test_caption_wraps_without_truncation(
     """Multiple full words remain representable without cropping the card."""
     caption = (
         'Когда тебе сказали поправить одну строчку '
-        'а в итоге пришлось переписать половину генератора'
+        'И в итоге пришлось переписать половину генератора'
     )
     output = tmp_path / 'long.png'
     render_caption(caption, output, label='ПРОВЕРКА', variation=2)
@@ -44,7 +44,7 @@ def test_caption_wraps_without_truncation(
 
 def test_blank_caption_is_rejected(tmp_path: Path) -> None:
     """An empty card must not silently become another blue rectangle."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='cannot be empty'):
         CaptionCardImageProvider().fetch('   ', 1, tmp_path)
 
 
