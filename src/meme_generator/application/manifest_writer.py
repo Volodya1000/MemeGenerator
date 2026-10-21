@@ -1,9 +1,10 @@
-"""Persist typed generation manifests using Pydantic serialization."""
+"""Serialize typed Pydantic generation manifests as JSON."""
 
 from pathlib import Path
 
 from pydantic import BaseModel
 
+from meme_generator.application.output_artifacts import OutputArtifacts
 from meme_generator.domain.attribution import (
     AttributionManifest,
     SceneAttribution,
@@ -13,7 +14,7 @@ from meme_generator.domain.scenario import Scenario
 
 
 def write_json(path: Path, payload: BaseModel) -> None:
-    """Write a validated Pydantic model as Unicode JSON."""
+    """Persist a validated Unicode-capable model to its staged path."""
     path.write_text(
         payload.model_dump_json(indent=2, ensure_ascii=False),
         encoding='utf-8',
@@ -25,7 +26,7 @@ def write_manifests(
     scenario: Scenario,
     images: list[ImageAsset],
 ) -> None:
-    """Publish the validated scenario and typed provenance records."""
+    """Serialize scenario and image provenance in the staging workspace."""
     provenance = AttributionManifest(
         root=[
             SceneAttribution(
@@ -37,5 +38,6 @@ def write_manifests(
             for scene, image in zip(scenario.scenes, images, strict=True)
         ],
     )
-    write_json(output_path.with_suffix('.scenario.json'), scenario)
-    write_json(output_path.with_suffix('.attribution.json'), provenance)
+    paths = OutputArtifacts.from_video(output_path)
+    write_json(paths.scenario, scenario)
+    write_json(paths.attribution, provenance)
