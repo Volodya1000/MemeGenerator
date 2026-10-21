@@ -26,6 +26,8 @@ jobs:
         run: uv sync --extra dev
       - name: Download and normalize seven real clips
         run: uv run meme-assets --download --force
+      - name: Record original media checksums (metadata only)
+        run: sha256sum assets/raw/*.mp4
       - name: Verify output media and catalog (metadata only)
         shell: bash
         run: |
