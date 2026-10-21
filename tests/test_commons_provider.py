@@ -52,7 +52,9 @@ def fake_http(request: httpx.Request) -> httpx.Response:
 def test_commons_returns_image_with_provenance(tmp_path: Path) -> None:
     """A Commons result keeps its source and license in the image asset."""
     with httpx.Client(transport=httpx.MockTransport(fake_http)) as client:
-        image = CommonsImageProvider(client).fetch('developer errors', 1, tmp_path)
+        image = CommonsImageProvider(client).fetch(
+            'developer errors', 1, tmp_path
+        )
     assert image.image_path.read_bytes() == b'png'
     assert image.license_name == 'CC BY-SA 4.0'
     assert image.source_url.startswith('https://commons.wikimedia.org/')
