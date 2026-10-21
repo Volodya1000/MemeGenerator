@@ -55,7 +55,7 @@ def verify_catalog() -> None:
         or len(catalog) != EXPECTED_CLIPS
         or found != expected.keys()
     ):
-        raise ValueError('The imported catalog must contain seven unique clips')
+        raise ValueError('Catalog must contain seven unique clips')
     for meme in catalog:
         verify_entry(meme, expected[meme.meme_id])
     logger.info('VERIFIED_REAL_CLIPS=%s', EXPECTED_CLIPS)
