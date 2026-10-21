@@ -4,14 +4,10 @@ import logging
 import subprocess
 from pathlib import Path
 
-from pydantic import TypeAdapter
+from cloud_story import PreviewPlanner, STORY
 
 from meme_generator.application.pipeline import GenerationPipeline
-from meme_generator.application.scenario_validation import validate_plan
-from meme_generator.domain.meme import Meme
 from meme_generator.domain.meme_sources import MemeSource, MemeSources
-from meme_generator.domain.scenario import Scenario
-from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.assets.catalog_importer import (
     import_catalog,
 )
@@ -28,55 +24,6 @@ from meme_generator.infrastructure.media_probe import probe_clip
 WORKSPACE = Path('output/cloud-demo-fixtures')
 OUTPUT = Path('output/cloud-demo.mp4')
 LOGGER = logging.getLogger(__name__)
-STORY: tuple[tuple[str, str, str], ...] = (
-    (
-        'сомнительно',
-        'Сомнительно, но окей',
-        'Когда CI зелёный, а видео всё ещё не посмотрели',
-    ),
-    (
-        'круто',
-        'Круто, да это ж круто!',
-        'Когда GitHub собрал настоящий MP4 вообще без твоего ноутбука',
-    ),
-    (
-        'сколько_можно',
-        'Ну сколько можно!',
-        'Когда в маленьком PR снова обнаружилось 300 замечаний',
-    ),
-)
-
-
-class PreviewPlanner:
-    """Pick three known reactions for a meaningful offline smoke scenario."""
-
-    def plan(
-        self,
-        theme: str,
-        memes: list[Meme],
-        scene_count: int,
-    ) -> Scenario:
-        """Use a reviewed script rather than pretend a model was involved."""
-        if scene_count != len(STORY):
-            raise ValueError('Preview must include every scripted reaction')
-        scenario = Scenario(
-            theme=theme,
-            scenes=[
-                Scene(
-                    order=index,
-                    description=context,
-                    image_query=context,
-                    meme_id=identifier,
-                )
-                for index, (identifier, _, context) in enumerate(
-                    STORY, start=1
-                )
-            ],
-        )
-        validate_plan(scenario, memes, scene_count)
-        return scenario
-
-
 def create_synthetic_clip(
     destination: Path,
     phrase: str,
@@ -125,10 +72,9 @@ def create_synthetic_clip(
     )
 
 
-def prepare_catalog() -> Path:
-    """Import the three synthetic clips through the production importer."""
-    raw = WORKSPACE / 'assets/raw'
-    clips = [
+def preview_sources() -> list[MemeSource]:
+    """Build the synthetic catalog from the scripted reaction references."""
+    return [
         MemeSource(
             meme_id=identifier,
             phrase=phrase,
@@ -136,6 +82,12 @@ def prepare_catalog() -> Path:
         )
         for identifier, phrase, _ in STORY
     ]
+
+
+def prepare_catalog() -> Path:
+    """Import the three synthetic clips through the production importer."""
+    raw = WORKSPACE / 'assets/raw'
+    clips = preview_sources()
     for index, clip in enumerate(clips, start=1):
         create_synthetic_clip(
             raw / f'{clip.meme_id}.mp4', clip.phrase, index
@@ -163,14 +115,12 @@ def generate_demo(catalog: Path) -> None:
 def verify_demo() -> None:
     """Validate the video and its three distinct, ordered real pipeline scenes."""
     media = probe_clip(OUTPUT)
-    scenario_path = OUTPUT.with_suffix('.scenario.json')
-    attribution_path = OUTPUT.with_suffix('.attribution.json')
     if not media.has_audio or media.duration_seconds <= 8:
         raise ValueError('Generated preview lacks expected audio or scenes')
-    if not attribution_path.is_file():
+    if not OUTPUT.with_suffix('.attribution.json').is_file():
         raise FileNotFoundError('Attribution manifest is missing')
     scenario = Scenario.model_validate_json(
-        scenario_path.read_text(encoding='utf-8')
+        OUTPUT.with_suffix('.scenario.json').read_text(encoding='utf-8')
     )
     expected_ids = [identifier for identifier, _, _ in STORY]
     if [scene.meme_id for scene in scenario.scenes] != expected_ids:
