@@ -7,10 +7,10 @@ import pytest
 from typer.testing import CliRunner
 
 from meme_generator.cli import app
-from meme_generator.infrastructure.database.engine import (
+from meme_generator.persistence.sqlalchemy.engine import (
     create_catalog_engine,
 )
-from meme_generator.infrastructure.database.repository import (
+from meme_generator.persistence.sqlalchemy.repository import (
     SqlAlchemyMemeRepository,
 )
 

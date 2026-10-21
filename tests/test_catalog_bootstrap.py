@@ -6,8 +6,8 @@ import pytest
 
 from meme_generator.composition.catalog import create_catalog
 from meme_generator.config.settings import GenerationSettings
-from meme_generator.infrastructure.catalog import MemeCatalog
-from meme_generator.infrastructure.database.repository import (
+from meme_generator.infrastructure.in_memory_meme_repository import InMemoryMemeRepository
+from meme_generator.persistence.sqlalchemy.repository import (
     SqlAlchemyMemeRepository,
 )
 
@@ -22,7 +22,7 @@ def test_json_backend_selects_local_catalog(tmp_path: Path) -> None:
         encoding='utf-8',
     )
     repository = create_catalog(GenerationSettings(catalog=manifest))
-    assert isinstance(repository, MemeCatalog)
+    assert isinstance(repository, InMemoryMemeRepository)
     assert repository.get('a').video_path == clip.resolve()
 
 

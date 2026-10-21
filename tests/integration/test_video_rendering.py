@@ -10,7 +10,7 @@ from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
-from meme_generator.infrastructure.catalog import MemeCatalog
+from meme_generator.infrastructure.in_memory_meme_repository import InMemoryMemeRepository
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 from meme_generator.infrastructure.media_probe import probe_clip
 
@@ -80,7 +80,7 @@ def test_video_contains_context_and_reaction(tmp_path: Path) -> None:
     output_path = tmp_path / 'result.mp4'
     FFmpegRenderer().render(
         scenario,
-        MemeCatalog(
+        InMemoryMemeRepository(
             [
                 Meme(meme_id='reaction', phrase='wow', video_path=clip_path),
             ]

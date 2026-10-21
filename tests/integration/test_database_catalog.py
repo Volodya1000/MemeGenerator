@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import Engine
 
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.database.repository import (
+from meme_generator.persistence.sqlalchemy.repository import (
     SqlAlchemyMemeRepository,
 )
 
