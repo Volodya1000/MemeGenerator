@@ -11,10 +11,10 @@ from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
+from meme_generator.infrastructure.media_probe import probe_clip
 from meme_generator.persistence.in_memory import (
     InMemoryMemeRepository,
 )
-from meme_generator.infrastructure.media_probe import probe_clip
 
 
 def synthetic_media(directory: Path) -> tuple[Path, Path]:

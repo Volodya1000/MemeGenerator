@@ -5,9 +5,9 @@ from typing import Annotated
 
 import typer
 
-from meme_generator.composition.pipeline import create_pipeline
 from meme_generator.cli.catalog import catalog_app
 from meme_generator.cli.demo import demo
+from meme_generator.composition.pipeline import create_pipeline
 from meme_generator.config.loader import load_settings
 from meme_generator.config.settings import GenerationSettings
 
