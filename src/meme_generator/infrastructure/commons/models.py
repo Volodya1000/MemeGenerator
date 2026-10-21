@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class LicenseField(BaseModel):
     """License name supplied by Commons metadata."""
 
-    value: str
+    license_text: str = Field(alias='value')
 
 
 class CommonsImage(BaseModel):

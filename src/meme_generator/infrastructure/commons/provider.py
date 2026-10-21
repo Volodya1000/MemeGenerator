@@ -6,7 +6,10 @@ import httpx
 
 from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.infrastructure.commons.download import download_image
-from meme_generator.infrastructure.commons.models import CommonsResponse
+from meme_generator.infrastructure.commons.models import (
+    CommonsImage,
+    CommonsResponse,
+)
 from meme_generator.infrastructure.commons.search import (
     COMMONS_API,
     choose_page,
@@ -30,6 +33,24 @@ class CommonsImageProvider:
         output_dir: Path,
     ) -> ImageAsset:
         """Select and return one locally downloaded, attributed image."""
+        metadata = self._search_metadata(query)
+        image_path = download_image(
+            self._client, metadata, scene_order, output_dir
+        )
+        license_entry = metadata.extmetadata.get('LicenseShortName')
+        license_name = (
+            license_entry.license_text
+            if license_entry
+            else 'Wikimedia Commons'
+        )
+        return ImageAsset(
+            image_path=image_path,
+            source_url=metadata.descriptionurl or metadata.url,
+            license_name=license_name,
+        )
+
+    def _search_metadata(self, query: str) -> CommonsImage:
+        """Validate the API response and choose a usable Commons image."""
         response = self._client.get(
             COMMONS_API,
             params=search_parameters(query),
@@ -37,16 +58,4 @@ class CommonsImageProvider:
         response.raise_for_status()
         catalog = CommonsResponse.model_validate(response.json())
         selected = choose_page(list(catalog.query.pages.values()), query)
-        metadata = selected.imageinfo[0]
-        image_path = download_image(
-            self._client, metadata, scene_order, output_dir
-        )
-        license_entry = metadata.extmetadata.get('LicenseShortName')
-        license_name = (
-            license_entry.value if license_entry else 'Wikimedia Commons'
-        )
-        return ImageAsset(
-            image_path=image_path,
-            source_url=metadata.descriptionurl or metadata.url,
-            license_name=license_name,
-        )
+        return selected.imageinfo[0]

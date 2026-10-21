@@ -7,7 +7,7 @@ MIN_IMAGE_WIDTH = 640
 MIN_IMAGE_HEIGHT = 360
 SEARCH_LIMIT = 15
 SEARCH_IMAGE_WIDTH = 1280
-SUPPORTED_MIME = frozenset({'image/jpeg', 'image/png', 'image/webp'})
+SUPPORTED_MIME = frozenset(('image/jpeg', 'image/png', 'image/webp'))
 
 
 def search_parameters(query: str) -> dict[str, str | int]:

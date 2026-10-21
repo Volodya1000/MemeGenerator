@@ -9,6 +9,10 @@ from meme_generator.infrastructure.commons.models import (
 from meme_generator.infrastructure.commons.search import choose_page
 
 
+IMAGE_WIDTH = 900
+IMAGE_HEIGHT = 700
+
+
 def sample_page(title: str, mime: str) -> CommonsPage:
     """Create a Commons result with sufficiently large dimensions."""
     return CommonsPage(
@@ -17,8 +21,8 @@ def sample_page(title: str, mime: str) -> CommonsPage:
             CommonsImage(
                 url='https://upload.wikimedia.org/wikipedia/example.png',
                 mime=mime,
-                width=900,
-                height=700,
+                width=IMAGE_WIDTH,
+                height=IMAGE_HEIGHT,
             )
         ],
     )

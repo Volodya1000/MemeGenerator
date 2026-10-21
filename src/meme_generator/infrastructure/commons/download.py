@@ -8,19 +8,15 @@ import httpx
 from meme_generator.infrastructure.commons.models import CommonsImage
 
 MAX_IMAGE_BYTES = 12_000_000
-VALID_SUFFIXES = frozenset({'.jpg', '.jpeg', '.png', '.webp'})
+VALID_SUFFIXES = frozenset(('.jpg', '.jpeg', '.png', '.webp'))
 
 
 def validate_image_url(url: str) -> None:
     """Reject redirects and unsafe hosts before requesting media."""
     parsed = urlparse(url)
-    if (
-        parsed.scheme != 'https'
-        or parsed.hostname != 'upload.wikimedia.org'
-        or parsed.username is not None
-        or parsed.password is not None
-        or parsed.port not in (None, 443)
-    ):
+    if parsed.scheme != 'https' or parsed.hostname != 'upload.wikimedia.org':
+        raise ValueError('Only direct HTTPS Wikimedia images are permitted')
+    if parsed.username or parsed.password or parsed.port not in (None, 443):
         raise ValueError('Only direct HTTPS Wikimedia images are permitted')
 
 

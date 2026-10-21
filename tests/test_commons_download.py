@@ -10,6 +10,10 @@ from meme_generator.infrastructure.commons.download import (
 )
 from meme_generator.infrastructure.commons.models import CommonsImage
 
+IMAGE_WIDTH = 900
+IMAGE_HEIGHT = 700
+
+
 WIKIMEDIA_URL = 'https://upload.wikimedia.org/wikipedia/example.png'
 HTTP_OK = 200
 
@@ -19,8 +23,8 @@ def sample_image(url: str) -> CommonsImage:
     return CommonsImage(
         url=url,
         mime='image/png',
-        width=900,
-        height=700,
+        width=IMAGE_WIDTH,
+        height=IMAGE_HEIGHT,
     )
 
 
