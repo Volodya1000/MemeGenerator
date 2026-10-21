@@ -52,7 +52,7 @@ def test_unknown_key_has_same_error(catalog_repository: MemeRepository) -> None:
         catalog_repository.get('missing')
 
 
-def test_snapshot_mutation_does_not_change_repository(
+def test_snapshot_is_independent(
     catalog_repository: MemeRepository,
 ) -> None:
     """A caller mutating its returned list cannot alter stored clips."""

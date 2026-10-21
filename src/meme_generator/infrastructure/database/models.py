@@ -16,6 +16,8 @@ class MemeRow(CatalogBase):
 
     __tablename__ = 'meme_clips'
 
-    meme_id: Mapped[str] = mapped_column(String(MAX_MEME_ID_LENGTH), primary_key=True)
+    meme_id: Mapped[str] = mapped_column(
+        String(MAX_MEME_ID_LENGTH), primary_key=True
+    )
     phrase: Mapped[str] = mapped_column(Text, nullable=False)
     video_path: Mapped[str] = mapped_column(Text, nullable=False)

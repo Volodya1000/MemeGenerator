@@ -17,9 +17,8 @@ from meme_generator.infrastructure.database.repository import (
 
 def test_failed_import_preserves_committed_rows(tmp_path: Path) -> None:
     """A constraint violation after DELETE rolls back the whole import."""
-    db_path = tmp_path / 'catalog.sqlite3'
     engine: Engine = create_catalog_engine(
-        f'sqlite+pysqlite:///{db_path}'
+        f'sqlite+pysqlite:///{tmp_path}/catalog.sqlite3'
     )
     repository = SqlAlchemyMemeRepository(engine)
     repository.create_schema()
