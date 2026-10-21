@@ -58,6 +58,20 @@ non-secret YAML defaults. Pydantic Settings reads `.env` automatically. Never pu
 
 ## Run
 
+For a quick **offline** acceptance test after importing reaction clips:
+
+```bash
+uv run meme-assets --download
+uv run meme-generator demo
+```
+
+The second command uses one local reaction and an FFmpeg-generated still
+image. It does not need an LLM, API key, external image search, or extra YAML.
+It writes `output/demo.mp4` and two attribution/scenario JSON manifests.
+Pass `--catalog` and `--output` to customize local paths. Downloaded media
+remain local and must not be redistributed without authorization.
+
+
 ```bash
 uv run meme-generator generate --topic "Жизнь программиста" --config config.yaml
 ```
