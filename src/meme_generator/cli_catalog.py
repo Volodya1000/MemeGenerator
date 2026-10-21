@@ -1,4 +1,4 @@
-"""Thin Typer command for importing an approved JSON catalog into SQL."""
+"""Explicit CLI command for relational reaction catalog imports."""
 
 from pathlib import Path
 from typing import Annotated
@@ -20,7 +20,7 @@ def import_catalog(
         Path | None, typer.Option(help='Validated local JSON catalog.')
     ] = None,
 ) -> None:
-    """Import and report a transactionally replaced catalog."""
+    """Import validated reactions and report the committed count."""
     settings = load_settings(config)
-    imported = import_catalog_file(source or settings.catalog)
+    imported: int = import_catalog_file(source or settings.catalog, settings)
     typer.echo(f'Imported {imported} reactions')

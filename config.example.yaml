@@ -1,12 +1,13 @@
-# Copy to config.yaml and adjust non-secret settings.
+# Non-secret configuration; credentials belong in .env or environment.
 planner: llm
-model: openai/qwen2.5-coder-14b-instruct
-api_base: http://localhost:11434/v1
+llm:
+  model: openai/qwen2.5-coder-14b-instruct
+  api_base: http://localhost:11434/v1
+  retry_attempts: 3
+database:
+  backend: json  # or sqlalchemy
 scenes: 5
 catalog: assets/memes.json
 output: output/result.mp4
 images: commons
 # Set images: local and image_dir: assets/context for offline images.
-
-# Choose 'json' (default) or 'sqlalchemy' for catalog storage.
-catalog_backend: json
