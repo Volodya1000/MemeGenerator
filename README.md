@@ -1,26 +1,31 @@
 # MemeGenerator
 
-Generate a topical video where every contextual image is followed by a reaction
-from a **curated library of real video clips**. No voice cloning or deepfakes.
+Create a themed video where each contextual image is followed by a reaction
+from a **curated library of existing video clips**. No voice cloning or
+synthetic representation of Oleg Tinkov.
 
-## Roadmap
+Python **3.13**, FFmpeg and FFprobe are required.
 
-1. Project structure, validated domain contracts, strict CI.
-2. Curated and validated meme catalog.
-3. LLM planner using OpenAI-compatible APIs and strict JSON output.
-4. Relevant image discovery from licensed sources and local images.
-5. FFmpeg normalization and montage.
-6. Integrated CLI, reproducible demos, integration tests.
+## Catalog
 
-Python **3.13**, FFmpeg and ffprobe are required. Keep copyrighted source clips
-outside Git. The project never downloads celebrity clips automatically.
+Copy `assets/memes.example.json` to `assets/memes.json`, place video clips
+under `assets/memes/`, and replace the placeholder entry with your own
+`meme_id`, exact spoken `phrase`, and relative `video_path`.
 
-## Quality
+The catalog refuses duplicate identifiers, missing files, path traversal
+and unsupported media extensions. FFprobe checks media streams and duration.
+Provide only clips you have the right to use. No celebrity clips are bundled.
 
-Wemake Python Styleguide 1.8.1 with **every WPS rule enabled** and **no
-per-file or inline WPS ignores**, plus Ruff, strict mypy, and pytest.
-The small Ruff compatibility exclusions in pyproject.toml prevent mutually
-exclusive docstring/formatter rules; they do not disable WPS checks.
+## Six PR roadmap
+
+1. Typed foundation + strict CI.
+2. Validated meme catalog + probing.
+3. LLM planner using only known meme IDs.
+4. Image discovery and local image support.
+5. FFmpeg montage.
+6. Integrated CLI, docs and full testing.
+
+## Development
 
 ```bash
 uv sync --extra dev
@@ -30,3 +35,5 @@ uv run flake8 . --select WPS
 uv run mypy src
 uv run pytest
 ```
+
+Wemake 1.8.1: every WPS rule enabled, no WPS suppression.
