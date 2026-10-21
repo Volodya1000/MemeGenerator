@@ -24,6 +24,7 @@ from meme_generator.infrastructure.media_probe import probe_clip
 
 WORKSPACE = Path('output/cloud-demo-fixtures')
 OUTPUT = Path('output/cloud-demo.mp4')
+POSTER = Path('output/cloud-demo-poster.png')
 LOGGER = logging.getLogger(__name__)
 def create_synthetic_clip(
     destination: Path,
@@ -111,6 +112,12 @@ def generate_demo(catalog: Path) -> None:
         image_provider=CaptionCardImageProvider(),
         renderer=FFmpegRenderer(),
     ).generate('Жизнь разработчика', len(STORY), OUTPUT)
+    render_caption(
+        STORY[0][2],
+        POSTER,
+        label='ПРЕВЬЮ: ТРИ СЦЕНЫ',
+        variation=1,
+    )
 
 
 def verify_demo() -> None:
@@ -118,7 +125,9 @@ def verify_demo() -> None:
     media = probe_clip(OUTPUT)
     if not media.has_audio or media.duration_seconds <= 8:
         raise ValueError('Generated preview lacks expected audio or scenes')
-    if not OUTPUT.with_suffix('.attribution.json').is_file():
+    if not all(path.is_file() for path in (
+        OUTPUT.with_suffix('.attribution.json'), POSTER
+    )):
         raise FileNotFoundError('Attribution manifest is missing')
     scenario = Scenario.model_validate_json(
         OUTPUT.with_suffix('.scenario.json').read_text(encoding='utf-8')

@@ -5,6 +5,8 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
+from meme_generator.bootstrap import create_images
+from meme_generator.config.settings import GenerationSettings
 from meme_generator.infrastructure.caption_cards import (
     CaptionCardImageProvider,
     render_caption,
@@ -44,3 +46,10 @@ def test_blank_caption_is_rejected(tmp_path: Path) -> None:
     """An empty card must not silently become another blue rectangle."""
     with pytest.raises(ValueError):
         CaptionCardImageProvider().fetch('   ', 1, tmp_path)
+
+
+def test_cards_provider_selected_from_settings(tmp_path: Path) -> None:
+    """Offline cards are available through normal generation settings."""
+    provider = create_images(GenerationSettings(images='cards'))
+    image = provider.fetch('Готовый сценарий', 1, tmp_path)
+    assert image.image_path.is_file()

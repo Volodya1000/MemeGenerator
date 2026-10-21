@@ -8,6 +8,9 @@ on:
     paths:
       - .github/workflows/cloud-acceptance.yml
       - scripts/cloud_demo.py
+      - scripts/cloud_story.py
+      - scripts/real_media_generation_smoke.py
+      - src/meme_generator/infrastructure/caption_cards.py
 
 permissions:
   contents: read
@@ -54,6 +57,7 @@ jobs:
           name: meme-generator-synthetic-preview
           path: |
             output/cloud-demo.mp4
+            output/cloud-demo-poster.png
             output/cloud-demo.scenario.json
             output/cloud-demo.attribution.json
           if-no-files-found: error
