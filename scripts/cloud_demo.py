@@ -31,7 +31,7 @@ def create_synthetic_clip(
     phrase: str,
     variation: int,
 ) -> None:
-    """Generate a clearly labelled imitation with silence, not a fake voice."""
+    """Create an original labelled reaction with a brief effect, not speech."""
     image = destination.with_suffix('.png')
     render_caption(
         phrase,
@@ -56,9 +56,11 @@ def create_synthetic_clip(
             '-f',
             'lavfi',
             '-i',
-            'anullsrc=channel_layout=stereo:sample_rate=48000',
+            'anoisesrc=color=pink:sample_rate=48000:duration=1.8:amplitude=0.1',
             '-t',
             '1.8',
+            '-filter:a',
+            'afade=t=out:st=0.03:d=0.22',
             '-c:v',
             'libx264',
             '-pix_fmt',
