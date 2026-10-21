@@ -15,7 +15,6 @@ from meme_generator.infrastructure.ffmpeg.demo_context import (
     create_demo_context,
 )
 
-
 DEFAULT_CATALOG = Path('assets/catalog.json')
 DEFAULT_OUTPUT = Path('output/demo.mp4')
 
