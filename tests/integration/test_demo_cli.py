@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from meme_generator.cli import app
+from meme_generator.cli.main import app
 from meme_generator.infrastructure.media_probe import probe_clip
 
 REACTION_ID = 'demo_reaction'

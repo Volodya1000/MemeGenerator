@@ -7,7 +7,7 @@ from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
 from meme_generator.domain.meme import Meme
 from meme_generator.infrastructure.images import LocalImageProvider
-from meme_generator.infrastructure.in_memory_meme_repository import (
+from meme_generator.persistence.in_memory import (
     InMemoryMemeRepository,
 )
 from tests.fakes.video_renderer import FakeRenderer

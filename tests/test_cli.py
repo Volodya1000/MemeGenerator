@@ -4,7 +4,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from meme_generator.cli import app
+from meme_generator.cli.main import app
 
 
 def test_cli_help_has_generate_command() -> None:

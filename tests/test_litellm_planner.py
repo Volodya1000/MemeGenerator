@@ -7,7 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
+from meme_generator.infrastructure.llm.planner import LiteLLMPlanner
 
 REACTION_ID = 'known'
 TEST_TOPIC = 'Developer life'

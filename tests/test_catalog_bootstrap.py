@@ -9,7 +9,7 @@ from meme_generator.config.settings import (
     DatabaseSettings,
     GenerationSettings,
 )
-from meme_generator.infrastructure.in_memory_meme_repository import (
+from meme_generator.persistence.in_memory import (
     InMemoryMemeRepository,
 )
 from meme_generator.persistence.sqlalchemy.repository import (

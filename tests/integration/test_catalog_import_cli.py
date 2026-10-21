@@ -8,7 +8,7 @@ from alembic import command
 from alembic.config import Config
 from typer.testing import CliRunner
 
-from meme_generator.cli import app
+from meme_generator.cli.main import app
 from meme_generator.persistence.sqlalchemy.engine import (
     create_catalog_engine,
 )
