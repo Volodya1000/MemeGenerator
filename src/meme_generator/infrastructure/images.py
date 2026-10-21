@@ -1,40 +1,18 @@
-"""Local contextual image provider and common image source contracts."""
+"""Local image provider for numbered, user-supplied scene images."""
 
 import shutil
 from pathlib import Path
-from typing import Protocol
 
-from pydantic import BaseModel
+from meme_generator.domain.image_asset import ImageAsset
 
 IMAGE_SUFFIXES = ('.jpg', '.jpeg', '.png', '.webp')
 
 
-class ImageAsset(BaseModel):
-    """Local image plus source and licensing metadata."""
-
-    image_path: Path
-    source_url: str
-    license_name: str
-
-
-class ImageProvider(Protocol):
-    """Interchangeable source for contextual scene pictures."""
-
-    def fetch(
-        self,
-        query: str,
-        scene_order: int,
-        output_dir: Path,
-    ) -> ImageAsset:
-        """Supply one scene image with its provenance."""
-        ...
-
-
 class LocalImageProvider:
-    """Use numbered local scene images, never random online content."""
+    """Copy preselected contextual images without remote requests."""
 
     def __init__(self, source_dir: Path) -> None:
-        """Store the root folder of preselected pictures."""
+        """Store the folder of images named after their scene positions."""
         self._source_dir = source_dir
 
     def fetch(
@@ -43,7 +21,7 @@ class LocalImageProvider:
         scene_order: int,
         output_dir: Path,
     ) -> ImageAsset:
-        """Copy exactly the supplied image with the matching scene number."""
+        """Copy the selected image while recording its local origin."""
         candidates = (
             self._source_dir / f'{scene_order}{suffix}'
             for suffix in IMAGE_SUFFIXES
@@ -56,6 +34,6 @@ class LocalImageProvider:
         shutil.copyfile(source, destination)
         return ImageAsset(
             image_path=destination,
-            source_url=source.as_uri(),
+            source_url=source.resolve().as_uri(),
             license_name='User-provided',
         )

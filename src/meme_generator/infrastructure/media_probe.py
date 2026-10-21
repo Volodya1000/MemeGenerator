@@ -1,17 +1,10 @@
-"""Use ffprobe to verify real media streams before expensive renders."""
+"""Use ffprobe to verify media streams before rendering."""
 
 import json
 import subprocess
 from pathlib import Path
 
-from pydantic import BaseModel, Field
-
-
-class ClipInfo(BaseModel):
-    """Duration and streams provided by FFprobe."""
-
-    duration_seconds: float = Field(gt=0)
-    has_audio: bool
+from meme_generator.domain.clip_info import ClipInfo
 
 
 def probe_clip(path: Path) -> ClipInfo:

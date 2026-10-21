@@ -1,0 +1,9 @@
+# Copy to config.yaml and adjust non-secret settings.
+planner: llm
+model: openai/qwen2.5-coder-14b-instruct
+api_base: http://localhost:11434/v1
+scenes: 5
+catalog: assets/memes.json
+output: output/result.mp4
+images: commons
+# Set images: local and image_dir: assets/context for offline images.
