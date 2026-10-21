@@ -1,0 +1,38 @@
+name: Real meme media smoke test
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - integration/13-generator-real-media
+    paths:
+      - .github/workflows/real-media-smoke.yml
+      - scripts/verify_real_media.py
+      - scripts/real_media_generation_smoke.py
+      - src/meme_generator/infrastructure/assets/**
+      - src/meme_generator/application/pipeline.py
+
+permissions:
+  contents: read
+
+jobs:
+  real-media-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install project
+        run: uv sync --extra dev
+      - name: Download and normalize seven real clips
+        run: uv run meme-assets --download --force
+      - name: Record original media checksums (metadata only)
+        run: sha256sum assets/raw/*.mp4
+      - name: Verify output media and catalog (metadata only)
+        run: uv run python scripts/verify_real_media.py
+      - name: Generate one real reaction MP4 with synthetic scene image
+        run: uv run python scripts/real_media_generation_smoke.py

@@ -12,6 +12,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.13'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Install dependencies
         run: uv sync --extra dev
       - name: Wemake all checks (no WPS exceptions)
@@ -20,22 +22,37 @@ jobs:
         run: uv run ruff check .
       - name: Formatting
         run: uv run ruff format --check .
+      - name: Architecture import contracts
+        run: uv run lint-imports
       - name: Mypy
-        run: uv run mypy src
-      - name: Tests
-        run: uv run pytest -q
+        run: uv run mypy src tests
+      - name: Tests and branch coverage
+        run: uv run pytest -q --cov=meme_generator --cov-branch --cov-report=term-missing --cov-fail-under=85
 
-  video-integration:
+  postgres-integration:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: memegen
+          POSTGRES_PASSWORD: memegen
+          POSTGRES_DB: memegen
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U memegen"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      MEMEGEN_TEST_POSTGRES_URL: postgresql+psycopg://memegen:memegen@localhost:5432/memegen
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.13'
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Install dependencies
         run: uv sync --extra dev
-      - name: Integration tests
-        if: hashFiles('tests/integration/test_*.py') != ''
-        run: uv run pytest -q tests/integration
+      - name: PostgreSQL repository integration tests
+        run: uv run pytest -q tests/integration/test_database_catalog.py tests/integration/test_catalog_contract.py tests/integration/test_sql_pipeline.py tests/integration/test_migrations.py

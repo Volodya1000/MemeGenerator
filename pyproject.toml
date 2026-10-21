@@ -11,20 +11,32 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
   "httpx>=0.28,<1",
   "pydantic>=2.10,<3",
+  "litellm>=1.80,<2",
+  "pyyaml>=6,<7",
+  "pydantic-settings[yaml]>=2.10,<3",
+  "tenacity>=9,<10",
+  "typer>=0.20,<1",
+  "sqlalchemy>=2.0,<3",
+  "alembic>=1.16,<2",
 ]
 
 [project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.2,<4"]
 dev = [
+  "psycopg[binary]>=3.2,<4",
   "flake8>=7.3,<8",
+  "import-linter>=2.5,<3",
   "mypy>=1.18,<2",
   "pytest>=8.4,<10",
   "pytest-cov>=6,<8",
   "ruff>=0.14,<1",
   "wemake-python-styleguide==1.8.1",
+  "types-PyYAML>=6.0.12",
 ]
 
 [project.scripts]
 meme-generator = "meme_generator.cli:main"
+meme-assets = "meme_generator.asset_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/meme_generator"]
@@ -35,7 +47,7 @@ line-length = 79
 preview = false
 
 [tool.ruff.lint]
-select = ["A", "B", "C4", "C90", "COM", "D", "DTZ", "E", "ERA", "EXE", "F", "FA", "FBT", "FLY", "FURB", "G", "I", "ICN", "ISC", "LOG", "N", "PERF", "PIE", "PL", "PT", "PTH", "Q", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "TRY", "UP", "W", "YTT"]
+select = ["A", "ANN", "B", "C4", "C90", "COM", "D", "DTZ", "E", "ERA", "EXE", "F", "FA", "FBT", "FLY", "FURB", "G", "I", "ICN", "ISC", "LOG", "N", "PERF", "PIE", "PL", "PT", "PTH", "Q", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "TRY", "UP", "W", "YTT"]
 ignore = ["D203", "D213", "ISC001", "COM812", "TRY003", "PLR6301", "PLR2004", "S404", "S603", "S607"]
 
 [tool.ruff.lint.pydocstyle]
@@ -54,6 +66,7 @@ warn_unused_configs = true
 testpaths = ["tests"]
 addopts = ["--strict-config", "--strict-markers", "-ra"]
 xfail_strict = true
+markers = ["integration: end-to-end FFmpeg integration tests"]
 
 [tool.coverage.run]
 branch = true
@@ -65,3 +78,38 @@ multiline-quotes = "double"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
+
+[tool.importlinter]
+root_package = "meme_generator"
+
+[[tool.importlinter.contracts]]
+name = "Domain is independent of adapters"
+type = "forbidden"
+source_modules = ["meme_generator.domain"]
+forbidden_modules = [
+  "meme_generator.application",
+  "meme_generator.infrastructure",
+  "meme_generator.persistence",
+  "meme_generator.composition",
+  "meme_generator.config",
+]
+
+[[tool.importlinter.contracts]]
+name = "Application never imports infrastructure"
+type = "forbidden"
+source_modules = ["meme_generator.application"]
+forbidden_modules = [
+  "meme_generator.infrastructure",
+  "meme_generator.persistence",
+  "meme_generator.composition",
+  "meme_generator.config",
+]
+
+[[tool.importlinter.contracts]]
+name = "Persistence does not depend on infrastructure or composition"
+type = "forbidden"
+source_modules = ["meme_generator.persistence"]
+forbidden_modules = [
+  "meme_generator.infrastructure",
+  "meme_generator.composition",
+]
