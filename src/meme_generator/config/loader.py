@@ -29,6 +29,11 @@ def load_settings(path: Path | None) -> GenerationSettings:
     return GenerationSettings.model_validate(config)
 
 
+def database_url() -> str | None:
+    """Read connection credentials without exposing them to YAML."""
+    return os.getenv('MEMEGEN_DATABASE_URL')
+
+
 def llm_api_key() -> str | None:
     """Never load or serialize API credentials from YAML."""
     return os.getenv('MEMEGEN_API_KEY') or os.getenv('OPENAI_API_KEY')

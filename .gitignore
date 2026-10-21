@@ -21,3 +21,6 @@ assets/memes/*.webm
 config.yaml
 assets/memes.json
 assets/context/
+
+*.sqlite3
+*.sqlite3-journal

@@ -16,6 +16,7 @@ class GenerationSettings(BaseModel):
     api_base: str | None = None
     scenes: int = Field(default=5, ge=1)
     catalog: Path = Path('assets/memes.json')
+    catalog_backend: Literal['json', 'sqlalchemy'] = 'json'
     output: Path = Path('output/result.mp4')
     images: Literal['commons', 'local'] = 'commons'
     image_dir: Path | None = None
