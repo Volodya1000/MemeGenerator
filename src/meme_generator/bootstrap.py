@@ -10,8 +10,8 @@ from meme_generator.application.protocols.scenario_planner import (
 )
 from meme_generator.composition.catalog import create_catalog
 from meme_generator.config.settings import GenerationSettings
-from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.caption_cards import CaptionCardImageProvider
+from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
