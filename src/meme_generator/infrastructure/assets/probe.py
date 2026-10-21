@@ -1,10 +1,10 @@
 """Probe and validate real media using typed FFprobe metadata."""
 
 import hashlib
-import subprocess
 from pathlib import Path
 
-from meme_generator.infrastructure.assets.media_models import MediaInfo
+from meme_generator.infrastructure.media.ffprobe import inspect_media
+from meme_generator.infrastructure.media.metadata import MediaInfo
 
 MAX_MEDIA_BYTES = 52_428_800
 MIN_DURATION_SECONDS = 0.1
@@ -13,22 +13,7 @@ MAX_DURATION_SECONDS = 60.0
 
 def probe_media(path: Path) -> MediaInfo:
     """Inspect the actual file rather than trusting its extension."""
-    process = subprocess.run(
-        (
-            'ffprobe',
-            '-v',
-            'error',
-            '-show_entries',
-            'format=duration:stream=codec_type,codec_name,width,height,avg_frame_rate',
-            '-of',
-            'json',
-            str(path),
-        ),
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    media = MediaInfo.model_validate_json(process.stdout)
+    media: MediaInfo = inspect_media(path)
     media.get_stream('video')
     media.get_stream('audio')
     duration = media.format.duration
