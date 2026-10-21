@@ -24,9 +24,7 @@ class CommonsSearchRequest(BaseModel):
     gsrnamespace: int = 6
     gsrlimit: int = SEARCH_LIMIT
     prop: Literal['imageinfo'] = 'imageinfo'
-    iiprop: Literal['url|size|mime|extmetadata'] = (
-        'url|size|mime|extmetadata'
-    )
+    iiprop: Literal['url|size|mime|extmetadata'] = 'url|size|mime|extmetadata'
     iiurlwidth: int = SEARCH_IMAGE_WIDTH
 
 

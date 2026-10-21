@@ -64,4 +64,3 @@ def test_nested_database_yaml_and_paths(tmp_path: Path) -> None:
     assert settings.catalog == Path('assets/memes.json')
     assert settings.output == Path('output/result.mp4')
     assert settings.database.backend == 'sqlalchemy'
-

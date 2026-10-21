@@ -10,6 +10,7 @@ from meme_generator.config.settings import GenerationSettings
 CONFIG_NAME = 'config.yaml'
 TEXT_ENCODING = 'utf-8'
 
+
 def test_yaml_rejects_database_credentials(
     tmp_path: Path,
 ) -> None:
@@ -51,4 +52,3 @@ def test_missing_explicit_yaml_is_rejected(tmp_path: Path) -> None:
     """A mistyped config path is not silently treated as defaults."""
     with pytest.raises(FileNotFoundError):
         load_settings(tmp_path / 'unknown.yaml')
-
