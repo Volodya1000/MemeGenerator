@@ -8,7 +8,6 @@ from meme_generator.infrastructure.commons.models import (
 )
 from meme_generator.infrastructure.commons.search import choose_page
 
-
 IMAGE_WIDTH = 900
 IMAGE_HEIGHT = 700
 
