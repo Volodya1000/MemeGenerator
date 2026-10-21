@@ -9,7 +9,6 @@ from meme_generator.infrastructure.meme_normalize import normalize_media
 from meme_generator.infrastructure.meme_probe import verify_normalized
 
 
-
 @pytest.mark.integration
 def test_short_clip_is_normalized(tmp_path: Path) -> None:
     """Normalize a locally generated clip without accessing real memes."""

@@ -56,7 +56,8 @@ def probe_media(path: Path) -> MediaInfo:
     media = MediaInfo.model_validate_json(process.stdout)
     media.get_stream('video')
     media.get_stream('audio')
-    if not MIN_DURATION_SECONDS <= media.format.duration <= MAX_DURATION_SECONDS:
+    duration = media.format.duration
+    if not MIN_DURATION_SECONDS <= duration <= MAX_DURATION_SECONDS:
         raise ValueError('Clip duration must be between 0.1 and 60 seconds')
     return media
 

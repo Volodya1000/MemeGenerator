@@ -27,7 +27,7 @@ def test_manifest_accepts_curated_source() -> None:
     assert manifest.clips[0].media_url is None
 
 
-@pytest.mark.parametrize('identifier', ('../unsafe', 'bad-name', '/tmp/x'))
+@pytest.mark.parametrize('identifier', ['../unsafe', 'bad-name', '/unsafe'])
 def test_rejects_unsafe_identifier(identifier: str) -> None:
     """User-provided identifiers must never escape the asset directory."""
     with pytest.raises(ValidationError):

@@ -44,16 +44,18 @@ def _save_response(response: httpx.Response, path: Path) -> None:
 
 
 def download_media(url: HttpUrl, destination: Path) -> None:
-    """Fetch an explicit media URL without redirects, scraping, or cache leaks."""
+    """Fetch a direct HTTPS video without redirects or scraping."""
     _validate_media_url(url)
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=destination.parent) as directory:
         temporary = Path(directory) / 'source.mp4'
-        with httpx.Client(
-            follow_redirects=False,
-            timeout=DOWNLOAD_TIMEOUT_SECONDS,
-        ) as client:
-            with client.stream('GET', str(url)) as response:
-                _save_response(response, temporary)
+        with (
+            httpx.Client(
+                follow_redirects=False,
+                timeout=DOWNLOAD_TIMEOUT_SECONDS,
+            ) as client,
+            client.stream('GET', str(url)) as response,
+        ):
+            _save_response(response, temporary)
         check_source(temporary, None)
         temporary.replace(destination)

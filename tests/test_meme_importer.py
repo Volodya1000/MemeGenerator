@@ -65,7 +65,9 @@ def test_import_creates_compatible_catalog(
     (tmp_path / ASSETS / 'memes').mkdir()
     validation = Mock()
     normalization = Mock(
-        side_effect=lambda source, destination: destination.write_bytes(b'mp4'),
+        side_effect=lambda source, destination: destination.write_bytes(
+            b'mp4',
+        ),
     )
     monkeypatch.setattr(meme_importer, 'check_source', validation)
     monkeypatch.setattr(meme_importer, 'normalize_media', normalization)
