@@ -10,7 +10,7 @@ from meme_generator.infrastructure.catalog import MemeCatalog
 from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
-from meme_generator.infrastructure.rendering import FFmpegRenderer
+from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 
 
 def create_planner(settings: GenerationSettings) -> ScenarioPlanner:
