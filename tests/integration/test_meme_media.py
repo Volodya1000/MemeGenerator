@@ -5,10 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from meme_generator.infrastructure.meme_media import (
-    normalize_media,
-    verify_normalized,
-)
+from meme_generator.infrastructure.meme_normalize import normalize_media
+from meme_generator.infrastructure.meme_probe import verify_normalized
+
 
 
 @pytest.mark.integration

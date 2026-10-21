@@ -1,16 +1,29 @@
 """Import verified media into the local catalog without distributing it."""
 
 import json
+import tempfile
 from pathlib import Path
 
 from meme_generator.domain.meme_sources import MemeSource, MemeSources
 from meme_generator.domain.models import Meme
-from meme_generator.infrastructure.meme_media import (
+from meme_generator.infrastructure.meme_download import download_media
+from meme_generator.infrastructure.meme_normalize import normalize_media
+from meme_generator.infrastructure.meme_probe import (
     check_source,
-    download_media,
-    normalize_media,
     verify_normalized,
 )
+
+ASSET_DIRECTORY = Path('assets')
+RAW_DIRECTORY = ASSET_DIRECTORY / 'raw'
+MEDIA_DIRECTORY = ASSET_DIRECTORY / 'memes'
+CATALOG_FILENAME = ASSET_DIRECTORY / 'catalog.json'
+
+
+def _needs_normalization(raw: Path, ready: Path, *, force: bool) -> bool:
+    """Rebuild missing, outdated, or explicitly invalidated outputs."""
+    if force or not ready.is_file():
+        return True
+    return raw.stat().st_mtime_ns > ready.stat().st_mtime_ns
 
 
 def import_meme(
@@ -21,8 +34,8 @@ def import_meme(
     force: bool,
 ) -> Meme:
     """Prepare one clip, with explicit permission for network fetching."""
-    raw = project_root / 'assets' / 'raw' / f'{source.meme_id}.mp4'
-    ready = project_root / 'assets' / 'memes' / f'{source.meme_id}.mp4'
+    raw = project_root / RAW_DIRECTORY / f'{source.meme_id}.mp4'
+    ready = project_root / MEDIA_DIRECTORY / f'{source.meme_id}.mp4'
     if not raw.is_file():
         if not allow_download or source.media_url is None:
             raise FileNotFoundError(
@@ -31,14 +44,14 @@ def import_meme(
             )
         download_media(source.media_url, raw)
     check_source(raw, source.sha256)
-    if force or not ready.is_file() or raw.stat().st_mtime_ns > ready.stat().st_mtime_ns:
+    if _needs_normalization(raw, ready, force=force):
         normalize_media(raw, ready)
     else:
         verify_normalized(ready)
     return Meme(
         meme_id=source.meme_id,
         phrase=source.phrase,
-        video_path=Path('assets') / 'memes' / f'{source.meme_id}.mp4',
+        video_path=MEDIA_DIRECTORY / f'{source.meme_id}.mp4',
     )
 
 
@@ -59,16 +72,14 @@ def import_catalog(
         )
         for source in manifest.clips
     ]
-    output = project_root / 'assets' / 'catalog.json'
+    output = project_root / CATALOG_FILENAME
     output.parent.mkdir(parents=True, exist_ok=True)
-    temporary = output.with_suffix('.json.tmp')
-    try:
-        contents = [meme.model_dump(mode='json') for meme in catalog]
+    with tempfile.TemporaryDirectory(dir=output.parent) as directory:
+        temporary = Path(directory) / 'catalog.json'
+        records = [meme.model_dump(mode='json') for meme in catalog]
         temporary.write_text(
-            json.dumps(contents, ensure_ascii=False, indent=2) + '\n',
+            f'{json.dumps(records, ensure_ascii=False, indent=2)}\n',
             encoding='utf-8',
         )
         temporary.replace(output)
-    finally:
-        temporary.unlink(missing_ok=True)
     return catalog

@@ -8,6 +8,9 @@ import pytest
 
 from meme_generator.application import meme_importer
 
+ASSETS = Path('assets')
+UTF8 = 'utf-8'
+
 
 @pytest.fixture
 def manifest(tmp_path: Path) -> Path:
@@ -26,34 +29,34 @@ def manifest(tmp_path: Path) -> Path:
                 ],
             },
         ),
-        encoding='utf-8',
+        encoding=UTF8,
     )
     return manifest_file
 
 
-def test_missing_source_preserves_existing_catalog(
+def test_missing_source_keeps_catalog(
     tmp_path: Path,
     manifest: Path,
 ) -> None:
     """A missing copyrighted source must not erase the current catalog."""
-    output = tmp_path / 'assets' / 'catalog.json'
+    output = tmp_path / ASSETS / 'catalog.json'
     output.parent.mkdir(parents=True)
-    output.write_text('previous catalog', encoding='utf-8')
+    output.write_text('previous catalog', encoding=UTF8)
     with pytest.raises(FileNotFoundError):
         meme_importer.import_catalog(manifest, tmp_path)
-    assert output.read_text(encoding='utf-8') == 'previous catalog'
+    assert output.read_text(encoding=UTF8) == 'previous catalog'
 
 
-def test_import_produces_domain_compatible_catalog(
+def test_import_creates_compatible_catalog(
     tmp_path: Path,
     manifest: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A successful import saves phrase and relative media path."""
-    raw = tmp_path / 'assets' / 'raw' / 'example.mp4'
+    raw = tmp_path / ASSETS / 'raw' / 'example.mp4'
     raw.parent.mkdir(parents=True)
     raw.write_bytes(b'fixture')
-    (tmp_path / 'assets' / 'memes').mkdir()
+    (tmp_path / ASSETS / 'memes').mkdir()
     validation = Mock()
     normalization = Mock(
         side_effect=lambda source, destination: destination.write_bytes(b'mp4'),
@@ -62,7 +65,7 @@ def test_import_produces_domain_compatible_catalog(
     monkeypatch.setattr(meme_importer, 'normalize_media', normalization)
     catalog = meme_importer.import_catalog(manifest, tmp_path)
     records = json.loads(
-        (tmp_path / 'assets' / 'catalog.json').read_text(encoding='utf-8'),
+        (tmp_path / ASSETS / 'catalog.json').read_text(encoding=UTF8),
     )
     assert len(catalog) == 1
     assert records == [
@@ -82,8 +85,8 @@ def test_reimport_reuses_verified_files(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A second run need not re-encode unchanged video files."""
-    raw = tmp_path / 'assets' / 'raw' / 'example.mp4'
-    ready = tmp_path / 'assets' / 'memes' / 'example.mp4'
+    raw = tmp_path / ASSETS / 'raw' / 'example.mp4'
+    ready = tmp_path / ASSETS / 'memes' / 'example.mp4'
     raw.parent.mkdir(parents=True)
     ready.parent.mkdir(parents=True)
     raw.write_bytes(b'input')

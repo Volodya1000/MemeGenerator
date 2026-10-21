@@ -1,14 +1,16 @@
 """Command-line import of externally sourced reaction clips."""
 
 import argparse
+import logging
 import subprocess
-import sys
 from pathlib import Path
 
 import httpx
-from pydantic import ValidationError
 
 from meme_generator.application.meme_importer import import_catalog
+
+logger = logging.getLogger(__name__)
+IMPORT_ERRORS = (OSError, ValueError, subprocess.SubprocessError, httpx.HTTPError)
 
 
 def main() -> int:
@@ -21,6 +23,7 @@ def main() -> int:
     parser.add_argument('--download', action='store_true')
     parser.add_argument('--force', action='store_true')
     arguments = parser.parse_args()
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
     try:
         catalog = import_catalog(
             manifest_path=arguments.manifest,
@@ -28,15 +31,8 @@ def main() -> int:
             allow_download=arguments.download,
             force=arguments.force,
         )
-    except (
-        OSError, ValueError, httpx.HTTPError,
-        subprocess.CalledProcessError, ValidationError,
-    ) as error:
-        print(f'Meme import failed: {error}', file=sys.stderr)
+    except IMPORT_ERRORS as error:
+        logger.error('Meme import failed: %s', error)
         return 1
-    print(f'Imported {len(catalog)} reaction clips.')
+    logger.info('Imported %d reaction clips.', len(catalog))
     return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
