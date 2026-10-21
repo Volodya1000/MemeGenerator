@@ -55,4 +55,4 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra dev
       - name: PostgreSQL repository integration tests
-        run: uv run pytest -q tests/integration/test_database_catalog.py tests/integration/test_catalog_contract.py tests/integration/test_sql_pipeline.py
+        run: uv run pytest -q tests/integration/test_database_catalog.py tests/integration/test_catalog_contract.py tests/integration/test_sql_pipeline.py tests/integration/test_migrations.py

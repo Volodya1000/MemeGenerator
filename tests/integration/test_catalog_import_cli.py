@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 
 import pytest
+from alembic import command
+from alembic.config import Config
 from typer.testing import CliRunner
 
 from meme_generator.cli import app
@@ -39,6 +41,7 @@ def test_import_command_persists_clips(
     database_path = tmp_path / 'memes.sqlite3'
     url = f'sqlite+pysqlite:///{database_path}'
     monkeypatch.setenv('MEMEGEN_DATABASE__URL', url)
+    command.upgrade(Config('alembic.ini'), 'head')
     outcome = CliRunner().invoke(
         app,
         ['catalog', 'import', '--source', str(manifest)],
