@@ -38,7 +38,7 @@ def test_import_command_persists_clips(
     )
     database_path = tmp_path / 'memes.sqlite3'
     url = f'sqlite+pysqlite:///{database_path}'
-    monkeypatch.setenv('MEMEGEN_DATABASE_URL', url)
+    monkeypatch.setenv('MEMEGEN_DATABASE__URL', url)
     outcome = CliRunner().invoke(
         app,
         ['catalog', 'import', '--source', str(manifest)],
