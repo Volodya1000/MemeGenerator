@@ -88,7 +88,7 @@ def _draw_caption(canvas: Image.Image, text: str) -> None:
     font, lines = _fit_caption(text, drawing)
     for index, line in enumerate(lines):
         drawing.text(
-            (155, _line_position(index, len(lines), font.size)),
+            (155, _line_position(index, len(lines), int(font.size))),
             line,
             font=font,
             fill='#FFFFFF',
