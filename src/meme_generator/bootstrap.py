@@ -11,6 +11,7 @@ from meme_generator.application.protocols.scenario_planner import (
 from meme_generator.composition.catalog import create_catalog
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.infrastructure.commons import CommonsImageProvider
+from meme_generator.infrastructure.caption_cards import CaptionCardImageProvider
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
@@ -35,6 +36,8 @@ def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
     """Use local images or image searches based on root configuration."""
     if settings.images == 'commons':
         return CommonsImageProvider()
+    if settings.images == 'cards':
+        return CaptionCardImageProvider()
     if settings.image_dir is None:
         raise ValueError('image_dir is required when images=local')
     return LocalImageProvider(settings.image_dir.resolve())
