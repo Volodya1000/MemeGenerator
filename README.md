@@ -18,12 +18,14 @@ normal application startup. See [curated asset import](docs/meme-assets.md).
 
 ```bash
 uv sync --extra dev
-uv run meme-assets
+uv run meme-assets --download
 ```
 
-The import requires locally available clips named in `assets/sources.json`.
-It can optionally download explicitly configured direct HTTPS media URLs with
-`--download`, but never fetches source pages or media without permission.
+The reviewed source manifest includes direct MP4 URLs for seven short reactions.
+`--download` explicitly opts into downloading missing originals from Cutzo's
+public CDN; without it, only local clips are used. Media is never committed to
+Git or downloaded as part of the standard CI. Run the real-media verification
+workflow manually when needed.
 
 ## Quality
 
