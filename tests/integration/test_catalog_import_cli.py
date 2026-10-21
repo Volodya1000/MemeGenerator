@@ -25,13 +25,15 @@ def test_import_command_persists_clips(
     (tmp_path / 'reaction.mp4').touch()
     manifest = tmp_path / 'memes.json'
     manifest.write_text(
-        json.dumps([
-            {
-                'meme_id': REACTION_ID,
-                'phrase': 'A reaction',
-                'video_path': 'reaction.mp4',
-            },
-        ]),
+        json.dumps(
+            [
+                {
+                    'meme_id': REACTION_ID,
+                    'phrase': 'A reaction',
+                    'video_path': 'reaction.mp4',
+                },
+            ]
+        ),
         encoding='utf-8',
     )
     database_path = tmp_path / 'memes.sqlite3'

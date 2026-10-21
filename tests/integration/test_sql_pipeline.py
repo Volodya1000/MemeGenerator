@@ -38,9 +38,7 @@ def test_sql_backend_generates_video_manifests(
         renderer=FakeRenderer(),
     ).generate('Programming', 1, output_path)
     scenario = json.loads(
-        output_path.with_suffix('.scenario.json').read_text(
-            encoding='utf-8'
-        )
+        output_path.with_suffix('.scenario.json').read_text(encoding='utf-8')
     )
     assert generated.output_path == output_path
     assert output_path.read_bytes() == b'video stub'

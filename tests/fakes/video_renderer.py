@@ -21,4 +21,3 @@ class FakeRenderer:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_bytes(b'video stub')
         return output_path
-
