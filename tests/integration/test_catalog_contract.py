@@ -46,7 +46,7 @@ def test_lookup_returns_exact_domain_data(
     assert catalog_repository.get('reaction') == expected
 
 
-def test_unknown_key_has_same_error(catalog_repository: MemeRepository) -> None:
+def test_missing_id(catalog_repository: MemeRepository) -> None:
     """All implementations agree on missing-identifier semantics."""
     with pytest.raises(KeyError):
         catalog_repository.get('missing')
