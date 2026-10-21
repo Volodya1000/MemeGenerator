@@ -58,9 +58,7 @@ class GenerationPipeline:
             prefix='memegen-stage-',
             dir=output_path.parent,
         ) as temporary:
-            self._render_and_publish(
-                scenario, output_path, Path(temporary)
-            )
+            self._render_and_publish(scenario, output_path, Path(temporary))
         return GeneratedVideo(
             output_path=output_path,
             scene_count=len(scenario.scenes),
@@ -83,8 +81,6 @@ class GenerationPipeline:
             for scene in scenario.scenes
         ]
         staged_video = directory / output_path.name
-        self._renderer.render(
-            scenario, self._catalog, images, staged_video
-        )
+        self._renderer.render(scenario, self._catalog, images, staged_video)
         write_manifests(staged_video, scenario, images)
         publish_bundle(staged_video, output_path)
