@@ -53,8 +53,10 @@ def test_unsupported_video_extension_is_rejected(tmp_path: Path) -> None:
 
 def test_unknown_reaction_id_raises_key_error() -> None:
     """Repository lookup reports an unknown key consistently."""
-    catalog = MemeCatalog([
-        Meme(meme_id='known', phrase='Known', video_path=Path('clip.mp4')),
-    ])
+    catalog = MemeCatalog(
+        [
+            Meme(meme_id='known', phrase='Known', video_path=Path('clip.mp4')),
+        ]
+    )
     with pytest.raises(KeyError):
         catalog.get('missing')
