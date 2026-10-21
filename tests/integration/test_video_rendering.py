@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 
 from meme_generator.domain.image_asset import ImageAsset
-from meme_generator.domain.models import Meme, Scenario, Scene
+from meme_generator.domain.meme import Meme
+from meme_generator.domain.scenario import Scenario
+from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.catalog import MemeCatalog
 from meme_generator.infrastructure.media_probe import probe_clip
 from meme_generator.infrastructure.rendering import FFmpegRenderer

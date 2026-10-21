@@ -11,6 +11,7 @@ from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
 
 LLM_TIMEOUT_SECONDS = 90
+PLANNER_TEMPERATURE = 0.6
 
 PLANNER_SYSTEM = (
     'You plan a short humorous reaction video. Return only JSON with keys '
@@ -23,7 +24,7 @@ PLANNER_SYSTEM = (
 
 
 class LiteLLMPlanner:
-    """Use a named LiteLLM model or any OpenAI-compatible base URL."""
+    """Use a named LiteLLM model or any compatible chat endpoint."""
 
     def __init__(
         self,
@@ -32,32 +33,11 @@ class LiteLLMPlanner:
         api_key: str | None = None,
         generate_text: Callable[[str], str] | None = None,
     ) -> None:
-        """Inject the completion boundary for deterministic tests."""
+        """Allow in-memory completion fakes for independent tests."""
         self._model = model
         self._api_base = api_base
         self._api_key = api_key
         self._generate_text = generate_text or self._complete
-
-    def _complete(self, user_content: str) -> str:
-        """Normalize the external SDK response into plain JSON text."""
-        response: object = completion(
-            model=self._model,
-            api_base=self._api_base,
-            api_key=self._api_key,
-            messages=[
-                {'role': 'system', 'content': PLANNER_SYSTEM},
-                {'role': 'user', 'content': user_content},
-            ],
-            response_format={'type': 'json_object'},
-            temperature=0.6,
-            timeout=LLM_TIMEOUT_SECONDS,
-        )
-        if not isinstance(response, ModelResponse) or not response.choices:
-            raise ValueError('LLM returned an invalid completion response')
-        content: object = response.choices[0].message.content
-        if not isinstance(content, str):
-            raise ValueError('LLM returned no textual scenario')
-        return content
 
     def plan(
         self,
@@ -65,7 +45,7 @@ class LiteLLMPlanner:
         memes: list[Meme],
         scene_count: int,
     ) -> Scenario:
-        """Validate exact scene count and reaction membership."""
+        """Validate response length and approved reaction membership."""
         request = json.dumps(
             {
                 'topic': theme,
@@ -81,3 +61,24 @@ class LiteLLMPlanner:
         scenario = Scenario.model_validate_json(raw)
         validate_plan(scenario, memes, scene_count)
         return scenario.model_copy(update={'theme': theme})
+
+    def _complete(self, user_prompt: str) -> str:
+        """Normalize the SDK response into a validated JSON string."""
+        response: object = completion(
+            model=self._model,
+            api_base=self._api_base,
+            api_key=self._api_key,
+            messages=[
+                {'role': 'system', 'content': PLANNER_SYSTEM},
+                {'role': 'user', 'content': user_prompt},
+            ],
+            response_format={'type': 'json_object'},
+            temperature=PLANNER_TEMPERATURE,
+            timeout=LLM_TIMEOUT_SECONDS,
+        )
+        if not isinstance(response, ModelResponse) or not response.choices:
+            raise ValueError('LLM returned an invalid completion response')
+        response_text: object = response.choices[0].message.content
+        if not isinstance(response_text, str):
+            raise ValueError('LLM returned no textual scenario')
+        return response_text

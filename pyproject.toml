@@ -11,6 +11,10 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
   "httpx>=0.28,<1",
   "pydantic>=2.10,<3",
+  "litellm>=1.80,<2",
+  "pyyaml>=6,<7",
+  "python-dotenv>=1,<2",
+  "typer>=0.20,<1",
 ]
 
 [project.optional-dependencies]
@@ -35,7 +39,7 @@ line-length = 79
 preview = false
 
 [tool.ruff.lint]
-select = ["A", "B", "C4", "C90", "COM", "D", "DTZ", "E", "ERA", "EXE", "F", "FA", "FBT", "FLY", "FURB", "G", "I", "ICN", "ISC", "LOG", "N", "PERF", "PIE", "PL", "PT", "PTH", "Q", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "TRY", "UP", "W", "YTT"]
+select = ["A", "ANN", "B", "C4", "C90", "COM", "D", "DTZ", "E", "ERA", "EXE", "F", "FA", "FBT", "FLY", "FURB", "G", "I", "ICN", "ISC", "LOG", "N", "PERF", "PIE", "PL", "PT", "PTH", "Q", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "TRY", "UP", "W", "YTT"]
 ignore = ["D203", "D213", "ISC001", "COM812", "TRY003", "PLR6301", "PLR2004", "S404", "S603", "S607"]
 
 [tool.ruff.lint.pydocstyle]

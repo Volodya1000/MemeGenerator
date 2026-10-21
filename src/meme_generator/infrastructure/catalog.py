@@ -1,17 +1,17 @@
-"""Validated JSON catalog of legally provided reaction clips."""
+"""Validated JSON catalog of legally supplied reaction clips."""
 
 import json
 from pathlib import Path
 
 from pydantic import TypeAdapter
 
-from meme_generator.domain.models import Meme
+from meme_generator.domain.meme import Meme
 
 VIDEO_SUFFIXES = frozenset(('.mp4', '.mov', '.webm'))
 
 
 def resolve_video(meme: Meme, directory: Path) -> Meme:
-    """Reject unsafe paths, missing clips and unsupported extensions."""
+    """Reject unsafe paths, missing clips, and unsupported extensions."""
     resolved = (directory / meme.video_path).resolve()
     if not resolved.is_relative_to(directory):
         raise ValueError('Meme video must be inside the catalog folder')
@@ -23,10 +23,10 @@ def resolve_video(meme: Meme, directory: Path) -> Meme:
 
 
 class MemeCatalog:
-    """Load a curated catalog without searching for celebrity videos."""
+    """In-memory repository, optionally loaded from a JSON manifest."""
 
     def __init__(self, memes: list[Meme]) -> None:
-        """Store nonempty reactions indexed by stable identifiers."""
+        """Reject ambiguous or empty reaction repositories."""
         if not memes:
             raise ValueError('Catalog must contain at least one meme')
         self._memes = {meme.meme_id: meme for meme in memes}
@@ -34,12 +34,12 @@ class MemeCatalog:
             raise ValueError('Duplicate meme identifiers')
 
     def __len__(self) -> int:
-        """Return how many reactions are usable."""
+        """Return the number of approved reactions."""
         return len(self._memes)
 
     @classmethod
     def from_json(cls, path: Path) -> 'MemeCatalog':
-        """Load JSON and resolve paths relative to the catalog folder."""
+        """Load a file-backed repository with safe relative media paths."""
         directory = path.resolve().parent
         raw_data = json.loads(path.read_text(encoding='utf-8'))
         parsed = TypeAdapter(list[Meme]).validate_python(raw_data)
@@ -47,9 +47,9 @@ class MemeCatalog:
         return cls(memes)
 
     def get(self, meme_id: str) -> Meme:
-        """Return a known clip or fail for unknown identifiers."""
+        """Return an approved clip by identifier."""
         return self._memes[meme_id]
 
     def all(self) -> list[Meme]:
-        """Return a snapshot of all curated reactions."""
+        """Return a snapshot without exposing internal mutable mappings."""
         return list(self._memes.values())

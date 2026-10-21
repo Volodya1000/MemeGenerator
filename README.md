@@ -1,116 +1,89 @@
 # MemeGenerator
 
-Generate a coherent themed video with **an image introducing each situation**
-followed by a reaction from a **curated library of prerecorded video clips**.
+Build themed MP4 reaction videos from an approved local collection of clips.
+Each scene uses a contextual still image followed by a recorded reaction.
 
-A language model writes a narrative and selects an appropriate reaction using
-only preapproved clip identifiers. Wikimedia Commons or preselected local
-images supply scene context. FFmpeg assembles normalized H.264/AAC MP4.
+The project never downloads celebrity reaction videos, clones voices, or
+generates a person's likeness. Supply clips you are authorized to use.
 
-The project does **not** synthesize a person's voice, generate deepfakes or
-download celebrity reaction clips. Supply video clips you have permission to use.
+## Prerequisites
 
-## Requirements
-
-- Python **3.13**
-- FFmpeg and FFprobe on PATH
-- An OpenAI-compatible chat completion endpoint for semantic planning
-- Curated local video clips referenced in `assets/memes.json`
-- Optional: preselected numbered scene images for offline generation
+- Python 3.13, uv, FFmpeg and FFprobe available in PATH
+- A curated JSON catalog referencing local video clips
+- Either local contextual images or Wikimedia Commons images
+- An optional LiteLLM-supported model for creative planning
 
 ## Install
 
 ```bash
 uv sync --extra dev
 cp assets/memes.example.json assets/memes.json
-mkdir -p assets/memes
+cp config.example.yaml config.yaml
+cp .env.example .env
 ```
 
-Place legally obtained clips at the paths listed in `assets/memes.json`.
-For every clip, register the **exact spoken phrase** and a stable `meme_id`.
-The example is intentionally a placeholder; it cannot generate real video
-until you supply at least one valid clip.
+Put authorized reaction clips at the paths in `assets/memes.json`.
+The example catalog does not ship any third-party media.
 
-## Create a video with a local LLM
+## Configure
 
-For example, use any Ollama/OpenAI-compatible server exposing
-`/v1/chat/completions` and supporting `response_format=json_object`:
+Non-secret settings live in `config.yaml`:
+
+```yaml
+planner: llm
+model: openai/qwen2.5-coder-14b-instruct
+api_base: http://localhost:11434/v1
+scenes: 5
+catalog: assets/memes.json
+output: output/result.mp4
+images: commons
+```
+
+To use an OpenAI-compatible API, change `model` and `api_base`.
+LiteLLM also supports providers such as Anthropic and local Ollama. Model
+names should include the LiteLLM provider prefix, such as `openai/name`.
+
+Secrets must be provided in the environment or a gitignored `.env`.
+Use `MEMEGEN_API_KEY` or `OPENAI_API_KEY`. Environment variables
+`MEMEGEN_MODEL` and `MEMEGEN_BASE_URL` override the corresponding
+YAML settings. Never put credentials in committed YAML files.
+
+## Run
 
 ```bash
-export MEMEGEN_BASE_URL=http://localhost:11434/v1
-export MEMEGEN_MODEL=qwen2.5:14b
-uv run python -m meme_generator generate \
-  --topic "Жизнь программиста" \
-  --scenes 5 \
-  --catalog assets/memes.json \
-  --output output/result.mp4
+uv run meme-generator generate --topic "Жизнь программиста" --config config.yaml
 ```
 
-An OpenAI-compatible commercial endpoint can also be configured with
-`MEMEGEN_BASE_URL`, `MEMEGEN_MODEL` and `OPENAI_API_KEY`.
-The API key is never included in the generated artifact manifest.
+For a deterministic offline demonstration, use:
 
-## Fully offline montage
-
-Use the deterministic, non-LLM planner and numbered local pictures:
-
-```bash
-mkdir -p assets/context
-# Supply assets/context/1.jpg, 2.png, etc. yourself.
-uv run python -m meme_generator generate \
-  --topic "Software development" \
-  --scenes 2 \
-  --planner demo \
-  --images local \
-  --image-dir assets/context \
-  --output output/demo.mp4
+```yaml
+planner: demo
+images: local
+image_dir: assets/context
+scenes: 2
+catalog: assets/memes.json
+output: output/demo.mp4
 ```
 
-Demo mode exists to verify the pipeline, not to produce creative scenarios.
+Supply `assets/context/1.jpg`, `2.png`, etc. and run the same command.
+The CLI supports `--topic`, `--config`, `--scenes`, and `--output`;
+the remainder of the settings are explicit YAML keys.
 
-## Output
+The output includes `result.mp4`, `result.scenario.json` with the
+validated scene plan, and `result.attribution.json` with image provenance.
+Commons search is approximate; licenses and attribution must be reviewed.
 
-- `result.mp4`: image/context card for 2 seconds, then clip, in scene order.
-- `result.scenario.json`: exact validated LLM scene plan.
-- `result.attribution.json`: image queries, source URLs and license names.
+## Architecture
 
-FFmpeg produces 1280×720, 30 FPS H.264 video with AAC audio. Clips without
-an audio track gain a silent one so concatenation works consistently.
+- `domain/`: individual validated entities and business invariants.
+- `application/ports/`: typed repository/planner/image/renderer contracts.
+- `application/pipeline.py`: generation use case.
+- `application/bootstrap.py`: constructs concrete adapters.
+- `infrastructure/`: JSON catalog, LiteLLM, image sources and FFmpeg.
+- `config/`: validated YAML and environment loading.
+- `cli.py`: Typer commands.
+- `AGENTS.md`: full engineering, safety, and test standards.
 
-Wikimedia Commons image matches use a basic text score, not visual recognition.
-For high-quality precise scenes, preselect and use `--images local`.
-Always verify individual Commons image licenses and any attribution terms.
-
-## Repository structure
-
-```text
-src/meme_generator/
-  domain/models.py              validated models and invariants
-  application/planning.py       LLM + deterministic planner
-  application/pipeline.py       orchestration and provenance
-  infrastructure/catalog.py     safe local meme catalog
-  infrastructure/media_probe.py FFprobe
-  infrastructure/images.py      Commons and local image providers
-  infrastructure/rendering.py   FFmpeg normalization and concat
-  cli.py                        command-line interface
-tests/                          unit and actual FFmpeg integration
-```
-
-## Quality
-
-`wemake-python-styleguide==1.8.1` with **all WPS rules enabled and no WPS
-ignore rules**. Complemented by broad Ruff rules, strict mypy and pytest.
-
-```bash
-uv run ruff check .
-uv run ruff format --check .
-uv run flake8 . --select WPS
-uv run mypy src
-uv run pytest
-```
-
-## Contributing
-
-Use PRs with passing checks. Keep third-party clips and downloaded media out
-of version control. Do not confuse passing validation with being funny:
-LLM scenario quality and Commons image relevance require human evaluation.
+Run quality checks with `uv run flake8 . --select WPS`,
+`uv run ruff check .`, `uv run ruff format --check .`,
+`uv run mypy src`, and `uv run pytest`.

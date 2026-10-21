@@ -1,4 +1,4 @@
-"""Configuration schema validated at the application boundary."""
+"""Typed configuration independent of command-line parsing."""
 
 from pathlib import Path
 from typing import Literal
@@ -7,9 +7,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class GenerationSettings(BaseModel):
-    """Non-secret video generation and external adapter settings."""
+    """Validated, non-secret settings for one video-generation request."""
 
-    model_config = ConfigDict(extra='forbid', strict=True)
+    model_config = ConfigDict(extra='forbid')
 
     planner: Literal['llm', 'demo'] = 'llm'
     model: str = ''

@@ -3,11 +3,12 @@
 import json
 from pathlib import Path
 
+from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
-from meme_generator.application.planning import DemoPlanner
 from meme_generator.application.ports.meme_repository import MemeRepository
 from meme_generator.domain.image_asset import ImageAsset
-from meme_generator.domain.models import Meme, Scenario
+from meme_generator.domain.meme import Meme
+from meme_generator.domain.scenario import Scenario
 from meme_generator.infrastructure.catalog import MemeCatalog
 from meme_generator.infrastructure.images import LocalImageProvider
 
