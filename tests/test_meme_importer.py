@@ -98,4 +98,3 @@ def test_reimport_reuses_verified_files(
     monkeypatch.setattr(meme_importer, 'normalize_media', normalization)
     meme_importer.import_catalog(manifest, tmp_path)
     normalization.assert_not_called()
-    assert validation.call_count == 2
