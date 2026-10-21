@@ -10,7 +10,9 @@ from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
-from meme_generator.infrastructure.in_memory_meme_repository import InMemoryMemeRepository
+from meme_generator.infrastructure.in_memory_meme_repository import (
+    InMemoryMemeRepository,
+)
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 from meme_generator.infrastructure.media_probe import probe_clip
 

@@ -3,7 +3,9 @@
 from pathlib import Path
 from typing import Protocol
 
-from meme_generator.application.protocols.meme_repository import MemeRepositoryProtocol
+from meme_generator.application.protocols.meme_repository import (
+    MemeRepositoryProtocol,
+)
 from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.scenario import Scenario
 

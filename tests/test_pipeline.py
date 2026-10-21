@@ -6,7 +6,9 @@ from pathlib import Path
 from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.in_memory_meme_repository import InMemoryMemeRepository
+from meme_generator.infrastructure.in_memory_meme_repository import (
+    InMemoryMemeRepository,
+)
 from meme_generator.infrastructure.images import LocalImageProvider
 from tests.fakes.video_renderer import FakeRenderer
 

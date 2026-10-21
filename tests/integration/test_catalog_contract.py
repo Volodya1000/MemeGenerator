@@ -5,9 +5,13 @@ from pathlib import Path
 import pytest
 from sqlalchemy import Engine
 
-from meme_generator.application.protocols.meme_repository import MemeRepositoryProtocol
+from meme_generator.application.protocols.meme_repository import (
+    MemeRepositoryProtocol,
+)
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.in_memory_meme_repository import InMemoryMemeRepository
+from meme_generator.infrastructure.in_memory_meme_repository import (
+    InMemoryMemeRepository,
+)
 from meme_generator.persistence.sqlalchemy.repository import (
     SqlAlchemyMemeRepository,
 )

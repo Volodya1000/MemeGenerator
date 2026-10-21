@@ -4,10 +4,18 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from meme_generator.application.manifest_writer import write_manifests
-from meme_generator.application.protocols.image_provider import ImageProviderProtocol
-from meme_generator.application.protocols.meme_repository import MemeRepositoryProtocol
-from meme_generator.application.protocols.scenario_planner import ScenarioPlannerProtocol
-from meme_generator.application.protocols.video_renderer import VideoRendererProtocol
+from meme_generator.application.protocols.image_provider import (
+    ImageProviderProtocol,
+)
+from meme_generator.application.protocols.meme_repository import (
+    MemeRepositoryProtocol,
+)
+from meme_generator.application.protocols.scenario_planner import (
+    ScenarioPlannerProtocol,
+)
+from meme_generator.application.protocols.video_renderer import (
+    VideoRendererProtocol,
+)
 from meme_generator.domain.generated_video import GeneratedVideo
 
 

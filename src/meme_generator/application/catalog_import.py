@@ -1,6 +1,8 @@
 """Business-facing catalog import operation; no ORM dependencies."""
 
-from meme_generator.application.protocols.catalog_writer import CatalogWriterProtocol
+from meme_generator.application.protocols.catalog_writer import (
+    CatalogWriterProtocol,
+)
 from meme_generator.domain.meme import Meme
 
 

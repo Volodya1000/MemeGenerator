@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from meme_generator.infrastructure.in_memory_meme_repository import InMemoryMemeRepository
+from meme_generator.infrastructure.in_memory_meme_repository import (
+    InMemoryMemeRepository,
+)
 
 CLIP_NAME = 'clip.mp4'
 REACTION_ID = 'reaction-1'
