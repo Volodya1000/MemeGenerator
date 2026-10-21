@@ -1,32 +1,29 @@
 # MemeGenerator
 
-Automated contextual-image → curated reaction-video storytelling.
+Generate a themed series of contextual images followed by reaction-video clips.
 
-**Requirements:** Python 3.13, FFmpeg / FFprobe, legally obtained
-reaction video files.
+## Features (six stacked PRs)
 
-## Roadmap (stacked PRs)
+1. Python 3.13 domain and strict quality gates.
+2. Curated JSON catalog of local video clips and FFprobe validation.
+3. LLM-generated, catalog-grounded scene scenarios.
+4. Wikimedia Commons image search or local numbered images.
+5. FFmpeg assembly.
+6. Complete CLI and integrated tests.
 
-1. Models and uncompromising CI.
-2. JSON clip catalog and FFprobe validation.
-3. OpenAI-compatible LLM planner and offline deterministic planner.
-4. Image retrieval and local asset support.
-5. FFmpeg video assembly.
-6. Complete CLI + integration tests.
+## Image discovery
 
-## LLM contract
+Default provider queries Wikimedia Commons' file search API and stores the
+selected item's source URL and license attribution for each scene.
+It filters media type, dimensions and download host, and prefers files whose
+titles share keywords with the visual description. Commons search is not a
+semantic image recognizer: visually irrelevant results can still occur.
+For precise memes use local context images named `1.jpg`, `2.png`, etc.
 
-The planner receives the theme and an explicit allowlist of identifiers and
-spoken phrases. It returns JSON containing ordered scenes, specific image
-search terms and *only known* `meme_id` values. The application validates
-every identifier before accessing the media. The LLM never creates video
-content or invents new phrases.
+Commons content must still be used according to each file's license.
+No scraping of Google Images or automatic downloading of celebrity videos.
 
-Compatible with OpenAI API and local OpenAI-compatible servers.
-An offline demo planner is included for repeatable tests (not funny by
-design; use an LLM for semantic planning).
-
-## Local setup
+## Strict development checks
 
 ```bash
 uv sync --extra dev
@@ -37,4 +34,4 @@ uv run mypy src
 uv run pytest
 ```
 
-WPS v1.8.1: no rule or per-file WPS suppression.
+No WPS rule exclusions.
