@@ -4,10 +4,11 @@ import logging
 import subprocess
 from pathlib import Path
 
-from cloud_story import PreviewPlanner, STORY
+from cloud_story import STORY, PreviewPlanner
 
 from meme_generator.application.pipeline import GenerationPipeline
 from meme_generator.domain.meme_sources import MemeSource, MemeSources
+from meme_generator.domain.scenario import Scenario
 from meme_generator.infrastructure.assets.catalog_importer import (
     import_catalog,
 )
@@ -113,7 +114,7 @@ def generate_demo(catalog: Path) -> None:
 
 
 def verify_demo() -> None:
-    """Validate the video and its three distinct, ordered real pipeline scenes."""
+    """Validate the video and its three ordered story scenes."""
     media = probe_clip(OUTPUT)
     if not media.has_audio or media.duration_seconds <= 8:
         raise ValueError('Generated preview lacks expected audio or scenes')
@@ -130,7 +131,7 @@ def verify_demo() -> None:
 
 
 def main() -> None:
-    """Create a shareable preview without third-party clips or invented voice."""
+    """Create a shareable preview using original synthetic clips."""
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     generate_demo(prepare_catalog())
     verify_demo()
