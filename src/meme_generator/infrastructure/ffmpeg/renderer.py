@@ -3,11 +3,11 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from meme_generator.application.protocols.video_renderer import (
-    VideoRendererProtocol,
-)
 from meme_generator.application.protocols.meme_repository import (
     MemeRepositoryProtocol,
+)
+from meme_generator.application.protocols.video_renderer import (
+    VideoRendererProtocol,
 )
 from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.scenario import Scenario
