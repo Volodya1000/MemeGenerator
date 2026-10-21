@@ -1,31 +1,32 @@
 # MemeGenerator
 
-Create a themed video where each contextual image is followed by a reaction
-from a **curated library of existing video clips**. No voice cloning or
-synthetic representation of Oleg Tinkov.
+Automated contextual-image → curated reaction-video storytelling.
 
-Python **3.13**, FFmpeg and FFprobe are required.
+**Requirements:** Python 3.13, FFmpeg / FFprobe, legally obtained
+reaction video files.
 
-## Catalog
+## Roadmap (stacked PRs)
 
-Copy `assets/memes.example.json` to `assets/memes.json`, place video clips
-under `assets/memes/`, and replace the placeholder entry with your own
-`meme_id`, exact spoken `phrase`, and relative `video_path`.
+1. Models and uncompromising CI.
+2. JSON clip catalog and FFprobe validation.
+3. OpenAI-compatible LLM planner and offline deterministic planner.
+4. Image retrieval and local asset support.
+5. FFmpeg video assembly.
+6. Complete CLI + integration tests.
 
-The catalog refuses duplicate identifiers, missing files, path traversal
-and unsupported media extensions. FFprobe checks media streams and duration.
-Provide only clips you have the right to use. No celebrity clips are bundled.
+## LLM contract
 
-## Six PR roadmap
+The planner receives the theme and an explicit allowlist of identifiers and
+spoken phrases. It returns JSON containing ordered scenes, specific image
+search terms and *only known* `meme_id` values. The application validates
+every identifier before accessing the media. The LLM never creates video
+content or invents new phrases.
 
-1. Typed foundation + strict CI.
-2. Validated meme catalog + probing.
-3. LLM planner using only known meme IDs.
-4. Image discovery and local image support.
-5. FFmpeg montage.
-6. Integrated CLI, docs and full testing.
+Compatible with OpenAI API and local OpenAI-compatible servers.
+An offline demo planner is included for repeatable tests (not funny by
+design; use an LLM for semantic planning).
 
-## Development
+## Local setup
 
 ```bash
 uv sync --extra dev
@@ -36,4 +37,4 @@ uv run mypy src
 uv run pytest
 ```
 
-Wemake 1.8.1: every WPS rule enabled, no WPS suppression.
+WPS v1.8.1: no rule or per-file WPS suppression.
