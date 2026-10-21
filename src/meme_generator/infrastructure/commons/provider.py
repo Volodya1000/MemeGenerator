@@ -4,6 +4,9 @@ from pathlib import Path
 
 import httpx
 
+from meme_generator.application.protocols.image_provider import (
+    ImageProviderProtocol,
+)
 from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.infrastructure.commons.download import download_image
 from meme_generator.infrastructure.commons.models import (
@@ -19,7 +22,7 @@ from meme_generator.infrastructure.commons.search import (
 HTTP_TIMEOUT_SECONDS = 30
 
 
-class CommonsImageProvider:
+class CommonsImageProvider(ImageProviderProtocol):
     """Find, download, and attribute contextual Commons images."""
 
     def __init__(self, client: httpx.Client | None = None) -> None:

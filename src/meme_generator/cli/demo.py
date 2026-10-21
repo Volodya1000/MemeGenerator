@@ -6,11 +6,9 @@ from typing import Annotated
 
 import typer
 
-from meme_generator.bootstrap import create_pipeline
-from meme_generator.config.settings import (
-    DatabaseSettings,
-    GenerationSettings,
-)
+from meme_generator.composition.pipeline import create_pipeline
+from meme_generator.config.database import DatabaseSettings
+from meme_generator.config.settings import GenerationSettings
 from meme_generator.infrastructure.ffmpeg.demo_context import (
     create_demo_context,
 )

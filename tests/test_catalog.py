@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from meme_generator.infrastructure.in_memory_meme_repository import (
+from meme_generator.persistence.in_memory import (
     InMemoryMemeRepository,
 )
 

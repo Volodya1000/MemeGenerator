@@ -5,11 +5,9 @@ from pathlib import Path
 import pytest
 
 from meme_generator.composition.catalog import create_catalog
-from meme_generator.config.settings import (
-    DatabaseSettings,
-    GenerationSettings,
-)
-from meme_generator.infrastructure.in_memory_meme_repository import (
+from meme_generator.config.database import DatabaseSettings
+from meme_generator.config.settings import GenerationSettings
+from meme_generator.persistence.in_memory import (
     InMemoryMemeRepository,
 )
 from meme_generator.persistence.sqlalchemy.repository import (
