@@ -13,6 +13,7 @@ ACCENT_COLORS = ('#53D8FB', '#FF8CC6', '#FFE187', '#97F0D1')
 FONT_NAME = 'DejaVuSans.ttf'
 MAX_TEXT_LINES = 5
 CARD_HEADING_SIZE = 32
+CARD_CENTER_Y = 348
 TEXT_SIZES = (76, 68, 60, 52, 44, 36)
 
 
@@ -52,6 +53,44 @@ def _fit_caption(
     raise ValueError('Caption is too long for the card')
 
 
+def _draw_background(palette: int, label: str) -> Image.Image:
+    """Paint a distinctive situation/reaction frame with an accent stripe."""
+    canvas = Image.new('RGB', CARD_SIZE, CARD_COLORS[palette])
+    drawing = ImageDraw.Draw(canvas)
+    drawing.rounded_rectangle(
+        (92, 92, 110, 627),
+        radius=9,
+        fill=ACCENT_COLORS[palette],
+    )
+    drawing.text(
+        (155, 110),
+        label,
+        font=ImageFont.truetype(FONT_NAME, CARD_HEADING_SIZE),
+        fill=ACCENT_COLORS[palette],
+    )
+    drawing.rounded_rectangle(
+        (155, 623, 1080, 627),
+        radius=2,
+        fill=ACCENT_COLORS[palette],
+    )
+    return canvas
+
+
+def _draw_caption(canvas: Image.Image, text: str) -> None:
+    """Fit words into the safe caption region of the rendered image."""
+    drawing = ImageDraw.Draw(canvas)
+    font, lines = _fit_caption(text, drawing)
+    line_height = font.size + 24
+    start_y = CARD_CENTER_Y - len(lines) * line_height // 2
+    for index, line in enumerate(lines):
+        drawing.text(
+            (155, start_y + index * line_height),
+            line,
+            font=font,
+            fill='#FFFFFF',
+        )
+
+
 def render_caption(
     text: str,
     destination: Path,
@@ -63,27 +102,8 @@ def render_caption(
     if not text.strip():
         raise ValueError('Card caption cannot be empty')
     palette = (variation - 1) % len(CARD_COLORS)
-    canvas = Image.new('RGB', CARD_SIZE, CARD_COLORS[palette])
-    drawing = ImageDraw.Draw(canvas)
-    accent = ACCENT_COLORS[palette]
-    drawing.rounded_rectangle((92, 92, 110, 627), radius=9, fill=accent)
-    small_font = ImageFont.truetype(FONT_NAME, CARD_HEADING_SIZE)
-    drawing.text((155, 110), label, font=small_font, fill=accent)
-    font, lines = _fit_caption(text, drawing)
-    line_height = font.size + 24
-    start_y = 348 - len(lines) * line_height // 2
-    for position, line in enumerate(lines):
-        drawing.text(
-            (155, start_y + position * line_height),
-            line,
-            font=font,
-            fill='#FFFFFF',
-        )
-    drawing.rounded_rectangle(
-        (155, 623, 1080, 627),
-        radius=2,
-        fill=accent,
-    )
+    canvas = _draw_background(palette, label)
+    _draw_caption(canvas, text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(destination, format='PNG')
 
