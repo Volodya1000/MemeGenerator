@@ -46,7 +46,7 @@ class GenerationSettings(BaseSettings):
     llm: LLMSettings = Field(default_factory=LLMSettings)
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
     scenes: int = Field(default=5, ge=1)
-    catalog: Path = Path('assets/memes.json')
+    catalog: Path = Path('assets/catalog.json')
     output: Path = Path('output/result.mp4')
     images: Literal['commons', 'local'] = 'commons'
     image_dir: Path | None = None

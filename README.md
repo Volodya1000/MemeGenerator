@@ -3,8 +3,9 @@
 Build themed MP4 reaction videos from an approved local collection of clips.
 Each scene uses a contextual still image followed by a recorded reaction.
 
-The project never downloads celebrity reaction videos, clones voices, or
-generates a person's likeness. Supply clips you are authorized to use.
+The generator uses local, approved reaction clips and never clones voices or
+creates a person's likeness. An **optional** separate asset importer can
+download seven curated clips, but this does not grant redistribution rights.
 
 ## Prerequisites
 
@@ -17,13 +18,15 @@ generates a person's likeness. Supply clips you are authorized to use.
 
 ```bash
 uv sync --extra dev
-cp assets/memes.example.json assets/memes.json
+uv run meme-assets --download
 cp config.example.yaml config.yaml
 cp .env.example .env
 ```
 
-Put authorized reaction clips at the paths in `assets/memes.json`.
-The example catalog does not ship any third-party media.
+The importer writes `assets/catalog.json` with video paths relative to the
+catalog directory. Source MP4s and normalized video binaries are ignored by Git.
+For a purely self-supplied catalog, copy `assets/memes.example.json` and set
+`catalog` in YAML to the copied file.
 
 ## Configure
 
@@ -38,7 +41,7 @@ llm:
 database:
   backend: json
 scenes: 5
-catalog: assets/memes.json
+catalog: assets/catalog.json
 output: output/result.mp4
 images: commons
 ```
@@ -66,7 +69,7 @@ planner: demo
 images: local
 image_dir: assets/context
 scenes: 2
-catalog: assets/memes.json
+catalog: assets/catalog.json
 output: output/demo.mp4
 ```
 
@@ -81,10 +84,11 @@ Commons search is approximate; licenses and attribution must be reviewed.
 ## Architecture
 
 - `domain/`: individual validated entities and business invariants.
-- `application/ports/`: typed repository/planner/image/renderer contracts.
+- `application/protocols/`: typed repository/planner/image/renderer contracts.
 - `application/pipeline.py`: generation use case.
 - `bootstrap.py` and `composition/catalog.py`: assemble concrete adapters.
-- `infrastructure/`: in-memory catalog, LiteLLM, images and FFmpeg.\n- `persistence/sqlalchemy/`: SQLAlchemy 2.x tables, sessions and repository.
+- `infrastructure/`: in-memory catalog, LiteLLM, images and FFmpeg.
+- `persistence/sqlalchemy/`: SQLAlchemy 2.x tables, sessions and repository.
 - `config/`: one nested Pydantic Settings root for YAML, dotenv and env.
 - `cli.py`: Typer commands.
 - `AGENTS.md`: full engineering, safety, and test standards.
@@ -100,7 +104,7 @@ Choose your backend in `config.yaml`:
 ```yaml
 database:
   backend: sqlalchemy
-catalog: assets/memes.json
+catalog: assets/catalog.json
 ```
 
 Provide the database URL through the environment or the gitignored
@@ -117,7 +121,13 @@ For PostgreSQL, install the optional driver with
 MEMEGEN_DATABASE__URL=postgresql+psycopg://user:password@localhost/memegen
 ```
 
-Apply database schema migrations and then import approved clips **explicitly**:\n\n```bash\nuv run alembic upgrade head\n```\n\nOnce the schema is at its latest revision, import clips:
+Apply database schema migrations and then import approved clips **explicitly**:
+
+```bash
+uv run alembic upgrade head
+```
+
+Once the schema is at its latest revision, import clips:
 
 ```bash
 uv run meme-generator catalog import --config config.yaml
@@ -132,7 +142,8 @@ remains the default for lightweight setups.
 SQLAlchemy selects its database dialect from the URL. The application
 uses only the `MemeRepositoryProtocol` port and can change storage without
 modifying planning or video assembly. For production systems, manage
-schema changes with the included Alembic revisions. Production imports do\nnot create tables implicitly, and migration downgrades remain explicit.
+schema changes with the included Alembic revisions. Production imports do
+not create tables implicitly, and migration downgrades remain explicit.
 
 ## Verification
 
@@ -173,3 +184,29 @@ Scenario and attribution JSON manifests are generated with
 `model_dump_json` from validated Pydantic objects. Run
 `uv run lint-imports` to enforce architecture boundaries before
 committing.
+
+## Curated meme media importer and smoke acceptance
+
+The `meme-assets` entrypoint from the consolidated project downloads and
+normalizes the seven independently reviewed reactions. Downloads are opt-in:
+
+```bash
+uv sync --extra dev
+uv run meme-assets --download
+```
+
+Run `uv run meme-assets` without `--download` to revalidate already
+available local originals with no network access. The generated file
+`assets/catalog.json` is compatible with `InMemoryMemeRepository.from_json`
+when the configured catalog path is `assets/catalog.json`.
+
+For a fully offline functional test, set `planner: demo`, `images: local`,
+`image_dir: assets/context` and supply your own `1.png` context image.
+Then run `uv run meme-generator generate --topic 'Demo' --config config.yaml`.
+
+The integration suite also executes importer, Pydantic catalog validation,
+real FFmpeg encoding and generation in one synthetic-video end-to-end test.
+The separate manual `Real meme media smoke test` workflow may re-fetch the
+real clips, verify pinned SHA-256 checksums, and report only technical metadata.
+Never commit source or normalized videos; see `docs/meme-assets.md` for the
+source manifest and permissions caveats.

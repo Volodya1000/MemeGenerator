@@ -24,7 +24,7 @@ The importer validates the clip's duration (0.1–60 seconds), actual audio and
 video streams, pinned source SHA-256 digests, and a 50 MiB file limit. It
 converts each source to MP4/H.264/AAC, 1280×720, 30 fps, normalized audio,
 and outputs `assets/memes/<meme_id>.mp4`. After *every* item succeeds, it
-atomically writes `assets/catalog.json` with the existing `Meme` schema.
+atomically writes `assets/catalog.json` with the consolidated `domain.meme.Meme` schema.
 The generated paths are relative to the catalog directory (`assets/`), so the generation repository resolves them without duplicated `assets/` prefixes.
 
 Re-running reuses existing normalized videos if the source is unchanged and
@@ -69,7 +69,7 @@ downloads all seven source videos and runs `scripts/verify_real_media.py` on
 an ephemeral GitHub runner. Media models and validation live in reusable
 application modules, not inside the workflow YAML.
 It prints only technical metadata and never commits or publishes MP4 files.
-The initial end-to-end smoke test passed on 2026-10-21:
+The original isolated import smoke test passed on 2026-10-21:
 https://github.com/Volodya1000/MemeGenerator/actions/runs/39564344286.
 
 **Rights:** The ability to download a clip does not grant rights to republish,
