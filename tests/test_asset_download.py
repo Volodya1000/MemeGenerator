@@ -26,7 +26,7 @@ REQUEST = httpx.Request('GET', URL)
 def test_unsafe_media_hosts_are_rejected(raw_url: str, tmp_path: Path) -> None:
     """Invalid URL schemes or hosts fail before any network I/O."""
     url = TypeAdapter(HttpUrl).validate_python(raw_url)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='HTTPS|localhost|IP'):
         download.download_media(url, tmp_path / 'media.mp4')
 
 
@@ -34,7 +34,7 @@ def test_streamed_response_is_saved(tmp_path: Path) -> None:
     """The successful response writes the expected bytes to local disk."""
     destination = tmp_path / SOURCE_NAME
     response = httpx.Response(HTTPStatus.OK, content=b'mp4', request=REQUEST)
-    download._save_response(response, destination)
+    download.save_download_response(response, destination)
     assert destination.read_bytes() == b'mp4'
 
 
@@ -42,7 +42,7 @@ def test_empty_download_is_rejected(tmp_path: Path) -> None:
     """No downloaded bytes can be treated as a usable reaction."""
     response = httpx.Response(HTTPStatus.OK, content=b'', request=REQUEST)
     with pytest.raises(ValueError, match='empty'):
-        download._save_response(response, tmp_path / SOURCE_NAME)
+        download.save_download_response(response, tmp_path / SOURCE_NAME)
 
 
 def test_oversized_download_is_rejected(
@@ -53,7 +53,7 @@ def test_oversized_download_is_rejected(
     monkeypatch.setattr(download, 'MAX_MEDIA_BYTES', 2)
     response = httpx.Response(HTTPStatus.OK, content=b'mp4', request=REQUEST)
     with pytest.raises(ValueError, match='50 MiB'):
-        download._save_response(response, tmp_path / SOURCE_NAME)
+        download.save_download_response(response, tmp_path / SOURCE_NAME)
 
 
 def test_http_error_is_not_written(tmp_path: Path) -> None:
@@ -61,5 +61,5 @@ def test_http_error_is_not_written(tmp_path: Path) -> None:
     response = httpx.Response(HTTPStatus.NOT_FOUND, request=REQUEST)
     target = tmp_path / SOURCE_NAME
     with pytest.raises(httpx.HTTPStatusError):
-        download._save_response(response, target)
+        download.save_download_response(response, target)
     assert not target.exists()

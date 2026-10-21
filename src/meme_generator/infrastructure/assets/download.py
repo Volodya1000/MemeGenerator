@@ -29,7 +29,7 @@ def _validate_media_url(url: HttpUrl) -> None:
     raise ValueError('Media URL must not contain a literal IP address')
 
 
-def _save_response(response: httpx.Response, path: Path) -> None:
+def save_download_response(response: httpx.Response, path: Path) -> None:
     """Save a successful download with a strict maximum size."""
     response.raise_for_status()
     downloaded = 0
@@ -56,6 +56,6 @@ def download_media(url: HttpUrl, destination: Path) -> None:
             ) as client,
             client.stream('GET', str(url)) as response,
         ):
-            _save_response(response, temporary)
+            save_download_response(response, temporary)
         check_source(temporary, None)
         temporary.replace(destination)
