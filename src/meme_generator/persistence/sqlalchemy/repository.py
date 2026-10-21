@@ -6,7 +6,7 @@ from sqlalchemy import Engine, delete, select
 from sqlalchemy.orm import Session
 
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.database.models import (
+from meme_generator.persistence.sqlalchemy.models import (
     CatalogBase,
     MemeRow,
 )
