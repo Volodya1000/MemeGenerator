@@ -31,8 +31,12 @@ Non-secret settings live in `config.yaml`:
 
 ```yaml
 planner: llm
-model: openai/qwen2.5-coder-14b-instruct
-api_base: http://localhost:11434/v1
+llm:
+  model: openai/qwen2.5-coder-14b-instruct
+  api_base: http://localhost:11434/v1
+  retry_attempts: 3
+database:
+  backend: json
 scenes: 5
 catalog: assets/memes.json
 output: output/result.mp4
@@ -44,9 +48,10 @@ LiteLLM also supports providers such as Anthropic and local Ollama. Model
 names should include the LiteLLM provider prefix, such as `openai/name`.
 
 Secrets must be provided in the environment or a gitignored `.env`.
-Use `MEMEGEN_API_KEY` or `OPENAI_API_KEY`. Environment variables
-`MEMEGEN_MODEL` and `MEMEGEN_BASE_URL` override the corresponding
-YAML settings. Never put credentials in committed YAML files.
+Use `MEMEGEN_LLM__API_KEY` for hosted models.
+Nested environment overrides such as `MEMEGEN_LLM__MODEL`,
+`MEMEGEN_LLM__API_BASE`, and `MEMEGEN_DATABASE__URL` override
+non-secret YAML defaults. Pydantic Settings reads `.env` automatically. Never put credentials in committed YAML files.
 
 ## Run
 
@@ -79,8 +84,8 @@ Commons search is approximate; licenses and attribution must be reviewed.
 - `application/ports/`: typed repository/planner/image/renderer contracts.
 - `application/pipeline.py`: generation use case.
 - `bootstrap.py` and `composition/catalog.py`: assemble concrete adapters.
-- `infrastructure/`: JSON catalog, LiteLLM, image sources and FFmpeg.
-- `config/`: validated YAML and environment loading.
+- `infrastructure/`: in-memory catalog, LiteLLM, images and FFmpeg.\n- `persistence/sqlalchemy/`: SQLAlchemy 2.x tables, sessions and repository.
+- `config/`: one nested Pydantic Settings root for YAML, dotenv and env.
 - `cli.py`: Typer commands.
 - `AGENTS.md`: full engineering, safety, and test standards.
 
@@ -93,7 +98,8 @@ Run quality checks with `uv run flake8 . --select WPS`,
 Choose your backend in `config.yaml`:
 
 ```yaml
-catalog_backend: sqlalchemy
+database:
+  backend: sqlalchemy
 catalog: assets/memes.json
 ```
 
@@ -101,14 +107,14 @@ Provide the database URL through the environment or the gitignored
 `.env` file (never in YAML):
 
 ```bash
-MEMEGEN_DATABASE_URL=sqlite+pysqlite:///./memes.sqlite3
+MEMEGEN_DATABASE__URL=sqlite+pysqlite:///./memes.sqlite3
 ```
 
 For PostgreSQL, install the optional driver with
 `uv sync --extra postgres` and use an appropriate SQLAlchemy URL:
 
 ```bash
-MEMEGEN_DATABASE_URL=postgresql+psycopg://user:password@localhost/memegen
+MEMEGEN_DATABASE__URL=postgresql+psycopg://user:password@localhost/memegen
 ```
 
 Import clips **explicitly** before attempting SQL-backed generation:
@@ -140,3 +146,30 @@ and database state rather than fragile SQL call-order mocks.
 Catalog import preserves the original order of reactions. This matters
 because deterministic planning must not change its selections merely
 because the storage backend has changed.
+
+## Storage and architecture guarantees
+
+`InMemoryMemeRepository` is the validated in-memory implementation;
+`SqlAlchemyMemeRepository` implements the same
+`MemeRepositoryProtocol`. Catalog import uses a separate
+`CatalogWriterProtocol`. The database driver can be changed via the
+SQLAlchemy URL without modifying business logic.
+
+The source-of-truth settings class is
+`meme_generator.config.settings.GenerationSettings`. Nested
+`LLMSettings` and `DatabaseSettings` are validated Pydantic models.
+Precedence is environment, dotenv, explicitly selected YAML, then defaults.
+Database URLs and LLM keys are rejected in YAML and use `SecretStr` so
+they are masked from normal model representations.
+
+LLM requests and image search parameters are typed Pydantic models.
+The LLM planner retries transient connection, rate-limit, timeout, and
+availability errors with Tenacity exponential backoff (default 3
+attempts, configurable through `llm.retry_attempts`); it does not
+retry malformed JSON or hallucinated meme identifiers. Prompts reside
+in the dedicated `infrastructure/prompts/` package.
+
+Scenario and attribution JSON manifests are generated with
+`model_dump_json` from validated Pydantic objects. Run
+`uv run lint-imports` to enforce architecture boundaries before
+committing.
