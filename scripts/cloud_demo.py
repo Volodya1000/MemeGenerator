@@ -1,20 +1,25 @@
-"""Produce an entirely synthetic, downloadable CI demonstration video."""
+"""Create a story-driven synthetic preview with truthful reaction labels."""
 
 import logging
 import subprocess
 from pathlib import Path
 
-from meme_generator.application.demo_planner import DemoPlanner
+from pydantic import TypeAdapter
+
 from meme_generator.application.pipeline import GenerationPipeline
+from meme_generator.application.scenario_validation import validate_plan
+from meme_generator.domain.meme import Meme
 from meme_generator.domain.meme_sources import MemeSource, MemeSources
+from meme_generator.domain.scenario import Scenario
+from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.assets.catalog_importer import (
     import_catalog,
 )
-from meme_generator.infrastructure.ffmpeg.demo_context import (
-    create_demo_context,
+from meme_generator.infrastructure.caption_cards import (
+    CaptionCardImageProvider,
+    render_caption,
 )
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
-from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.in_memory_meme_repository import (
     InMemoryMemeRepository,
 )
@@ -22,14 +27,69 @@ from meme_generator.infrastructure.media_probe import probe_clip
 
 WORKSPACE = Path('output/cloud-demo-fixtures')
 OUTPUT = Path('output/cloud-demo.mp4')
-MEME_ID = 'synthetic_reaction'
-SCENE_COUNT = 2
 LOGGER = logging.getLogger(__name__)
+STORY: tuple[tuple[str, str, str], ...] = (
+    (
+        'сомнительно',
+        'Сомнительно, но окей',
+        'Когда CI зелёный, а видео всё ещё не посмотрели',
+    ),
+    (
+        'круто',
+        'Круто, да это ж круто!',
+        'Когда GitHub собрал настоящий MP4 вообще без твоего ноутбука',
+    ),
+    (
+        'сколько_можно',
+        'Ну сколько можно!',
+        'Когда в маленьком PR снова обнаружилось 300 замечаний',
+    ),
+)
 
 
-def create_synthetic_clip(destination: Path) -> None:
-    """Create a short reaction without copying third-party content."""
-    destination.parent.mkdir(parents=True, exist_ok=True)
+class PreviewPlanner:
+    """Pick three known reactions for a meaningful offline smoke scenario."""
+
+    def plan(
+        self,
+        theme: str,
+        memes: list[Meme],
+        scene_count: int,
+    ) -> Scenario:
+        """Use a reviewed script rather than pretend a model was involved."""
+        if scene_count != len(STORY):
+            raise ValueError('Preview must include every scripted reaction')
+        scenario = Scenario(
+            theme=theme,
+            scenes=[
+                Scene(
+                    order=index,
+                    description=context,
+                    image_query=context,
+                    meme_id=identifier,
+                )
+                for index, (identifier, _, context) in enumerate(
+                    STORY, start=1
+                )
+            ],
+        )
+        validate_plan(scenario, memes, scene_count)
+        return scenario
+
+
+def create_synthetic_clip(
+    destination: Path,
+    phrase: str,
+    variation: int,
+) -> None:
+    """Generate a clearly labelled imitation with silence, not a fake voice."""
+    image = destination.with_suffix('.png')
+    render_caption(
+        phrase,
+        image,
+        label='ТЕКСТОВАЯ ЗАГЛУШКА РЕАКЦИИ',
+        variation=variation + 1,
+    )
     subprocess.run(
         [
             'ffmpeg',
@@ -38,19 +98,25 @@ def create_synthetic_clip(destination: Path) -> None:
             'error',
             '-nostdin',
             '-y',
+            '-loop',
+            '1',
+            '-framerate',
+            '30',
+            '-i',
+            str(image),
             '-f',
             'lavfi',
             '-i',
-            'color=c=purple:s=320x240:r=25:d=1.4',
-            '-f',
-            'lavfi',
-            '-i',
-            'sine=frequency=550:sample_rate=44100:duration=1.4',
-            '-shortest',
+            'anullsrc=channel_layout=stereo:sample_rate=48000',
+            '-t',
+            '1.8',
             '-c:v',
-            'mpeg4',
+            'libx264',
+            '-pix_fmt',
+            'yuv420p',
             '-c:a',
             'aac',
+            '-shortest',
             str(destination),
         ],
         capture_output=True,
@@ -60,56 +126,61 @@ def create_synthetic_clip(destination: Path) -> None:
 
 
 def prepare_catalog() -> Path:
-    """Import an owned synthetic source through the real asset importer."""
-    raw = WORKSPACE / 'assets/raw' / f'{MEME_ID}.mp4'
-    create_synthetic_clip(raw)
+    """Import the three synthetic clips through the production importer."""
+    raw = WORKSPACE / 'assets/raw'
+    clips = [
+        MemeSource(
+            meme_id=identifier,
+            phrase=phrase,
+            source_page='https://example.org/original-demo-media',
+        )
+        for identifier, phrase, _ in STORY
+    ]
+    for index, clip in enumerate(clips, start=1):
+        create_synthetic_clip(
+            raw / f'{clip.meme_id}.mp4', clip.phrase, index
+        )
     manifest = WORKSPACE / 'assets/sources.json'
-    sources = MemeSources(
-        schema_version=1,
-        clips=[
-            MemeSource(
-                meme_id=MEME_ID,
-                phrase='Synthetic reaction',
-                source_page='https://example.org/synthetic-reaction',
-            ),
-        ],
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(
+        MemeSources(schema_version=1, clips=clips).model_dump_json(indent=2),
+        encoding='utf-8',
     )
-    manifest.write_text(sources.model_dump_json(indent=2), encoding='utf-8')
     import_catalog(manifest, WORKSPACE)
     return WORKSPACE / 'assets/catalog.json'
 
 
 def generate_demo(catalog: Path) -> None:
-    """Render two scenes with the production pipeline and local images."""
-    images = WORKSPACE / 'images'
-    for index in range(1, SCENE_COUNT + 1):
-        create_demo_context(images / f'{index}.png')
+    """Use the production renderer with three contextual caption cards."""
     GenerationPipeline(
         catalog=InMemoryMemeRepository.from_json(catalog),
-        planner=DemoPlanner(),
-        image_provider=LocalImageProvider(images),
+        planner=PreviewPlanner(),
+        image_provider=CaptionCardImageProvider(),
         renderer=FFmpegRenderer(),
-    ).generate('Cloud acceptance', SCENE_COUNT, OUTPUT)
+    ).generate('Жизнь разработчика', len(STORY), OUTPUT)
 
 
 def verify_demo() -> None:
-    """Check that the downloadable artifact has valid video and metadata."""
+    """Validate the video and its three distinct, ordered real pipeline scenes."""
     media = probe_clip(OUTPUT)
-    expected = (
-        OUTPUT,
-        OUTPUT.with_suffix('.scenario.json'),
-        OUTPUT.with_suffix('.attribution.json'),
+    scenario_path = OUTPUT.with_suffix('.scenario.json')
+    attribution_path = OUTPUT.with_suffix('.attribution.json')
+    if not media.has_audio or media.duration_seconds <= 8:
+        raise ValueError('Generated preview lacks expected audio or scenes')
+    if not attribution_path.is_file():
+        raise FileNotFoundError('Attribution manifest is missing')
+    scenario = Scenario.model_validate_json(
+        scenario_path.read_text(encoding='utf-8')
     )
-    if not media.has_audio or media.duration_seconds <= 1:
-        raise ValueError('Generated video does not contain playable audio')
-    if not all(path.is_file() for path in expected):
-        raise FileNotFoundError('Demo output is incomplete')
-    LOGGER.info('SYNTHETIC_VIDEO_READY=%s', OUTPUT)
-    LOGGER.info('DURATION_SECONDS=%s', media.duration_seconds)
+    expected_ids = [identifier for identifier, _, _ in STORY]
+    if [scene.meme_id for scene in scenario.scenes] != expected_ids:
+        raise ValueError('Preview scene sequence does not match the script')
+    LOGGER.info('MEANINGFUL_PREVIEW=%s', OUTPUT)
+    LOGGER.info('SCENES=%s DURATION=%s', len(STORY), media.duration_seconds)
 
 
 def main() -> None:
-    """Create an independently redistributable acceptance artifact."""
+    """Create a shareable preview without third-party clips or invented voice."""
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     generate_demo(prepare_catalog())
     verify_demo()
