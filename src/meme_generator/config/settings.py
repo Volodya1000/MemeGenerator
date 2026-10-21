@@ -48,7 +48,7 @@ class GenerationSettings(BaseSettings):
     scenes: int = Field(default=5, ge=1)
     catalog: Path = Path('assets/catalog.json')
     output: Path = Path('output/result.mp4')
-    images: Literal['commons', 'local'] = 'commons'
+    images: Literal['commons', 'local', 'cards'] = 'commons'
     image_dir: Path | None = None
 
     @classmethod
