@@ -63,9 +63,7 @@ def test_commons_returns_image_with_provenance(tmp_path: Path) -> None:
 def test_commons_rejects_empty_search(tmp_path: Path) -> None:
     """No valid search result must be reported explicitly."""
     transport = httpx.MockTransport(
-        lambda request: httpx.Response(
-            HTTP_OK, json={'query': {'pages': {}}}
-        ),
+        lambda request: httpx.Response(HTTP_OK, json={'query': {'pages': {}}}),
     )
     with (
         httpx.Client(transport=transport) as client,
