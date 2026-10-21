@@ -1,8 +1,8 @@
 # Curated reaction assets
 
 `assets/sources.json` is the **versioned, reviewed source catalog**. It lists
-seven short Oleg Tinkov reactions from the Dud interview, with attribution via
-Cutzo source pages. It includes reviewed direct HTTPS media URLs and attribution pages, but **does
+seven short Oleg Tinkov reactions from the Dud interview, with Cutzo source
+pages, direct HTTPS media URLs, and pinned source SHA-256 checksums. It **does
 not** include video contents or a license to redistribute the clips.
 
 ## Install and import
@@ -21,7 +21,7 @@ The seven source attribution pages and their corresponding media URLs are
 versioned together.
 
 The importer validates the clip's duration (0.1–60 seconds), actual audio and
-video streams, optional source SHA-256 digest, and 50 MiB file limit. It
+video streams, pinned source SHA-256 digests, and a 50 MiB file limit. It
 converts each source to MP4/H.264/AAC, 1280×720, 30 fps, normalized audio,
 and outputs `assets/memes/<meme_id>.mp4`. After *every* item succeeds, it
 atomically writes `assets/catalog.json` with the existing `Meme` schema.
@@ -46,8 +46,8 @@ uv run meme-assets --download
 Source page links are **not** direct media links. The command does not scrape
 HTML, run JavaScript, bypass authentication, follow HTTP redirects, or scrape
 YouTube. Downloads are size-limited, checked by `ffprobe`, and atomically
-stored in `assets/raw/`. You can optionally set a known source `sha256` in
-any entry to detect silent changes to the original file.
+stored in `assets/raw/`. All seven source digests are pinned, so unexpected
+upstream changes fail the import rather than silently changing meme contents.
 
 Without `--download`, there are no network requests. New sources without a
 `media_url` still require manual acquisition. Missing or corrupt inputs fail
@@ -64,9 +64,11 @@ use their SHA-256 digests to verify downloaded copies.
 
 Unit tests are offline. Standard CI FFmpeg tests use a **synthetic** clip and
 never require third-party video hosting or copyright-restricted files.
-A separate, manually dispatched `Real meme media smoke test` workflow downloads
-and validates the seven source videos on an ephemeral GitHub runner, prints only
-technical metadata, and does not commit or publish the MP4 files.
+A separate `Real meme media smoke test` workflow, normally started manually,
+downloads and validates all seven source videos on an ephemeral GitHub runner.
+It prints only technical metadata and never commits or publishes MP4 files.
+The initial end-to-end smoke test passed on 2026-10-21:
+https://github.com/Volodya1000/MemeGenerator/actions/runs/39564344286.
 
 **Rights:** The ability to download a clip does not grant rights to republish,
 modify, or distribute it. Obtain appropriate permissions for your intended
