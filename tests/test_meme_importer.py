@@ -12,6 +12,12 @@ ASSETS = Path('assets')
 UTF8 = 'utf-8'
 
 
+def _create_stub(path: Path, payload: bytes) -> None:
+    """Create a fake local file for unit checks without FFmpeg."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(payload)
+
+
 @pytest.fixture
 def manifest(tmp_path: Path) -> Path:
     """Write a single-clip source manifest with no remote dependency."""
@@ -87,10 +93,8 @@ def test_reimport_reuses_verified_files(
     """A second run need not re-encode unchanged video files."""
     raw = tmp_path / ASSETS / 'raw' / 'example.mp4'
     ready = tmp_path / ASSETS / 'memes' / 'example.mp4'
-    raw.parent.mkdir(parents=True)
-    ready.parent.mkdir(parents=True)
-    raw.write_bytes(b'input')
-    ready.write_bytes(b'output')
+    _create_stub(raw, b'input')
+    _create_stub(ready, b'output')
     validation = Mock()
     normalization = Mock()
     monkeypatch.setattr(meme_importer, 'check_source', validation)
