@@ -47,10 +47,14 @@ def verify_generated_video(output: Path) -> None:
     media = probe_clip(output)
     if not media.has_audio or media.duration_seconds <= SCENE_COUNT * 2:
         raise ValueError('Real video output lacks expected streams')
-    if not output.with_suffix('.scenario.json').is_file():
-        raise FileNotFoundError('Scenario manifest was not published')
-    if not output.with_suffix('.attribution.json').is_file():
-        raise FileNotFoundError('Attribution manifest was not published')
+    if not all(
+        path.is_file()
+        for path in (
+            output.with_suffix('.scenario.json'),
+            output.with_suffix('.attribution.json'),
+        )
+    ):
+        raise FileNotFoundError('Scenario and attribution must be published')
     scenario = Scenario.model_validate_json(
         output.with_suffix('.scenario.json').read_text(encoding='utf-8')
     )
