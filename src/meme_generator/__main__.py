@@ -1,4 +1,4 @@
-"""Enable python -m meme_generator execution."""
+"""Allow running the application with python -m meme_generator."""
 
 from meme_generator.cli import main
 
