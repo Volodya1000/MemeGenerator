@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from meme_generator.application.ports.meme_repository import MemeRepository
+from meme_generator.application.protocols.meme_repository import MemeRepositoryProtocol
 from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.scenario import Scenario
 
@@ -13,7 +13,7 @@ class FakeRenderer:
     def render(
         self,
         scenario: Scenario,
-        catalog: MemeRepository,
+        catalog: MemeRepositoryProtocol,
         images: list[ImageAsset],
         output_path: Path,
     ) -> Path:
