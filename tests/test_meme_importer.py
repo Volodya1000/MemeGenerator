@@ -7,8 +7,10 @@ from unittest.mock import Mock
 import pytest
 
 from meme_generator.infrastructure.assets import (
-    clip_importer as meme_clip_importer,
     catalog_importer as meme_importer,
+)
+from meme_generator.infrastructure.assets import (
+    clip_importer as meme_clip_importer,
 )
 
 ASSETS = Path('assets')
