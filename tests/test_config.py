@@ -45,3 +45,17 @@ def test_environment_overrides_yaml(
     path = tmp_path / CONFIG_NAME
     path.write_text('model: openai/previous\n', encoding=TEXT_ENCODING)
     assert load_settings(path).model == 'openai/override'
+
+def test_yaml_file_paths_are_validated(tmp_path: Path) -> None:
+    """YAML strings must be usable as Path values at the I/O boundary."""
+    config_path = tmp_path / CONFIG_NAME
+    config_path.write_text(
+        'catalog: assets/memes.json\n'
+        'output: output/result.mp4\n'
+        'catalog_backend: sqlalchemy\n',
+        encoding=TEXT_ENCODING,
+    )
+    settings = load_settings(config_path)
+    assert settings.catalog == Path('assets/memes.json')
+    assert settings.output == Path('output/result.mp4')
+    assert settings.catalog_backend == 'sqlalchemy'
