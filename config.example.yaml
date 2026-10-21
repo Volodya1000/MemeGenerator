@@ -7,3 +7,6 @@ catalog: assets/memes.json
 output: output/result.mp4
 images: commons
 # Set images: local and image_dir: assets/context for offline images.
+
+# Choose 'json' (default) or 'sqlalchemy' for catalog storage.
+catalog_backend: json

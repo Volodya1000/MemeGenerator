@@ -6,10 +6,12 @@ from typing import Annotated
 import typer
 
 from meme_generator.bootstrap import create_pipeline
+from meme_generator.cli_catalog import catalog_app
 from meme_generator.config.loader import load_settings
 from meme_generator.config.settings import GenerationSettings
 
 app = typer.Typer(help='Generate short, themed reaction videos.')
+app.add_typer(catalog_app, name='catalog')
 
 
 @app.callback()

@@ -4,9 +4,9 @@ from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
 from meme_generator.application.ports.image_provider import ImageProvider
 from meme_generator.application.ports.scenario_planner import ScenarioPlanner
+from meme_generator.composition.catalog import create_catalog
 from meme_generator.config.loader import llm_api_key
 from meme_generator.config.settings import GenerationSettings
-from meme_generator.infrastructure.catalog import MemeCatalog
 from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 from meme_generator.infrastructure.images import LocalImageProvider
@@ -38,7 +38,7 @@ def create_images(settings: GenerationSettings) -> ImageProvider:
 def create_pipeline(settings: GenerationSettings) -> GenerationPipeline:
     """Construct one generation use case with concrete I/O adapters."""
     return GenerationPipeline(
-        catalog=MemeCatalog.from_json(settings.catalog),
+        catalog=create_catalog(settings),
         planner=create_planner(settings),
         image_provider=create_images(settings),
         renderer=FFmpegRenderer(),

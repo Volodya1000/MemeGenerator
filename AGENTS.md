@@ -32,3 +32,14 @@
 - If changes affect stacked PRs, keep base branches consistent. Do not merge a dependent PR before its base.
 - Confirm all checks succeed on the actual head commit before recommending merge.
 - Never check in user-supplied movie clips, API keys, downloaded third-party content, or generated video.
+
+## SQL storage and persistence
+- Treat MemeRepository as the application query port; SQLAlchemy models, sessions, and DB URLs must not leak into domain or generation orchestration.
+- Use SQLAlchemy 2.x sessions with explicit transaction boundaries; close sessions after operations.
+- SQL credentials and connection URLs belong in environment variables, never checked-in YAML or generated video manifests.
+- Use real SQLite-backed integration tests for repository state and transaction semantics, and PostgreSQL tests where a CI service is available; do not mock the ORM.
+- Database schema initialization is explicit for local imports. Introduce migrations before production schema changes.
+
+- Keep SQL writer operations behind a separate typed write port. A read-only repository interface should not grow mutating methods solely for one adapter.
+- Use temporary SQLite databases for fast integration tests, an actual PostgreSQL service in CI, and verify durable reads, consistent contracts, and atomic rollback on failed writes.
+- Shared fixtures belong in a local conftest.py near the tests that use them. Avoid global fixture collections without a clear responsibility.
