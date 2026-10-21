@@ -11,7 +11,10 @@ from meme_generator.application.meme_importer import import_catalog
 
 logger = logging.getLogger(__name__)
 IMPORT_ERRORS = (
-    OSError, ValueError, subprocess.SubprocessError, httpx.HTTPError,
+    OSError,
+    ValueError,
+    subprocess.SubprocessError,
+    httpx.HTTPError,
 )
 
 
@@ -19,7 +22,9 @@ def main() -> int:
     """Prepare and validate a local catalog for the video generator."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        '--manifest', type=Path, default=Path('assets/sources.json'),
+        '--manifest',
+        type=Path,
+        default=Path('assets/sources.json'),
     )
     parser.add_argument('--project-root', type=Path, default=Path.cwd())
     parser.add_argument('--download', action='store_true')

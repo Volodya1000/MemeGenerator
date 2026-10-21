@@ -68,7 +68,10 @@ def import_catalog(
     )
     catalog = [
         import_meme(
-            source, project_root, allow_download=allow_download, force=force,
+            source,
+            project_root,
+            allow_download=allow_download,
+            force=force,
         )
         for source in manifest.clips
     ]

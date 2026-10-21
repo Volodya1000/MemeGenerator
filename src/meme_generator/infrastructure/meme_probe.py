@@ -45,9 +45,14 @@ def probe_media(path: Path) -> MediaInfo:
     """Inspect the actual file rather than trusting its extension."""
     process = subprocess.run(
         (
-            'ffprobe', '-v', 'error', '-show_entries',
+            'ffprobe',
+            '-v',
+            'error',
+            '-show_entries',
             'format=duration:stream=codec_type,codec_name,width,height,avg_frame_rate',
-            '-of', 'json', str(path),
+            '-of',
+            'json',
+            str(path),
         ),
         check=True,
         capture_output=True,
@@ -69,7 +74,10 @@ def verify_normalized(path: Path) -> None:
     audio = media.get_stream('audio')
     expected_video = ('h264', 1280, 720, '30/1')
     actual_video = (
-        video.codec_name, video.width, video.height, video.avg_frame_rate,
+        video.codec_name,
+        video.width,
+        video.height,
+        video.avg_frame_rate,
     )
     if actual_video != expected_video or audio.codec_name != 'aac':
         raise ValueError(f'Unexpected output media format: {path}')
