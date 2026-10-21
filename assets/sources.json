@@ -4,37 +4,44 @@
     {
       "meme_id": "tinkov_somnitelno_no_okey",
       "phrase": "Сомнительно, но окей",
-      "source_page": "https://cutzo.ru/video/somnitelno-no-okey"
+      "source_page": "https://cutzo.ru/video/somnitelno-no-okey",
+      "media_url": "https://media.cutzo.ru/videos/somnitelno_no_ok_1_21c3aa70.mp4"
     },
     {
       "meme_id": "tinkov_kruto",
       "phrase": "Круто, да это ж круто!",
-      "source_page": "https://cutzo.ru/video/kruto-da-eto-zh-kruto"
+      "source_page": "https://cutzo.ru/video/kruto-da-eto-zh-kruto",
+      "media_url": "https://media.cutzo.ru/videos/kruto_da_eto_zh_kruto_1_9fb1a72b.mp4"
     },
     {
       "meme_id": "tinkov_netu_nihuya",
       "phrase": "Нету нихуя, вот просто ни-ху-я",
-      "source_page": "https://cutzo.ru/video/netu-nihuya-vot-prosto-ni-hu-ya"
+      "source_page": "https://cutzo.ru/video/netu-nihuya-vot-prosto-ni-hu-ya",
+      "media_url": "https://media.cutzo.ru/videos/ni_hu_ya_1_63c9702f.mp4"
     },
     {
       "meme_id": "tinkov_smelo",
       "phrase": "Это было не просто смело, это было пиздец как смело",
-      "source_page": "https://cutzo.ru/video/eto-bylo-ne-prosto-smelo-eto-bylo-pizdets-kak-smelo"
+      "source_page": "https://cutzo.ru/video/eto-bylo-ne-prosto-smelo-eto-bylo-pizdets-kak-smelo",
+      "media_url": "https://media.cutzo.ru/videos/eto_bylo_ne_prosto_smelo_1_e8f1156c.mp4"
     },
     {
       "meme_id": "tinkov_skolko_mozhno",
       "phrase": "Ну это пиздец какой-то просто, ну сколько можно!",
-      "source_page": "https://cutzo.ru/video/nu-eto-pizdets-kakoy-to-prosto-nu-skolko-mozhno"
+      "source_page": "https://cutzo.ru/video/nu-eto-pizdets-kakoy-to-prosto-nu-skolko-mozhno",
+      "media_url": "https://media.cutzo.ru/videos/nu_eto_pizdets_nu_skollko_mozhno_1_ac7c8714.mp4"
     },
     {
       "meme_id": "tinkov_mne_pohuy",
       "phrase": "Мне похуй, я так чувствую",
-      "source_page": "https://cutzo.ru/video/mne-pohuy-ya-tak-chuvstvuyu"
+      "source_page": "https://cutzo.ru/video/mne-pohuy-ya-tak-chuvstvuyu",
+      "media_url": "https://media.cutzo.ru/videos/mne_pohuy_1_a0883ec3.mp4"
     },
     {
       "meme_id": "tinkov_ya_zaplakal",
       "phrase": "Блядь, я заплакал",
-      "source_page": "https://cutzo.ru/video/blyad-ya-zaplakal"
+      "source_page": "https://cutzo.ru/video/blyad-ya-zaplakal",
+      "media_url": "https://media.cutzo.ru/videos/blyad_ya_zaplakal_1_e4347cb0.mp4"
     }
   ]
 }
