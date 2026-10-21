@@ -11,6 +11,7 @@ from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
 
 MODEL_NAME = 'openai/test'
+REACTION_ID = 'approved'
 
 
 class RecoveringCompletion:
@@ -32,7 +33,7 @@ class RecoveringCompletion:
                     order=1,
                     description='Working on a program',
                     image_query='computer screen',
-                    meme_id='approved',
+                    meme_id=REACTION_ID,
                 )
             ],
         ).model_dump_json()
@@ -61,13 +62,13 @@ def test_transient_error_is_retried() -> None:
     )
     memes = [
         Meme(
-            meme_id='approved',
+            meme_id=REACTION_ID,
             phrase='Agreed',
             video_path=Path('clip.mp4'),
         )
     ]
     scenario = planner.plan('Programming', memes, 1)
-    assert scenario.scenes[0].meme_id == 'approved'
+    assert scenario.scenes[0].meme_id == REACTION_ID
     assert provider.attempts == 2
 
 
@@ -81,7 +82,7 @@ def test_bad_json_does_not_retry() -> None:
     )
     memes = [
         Meme(
-            meme_id='approved',
+            meme_id=REACTION_ID,
             phrase='Agreed',
             video_path=Path('clip.mp4'),
         )
