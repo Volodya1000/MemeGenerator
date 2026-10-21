@@ -1,9 +1,9 @@
 """Validated inputs and outputs of the video-generation pipeline."""
 
 from pathlib import Path
+from typing import Self
 
 from pydantic import BaseModel, Field, model_validator
-from typing_extensions import Self
 
 
 class Meme(BaseModel):

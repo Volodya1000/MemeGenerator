@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from meme_generator.domain.models import Scene, Scenario
+from meme_generator.domain.models import Scenario, Scene
 
 
 def test_ordered_scenario_is_accepted() -> None:
