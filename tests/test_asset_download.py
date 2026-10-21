@@ -26,7 +26,7 @@ REQUEST = httpx.Request('GET', URL)
 def test_unsafe_media_hosts_are_rejected(raw_url: str, tmp_path: Path) -> None:
     """Invalid URL schemes or hosts fail before any network I/O."""
     url = TypeAdapter(HttpUrl).validate_python(raw_url)
-    with pytest.raises(ValueError, match='HTTPS|localhost|IP'):
+    with pytest.raises(ValueError, match=r'HTTPS|localhost|IP'):
         download.download_media(url, tmp_path / 'media.mp4')
 
 
