@@ -66,6 +66,7 @@ warn_unused_configs = true
 testpaths = ["tests"]
 addopts = ["--strict-config", "--strict-markers", "-ra"]
 xfail_strict = true
+markers = ["integration: end-to-end FFmpeg integration tests"]
 
 [tool.coverage.run]
 branch = true
