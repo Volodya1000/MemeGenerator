@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from meme_generator.bootstrap import create_images
+from meme_generator.composition.pipeline import create_images
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.infrastructure.caption_cards import (
     CaptionCardImageProvider,

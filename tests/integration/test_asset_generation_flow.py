@@ -11,10 +11,10 @@ from meme_generator.infrastructure.assets.catalog_importer import (
 )
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
 from meme_generator.infrastructure.images import LocalImageProvider
-from meme_generator.infrastructure.in_memory_meme_repository import (
+from meme_generator.infrastructure.media_probe import probe_clip
+from meme_generator.persistence.in_memory import (
     InMemoryMemeRepository,
 )
-from meme_generator.infrastructure.media_probe import probe_clip
 
 MEME_ID = 'approved_reaction'
 ENCODING = 'utf-8'

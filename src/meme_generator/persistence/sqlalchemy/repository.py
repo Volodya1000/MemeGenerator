@@ -5,6 +5,12 @@ from pathlib import Path
 from sqlalchemy import Engine, delete, select
 from sqlalchemy.orm import Session
 
+from meme_generator.application.protocols.catalog_writer import (
+    CatalogWriterProtocol,
+)
+from meme_generator.application.protocols.meme_repository import (
+    MemeRepositoryProtocol,
+)
 from meme_generator.domain.meme import Meme
 from meme_generator.persistence.sqlalchemy.models import (
     CatalogBase,
@@ -21,7 +27,10 @@ def to_domain(record: MemeRow) -> Meme:
     )
 
 
-class SqlAlchemyMemeRepository:
+class SqlAlchemyMemeRepository(
+    MemeRepositoryProtocol,
+    CatalogWriterProtocol,
+):
     """Read committed clips from any SQLAlchemy-supported SQL database."""
 
     def __init__(self, engine: Engine) -> None:

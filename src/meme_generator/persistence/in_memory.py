@@ -5,6 +5,9 @@ from pathlib import Path
 
 from pydantic import TypeAdapter
 
+from meme_generator.application.protocols.meme_repository import (
+    MemeRepositoryProtocol,
+)
 from meme_generator.domain.meme import Meme
 
 VIDEO_SUFFIXES = frozenset(('.mp4', '.mov', '.webm'))
@@ -22,7 +25,7 @@ def resolve_video(meme: Meme, directory: Path) -> Meme:
     return meme.model_copy(update={'video_path': resolved})
 
 
-class InMemoryMemeRepository:
+class InMemoryMemeRepository(MemeRepositoryProtocol):
     """In-memory repository, optionally loaded from a JSON manifest."""
 
     def __init__(self, memes: list[Meme]) -> None:

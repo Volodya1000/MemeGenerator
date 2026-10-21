@@ -17,10 +17,13 @@ from tenacity import (
     wait_exponential,
 )
 
+from meme_generator.application.protocols.scenario_planner import (
+    ScenarioPlannerProtocol,
+)
 from meme_generator.application.scenario_validation import validate_plan
 from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
-from meme_generator.infrastructure.planner_request import (
+from meme_generator.infrastructure.llm.request import (
     AvailableMeme,
     PlannerRequest,
 )
@@ -42,7 +45,7 @@ TRANSIENT_ERRORS = (
 )
 
 
-class LiteLLMPlanner:
+class LiteLLMPlanner(ScenarioPlannerProtocol):
     """Plan scenes without binding callers to any one LLM provider."""
 
     def __init__(

@@ -3,7 +3,7 @@
 ## Scope and design
 - Runtime: Python 3.13. Prefer explicit contracts, small cohesive modules, and straightforward code over abstraction for its own sake.
 - Apply SOLID, KISS, DRY, and YAGNI with judgment. Elegant Objects can inform encapsulation, but avoid Java-style one-method classes and abstraction without a real use case.
-- Keep domain objects and invariants in `domain/`, use-case orchestration in `application/`, interfaces needed by use cases in `application/protocols/`, and adapters for storage, LLMs, images, and FFmpeg in `infrastructure/`.
+- Keep domain objects and invariants in `domain/`, use-case orchestration in `application/`, interfaces needed by use cases in `application/protocols/`, and adapters for storage, LLMs, images, and FFmpeg in `infrastructure/`. Keep JSON and SQL catalog adapters together in `persistence/`.
 - Infrastructure depends on application contracts; the application must not depend on concrete infrastructure classes.
 - One file should have a clear primary responsibility. Do not add generic `common.py`, `utils.py`, or catch-all `models.py` modules.
 - Use repository interfaces for catalog reads. An in-memory catalog is sufficient for tests; a future database adapter should not change the use cases.
@@ -46,8 +46,8 @@
 
 ## Current module boundaries
 - Name contracts `*Protocol` and keep them under `application/protocols/`. Keep implementations named after their storage or provider semantics.
-- SQLAlchemy lives under `persistence/sqlalchemy/`, not `infrastructure/`. Composition alone chooses concrete adapters; domain and application depend on no persistence packages.
-- One root `GenerationSettings(BaseSettings)` with validated nested `DatabaseSettings` and `LLMSettings`. Never call `os.getenv` from adapters or use hand-written environment/YAML merges.
+- SQLAlchemy lives under `persistence/sqlalchemy/`, not `infrastructure/`. Keep JSON and SQL catalog adapters together in `persistence/`. Composition alone chooses concrete adapters; domain and application depend on no persistence packages.
+- One root `GenerationSettings(BaseSettings)` with validated nested `DatabaseSettings` and `LLMSettings`, each declared in a separate configuration module. Never call `os.getenv` from adapters or use hand-written environment/YAML merges.
 - Model JSON requests and manifests explicitly with Pydantic; prefer `model_dump_json` for serialization. Keep third-party request parameters and API schemas strictly typed.
 - Use Tenacity only for transient external failures. Validation errors are deterministic failures, not a reason to retry.
 - Apply import-linter contracts to guard the layering in CI. Mutation tests may be used selectively where they reveal defects in meaningful assertions.

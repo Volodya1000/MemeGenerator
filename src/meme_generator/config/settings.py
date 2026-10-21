@@ -1,34 +1,17 @@
-"""One typed configuration tree for environment and YAML settings."""
+"""Root settings tree loaded from the environment and YAML."""
 
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import Field
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
     SettingsConfigDict,
 )
 
-
-class DatabaseSettings(BaseModel):
-    """Storage configuration, with connection credentials kept secret."""
-
-    model_config = ConfigDict(extra='forbid')
-
-    backend: Literal['json', 'sqlalchemy'] = 'json'
-    url: SecretStr | None = None
-
-
-class LLMSettings(BaseModel):
-    """Model provider configuration and bounded transient retries."""
-
-    model_config = ConfigDict(extra='forbid')
-
-    model: str = ''
-    api_base: str | None = None
-    api_key: SecretStr | None = None
-    retry_attempts: int = Field(default=3, ge=1, le=10)
+from meme_generator.config.database import DatabaseSettings
+from meme_generator.config.llm import LLMSettings
 
 
 class GenerationSettings(BaseSettings):

@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
-from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
+from meme_generator.infrastructure.llm.planner import LiteLLMPlanner
 
 MODEL_NAME = 'openai/test'
 REACTION_ID = 'approved'

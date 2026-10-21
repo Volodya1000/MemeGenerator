@@ -17,10 +17,10 @@ from meme_generator.infrastructure.caption_cards import (
     render_caption,
 )
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
-from meme_generator.infrastructure.in_memory_meme_repository import (
+from meme_generator.infrastructure.media_probe import probe_clip
+from meme_generator.persistence.in_memory import (
     InMemoryMemeRepository,
 )
-from meme_generator.infrastructure.media_probe import probe_clip
 
 WORKSPACE = Path('output/cloud-demo-fixtures')
 OUTPUT = Path('output/cloud-demo.mp4')

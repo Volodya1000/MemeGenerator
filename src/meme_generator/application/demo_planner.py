@@ -1,11 +1,14 @@
 """Deterministic, offline scenario generation."""
 
+from meme_generator.application.protocols.scenario_planner import (
+    ScenarioPlannerProtocol,
+)
 from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
 
 
-class DemoPlanner:
+class DemoPlanner(ScenarioPlannerProtocol):
     """Repeat supplied reactions to test the video pipeline offline."""
 
     def plan(
