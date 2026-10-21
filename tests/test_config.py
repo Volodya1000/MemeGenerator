@@ -37,7 +37,8 @@ def test_invalid_scene_count_fails(tmp_path: Path) -> None:
 
 
 def test_environment_overrides_yaml(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Runtime model choices take precedence over checked-in YAML."""
     monkeypatch.setenv('MEMEGEN_MODEL', 'openai/override')
