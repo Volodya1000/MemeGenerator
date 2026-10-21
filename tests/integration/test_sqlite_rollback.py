@@ -7,10 +7,10 @@ from sqlalchemy import Engine, text
 from sqlalchemy.exc import DBAPIError
 
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.database.engine import (
+from meme_generator.persistence.sqlalchemy.engine import (
     create_catalog_engine,
 )
-from meme_generator.infrastructure.database.repository import (
+from meme_generator.persistence.sqlalchemy.repository import (
     SqlAlchemyMemeRepository,
 )
 

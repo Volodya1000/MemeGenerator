@@ -5,10 +5,14 @@ from pathlib import Path
 import pytest
 from sqlalchemy import Engine
 
-from meme_generator.application.ports.meme_repository import MemeRepository
+from meme_generator.application.protocols.meme_repository import (
+    MemeRepositoryProtocol,
+)
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.catalog import MemeCatalog
-from meme_generator.infrastructure.database.repository import (
+from meme_generator.infrastructure.in_memory_meme_repository import (
+    InMemoryMemeRepository,
+)
+from meme_generator.persistence.sqlalchemy.repository import (
     SqlAlchemyMemeRepository,
 )
 
@@ -18,7 +22,7 @@ def catalog_repository(
     request: pytest.FixtureRequest,
     database_engine: Engine,
     tmp_path: Path,
-) -> MemeRepository:
+) -> MemeRepositoryProtocol:
     """Run identical state assertions against both concrete adapters."""
     reaction = Meme(
         meme_id='reaction',
@@ -26,7 +30,7 @@ def catalog_repository(
         video_path=tmp_path / 'reaction.mp4',
     )
     if request.param == 'memory':
-        return MemeCatalog([reaction])
+        return InMemoryMemeRepository([reaction])
     repository = SqlAlchemyMemeRepository(database_engine)
     repository.create_schema()
     repository.replace_all([reaction])
@@ -34,7 +38,7 @@ def catalog_repository(
 
 
 def test_lookup_returns_exact_domain_data(
-    catalog_repository: MemeRepository,
+    catalog_repository: MemeRepositoryProtocol,
     tmp_path: Path,
 ) -> None:
     """Adapter internals cannot affect the publicly observable clip."""
@@ -46,14 +50,14 @@ def test_lookup_returns_exact_domain_data(
     assert catalog_repository.get('reaction') == expected
 
 
-def test_missing_id(catalog_repository: MemeRepository) -> None:
+def test_missing_id(catalog_repository: MemeRepositoryProtocol) -> None:
     """All implementations agree on missing-identifier semantics."""
     with pytest.raises(KeyError):
         catalog_repository.get('missing')
 
 
 def test_snapshot_is_independent(
-    catalog_repository: MemeRepository,
+    catalog_repository: MemeRepositoryProtocol,
 ) -> None:
     """A caller mutating its returned list cannot alter stored clips."""
     snapshot = catalog_repository.all()

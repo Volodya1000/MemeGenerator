@@ -7,11 +7,11 @@ from pathlib import Path
 import pytest
 from sqlalchemy import Engine
 
-from meme_generator.infrastructure.database.engine import (
+from meme_generator.persistence.sqlalchemy.engine import (
     create_catalog_engine,
 )
-from meme_generator.infrastructure.database.models import CatalogBase
-from meme_generator.infrastructure.database.repository import (
+from meme_generator.persistence.sqlalchemy.models import CatalogBase
+from meme_generator.persistence.sqlalchemy.repository import (
     SqlAlchemyMemeRepository,
 )
 

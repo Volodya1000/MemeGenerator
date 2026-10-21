@@ -3,7 +3,9 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from meme_generator.application.ports.meme_repository import MemeRepository
+from meme_generator.application.protocols.meme_repository import (
+    MemeRepositoryProtocol,
+)
 from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
@@ -17,7 +19,7 @@ from meme_generator.infrastructure.ffmpeg.segments import (
 def prepare_pair(
     scene: Scene,
     image: ImageAsset,
-    catalog: MemeRepository,
+    catalog: MemeRepositoryProtocol,
     directory: Path,
 ) -> tuple[Path, Path]:
     """Encode one ordered image and reaction pair."""
@@ -30,7 +32,7 @@ def prepare_pair(
 
 def create_playlist(
     scenario: Scenario,
-    catalog: MemeRepository,
+    catalog: MemeRepositoryProtocol,
     images: list[ImageAsset],
     directory: Path,
 ) -> Path:
@@ -54,7 +56,7 @@ class FFmpegRenderer:
     def render(
         self,
         scenario: Scenario,
-        catalog: MemeRepository,
+        catalog: MemeRepositoryProtocol,
         images: list[ImageAsset],
         output_path: Path,
     ) -> Path:

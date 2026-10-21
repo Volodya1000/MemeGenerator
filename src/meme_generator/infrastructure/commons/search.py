@@ -1,4 +1,8 @@
-"""Rank eligible Wikimedia Commons search results."""
+"""Typed Commons API query and image-selection rules."""
+
+from typing import Literal
+
+from pydantic import BaseModel, Field, TypeAdapter
 
 from meme_generator.infrastructure.commons.models import CommonsPage
 
@@ -10,19 +14,26 @@ SEARCH_IMAGE_WIDTH = 1280
 SUPPORTED_MIME = frozenset(('image/jpeg', 'image/png', 'image/webp'))
 
 
+class CommonsSearchRequest(BaseModel):
+    """Validate the exact Wikimedia parameters, including search query."""
+
+    action: Literal['query'] = 'query'
+    format: Literal['json'] = 'json'
+    generator: Literal['search'] = 'search'
+    gsrsearch: str = Field(min_length=1)
+    gsrnamespace: int = 6
+    gsrlimit: int = SEARCH_LIMIT
+    prop: Literal['imageinfo'] = 'imageinfo'
+    iiprop: Literal['url|size|mime|extmetadata'] = 'url|size|mime|extmetadata'
+    iiurlwidth: int = SEARCH_IMAGE_WIDTH
+
+
 def search_parameters(query: str) -> dict[str, str | int]:
-    """Search image files with sufficient resolution and attribution."""
-    return {
-        'action': 'query',
-        'format': 'json',
-        'generator': 'search',
-        'gsrsearch': query,
-        'gsrnamespace': 6,
-        'gsrlimit': SEARCH_LIMIT,
-        'prop': 'imageinfo',
-        'iiprop': 'url|size|mime|extmetadata',
-        'iiurlwidth': SEARCH_IMAGE_WIDTH,
-    }
+    """Return a validated URL query without unchecked ad-hoc strings."""
+    request = CommonsSearchRequest(gsrsearch=query)
+    return TypeAdapter(dict[str, str | int]).validate_python(
+        request.model_dump()
+    )
 
 
 def is_usable(page: CommonsPage) -> bool:

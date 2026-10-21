@@ -6,8 +6,10 @@ from pathlib import Path
 from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
 from meme_generator.domain.meme import Meme
-from meme_generator.infrastructure.catalog import MemeCatalog
 from meme_generator.infrastructure.images import LocalImageProvider
+from meme_generator.infrastructure.in_memory_meme_repository import (
+    InMemoryMemeRepository,
+)
 from tests.fakes.video_renderer import FakeRenderer
 
 
@@ -18,7 +20,7 @@ def test_pipeline_provenance(tmp_path: Path) -> None:
     (originals / '1.png').write_bytes(b'image')
     output_path = tmp_path / 'output' / 'result.mp4'
     video = GenerationPipeline(
-        catalog=MemeCatalog(
+        catalog=InMemoryMemeRepository(
             [
                 Meme(
                     meme_id='reaction',

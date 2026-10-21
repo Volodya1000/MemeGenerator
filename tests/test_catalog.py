@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from meme_generator.infrastructure.catalog import MemeCatalog
+from meme_generator.infrastructure.in_memory_meme_repository import (
+    InMemoryMemeRepository,
+)
 
 CLIP_NAME = 'clip.mp4'
 REACTION_ID = 'reaction-1'
@@ -25,7 +27,7 @@ def test_read_catalog(tmp_path: Path) -> None:
     ]
     catalog_path.write_text(json.dumps(entries), encoding='utf-8')
 
-    catalog = MemeCatalog.from_json(catalog_path)
+    catalog = InMemoryMemeRepository.from_json(catalog_path)
 
     assert catalog.get(REACTION_ID).video_path == clip.resolve()
     assert len(catalog) == 1
@@ -43,7 +45,7 @@ def test_duplicate_meme_id_fails(tmp_path: Path) -> None:
     }
     catalog_path.write_text(json.dumps([entry, entry]), encoding='utf-8')
     with pytest.raises(ValueError, match='Duplicate'):
-        MemeCatalog.from_json(catalog_path)
+        InMemoryMemeRepository.from_json(catalog_path)
 
 
 def test_parent_path_escape_fails(tmp_path: Path) -> None:
@@ -58,4 +60,4 @@ def test_parent_path_escape_fails(tmp_path: Path) -> None:
     ]
     catalog_path.write_text(json.dumps(entries), encoding='utf-8')
     with pytest.raises(ValueError, match='inside'):
-        MemeCatalog.from_json(catalog_path)
+        InMemoryMemeRepository.from_json(catalog_path)

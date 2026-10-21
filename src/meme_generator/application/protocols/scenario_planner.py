@@ -6,7 +6,7 @@ from meme_generator.domain.meme import Meme
 from meme_generator.domain.scenario import Scenario
 
 
-class ScenarioPlanner(Protocol):
+class ScenarioPlannerProtocol(Protocol):
     """Produce a validated ordered plan using an approved catalog."""
 
     def plan(

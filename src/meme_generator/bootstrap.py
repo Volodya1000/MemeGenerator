@@ -1,11 +1,14 @@
-"""Compose concrete adapters at the outer application boundary."""
+"""Compose video generation at the outer application boundary."""
 
 from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
-from meme_generator.application.ports.image_provider import ImageProvider
-from meme_generator.application.ports.scenario_planner import ScenarioPlanner
+from meme_generator.application.protocols.image_provider import (
+    ImageProviderProtocol,
+)
+from meme_generator.application.protocols.scenario_planner import (
+    ScenarioPlannerProtocol,
+)
 from meme_generator.composition.catalog import create_catalog
-from meme_generator.config.loader import llm_api_key
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
@@ -13,21 +16,23 @@ from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.litellm_planner import LiteLLMPlanner
 
 
-def create_planner(settings: GenerationSettings) -> ScenarioPlanner:
-    """Choose between a deterministic and provider-neutral planner."""
+def create_planner(settings: GenerationSettings) -> ScenarioPlannerProtocol:
+    """Select the deterministic or provider-neutral planning adapter."""
     if settings.planner == 'demo':
         return DemoPlanner()
-    if not settings.model:
-        raise ValueError('Configure a model for LLM scenario planning')
+    if not settings.llm.model:
+        raise ValueError('Configure llm.model for scenario planning')
+    api_key = settings.llm.api_key
     return LiteLLMPlanner(
-        model=settings.model,
-        api_base=settings.api_base,
-        api_key=llm_api_key(),
+        model=settings.llm.model,
+        api_base=settings.llm.api_base,
+        api_key=api_key.get_secret_value() if api_key else None,
+        retry_attempts=settings.llm.retry_attempts,
     )
 
 
-def create_images(settings: GenerationSettings) -> ImageProvider:
-    """Use an explicit local directory or Wikimedia Commons images."""
+def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
+    """Use local images or image searches based on root configuration."""
     if settings.images == 'commons':
         return CommonsImageProvider()
     if settings.image_dir is None:
@@ -36,7 +41,7 @@ def create_images(settings: GenerationSettings) -> ImageProvider:
 
 
 def create_pipeline(settings: GenerationSettings) -> GenerationPipeline:
-    """Construct one generation use case with concrete I/O adapters."""
+    """Create a fully configured application pipeline."""
     return GenerationPipeline(
         catalog=create_catalog(settings),
         planner=create_planner(settings),

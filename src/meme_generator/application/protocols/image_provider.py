@@ -6,7 +6,7 @@ from typing import Protocol
 from meme_generator.domain.image_asset import ImageAsset
 
 
-class ImageProvider(Protocol):
+class ImageProviderProtocol(Protocol):
     """Retrieve or copy a contextual image and its attribution."""
 
     def fetch(

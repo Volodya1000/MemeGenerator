@@ -13,7 +13,8 @@ dependencies = [
   "pydantic>=2.10,<3",
   "litellm>=1.80,<2",
   "pyyaml>=6,<7",
-  "python-dotenv>=1,<2",
+  "pydantic-settings[yaml]>=2.10,<3",
+  "tenacity>=9,<10",
   "typer>=0.20,<1",
   "sqlalchemy>=2.0,<3",
 ]
@@ -23,6 +24,7 @@ postgres = ["psycopg[binary]>=3.2,<4"]
 dev = [
   "psycopg[binary]>=3.2,<4",
   "flake8>=7.3,<8",
+  "import-linter>=2.5,<3",
   "mypy>=1.18,<2",
   "pytest>=8.4,<10",
   "pytest-cov>=6,<8",
@@ -73,3 +75,38 @@ multiline-quotes = "double"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
+
+[tool.importlinter]
+root_package = "meme_generator"
+
+[[tool.importlinter.contracts]]
+name = "Domain is independent of adapters"
+type = "forbidden"
+source_modules = ["meme_generator.domain"]
+forbidden_modules = [
+  "meme_generator.application",
+  "meme_generator.infrastructure",
+  "meme_generator.persistence",
+  "meme_generator.composition",
+  "meme_generator.config",
+]
+
+[[tool.importlinter.contracts]]
+name = "Application never imports infrastructure"
+type = "forbidden"
+source_modules = ["meme_generator.application"]
+forbidden_modules = [
+  "meme_generator.infrastructure",
+  "meme_generator.persistence",
+  "meme_generator.composition",
+  "meme_generator.config",
+]
+
+[[tool.importlinter.contracts]]
+name = "Persistence does not depend on infrastructure or composition"
+type = "forbidden"
+source_modules = ["meme_generator.persistence"]
+forbidden_modules = [
+  "meme_generator.infrastructure",
+  "meme_generator.composition",
+]
