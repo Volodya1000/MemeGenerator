@@ -5,6 +5,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.domain.scene import Scene
 
 CARD_SIZE = (1280, 720)
 TEXT_WIDTH = 1050
@@ -113,21 +114,20 @@ def render_caption(
 
 
 class CaptionCardImageProvider:
-    """Make local caption images from the scene's descriptive image query."""
+    """Render the visible scene description, never its search query."""
 
     def fetch(
         self,
-        query: str,
-        scene_order: int,
+        scene: Scene,
         output_dir: Path,
     ) -> ImageAsset:
         """Generate a context card without network dependencies."""
-        destination = output_dir / f'{scene_order}.png'
+        destination = output_dir / f'{scene.order}.png'
         render_caption(
-            query,
+            scene.description,
             destination,
-            label=f'СИТУАЦИЯ {scene_order}',
-            variation=scene_order,
+            label=f'СИТУАЦИЯ {scene.order}',
+            variation=scene.order,
         )
         return ImageAsset(
             image_path=destination,
