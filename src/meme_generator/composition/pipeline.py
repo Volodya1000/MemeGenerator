@@ -10,6 +10,10 @@ from meme_generator.application.protocols.scenario_planner import (
 )
 from meme_generator.composition.catalog import create_catalog
 from meme_generator.config.settings import GenerationSettings
+from meme_generator.domain.slide_mode import SlideMode
+from meme_generator.infrastructure.captioned_images import (
+    CaptionedImageProvider,
+)
 from meme_generator.infrastructure.caption_cards import (
     CaptionCardImageProvider,
 )
@@ -35,14 +39,20 @@ def create_planner(settings: GenerationSettings) -> ScenarioPlannerProtocol:
 
 
 def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
-    """Use local images or image searches based on root configuration."""
-    if settings.images == 'commons':
-        return CommonsImageProvider()
-    if settings.images == 'cards':
+    """Compose real photos, text cards or photos with visible captions."""
+    if settings.slide_mode == SlideMode.TEXT_ONLY:
         return CaptionCardImageProvider()
-    if settings.image_dir is None:
+    if settings.images == 'cards':
+        raise ValueError('Choose commons or local for image slide modes')
+    if settings.images == 'commons':
+        source: ImageProviderProtocol = CommonsImageProvider()
+    elif settings.image_dir is not None:
+        source = LocalImageProvider(settings.image_dir.resolve())
+    else:
         raise ValueError('image_dir is required when images=local')
-    return LocalImageProvider(settings.image_dir.resolve())
+    if settings.slide_mode == SlideMode.IMAGE_WITH_CAPTION:
+        return CaptionedImageProvider(source)
+    return source
 
 
 def create_pipeline(settings: GenerationSettings) -> GenerationPipeline:
