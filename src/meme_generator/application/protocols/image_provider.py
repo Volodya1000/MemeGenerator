@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Protocol
 
 from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.domain.scene import Scene
 
 
 class ImageProviderProtocol(Protocol):
@@ -11,8 +12,7 @@ class ImageProviderProtocol(Protocol):
 
     def fetch(
         self,
-        query: str,
-        scene_order: int,
+        scene: Scene,
         output_dir: Path,
     ) -> ImageAsset:
         """Return a local image owned by the generation workspace."""
