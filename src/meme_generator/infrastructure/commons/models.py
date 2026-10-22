@@ -3,10 +3,10 @@
 from pydantic import BaseModel, Field
 
 
-class LicenseField(BaseModel):
-    """License name supplied by Commons metadata."""
+class CommonsMetadataField(BaseModel):
+    """Wikimedia metadata values may be strings or numeric measurements."""
 
-    license_text: str = Field(alias='value')
+    metadata_value: str | float = Field(alias='value')
 
 
 class CommonsImage(BaseModel):
@@ -18,7 +18,7 @@ class CommonsImage(BaseModel):
     height: int
     thumburl: str | None = None
     descriptionurl: str | None = None
-    extmetadata: dict[str, LicenseField] = Field(default_factory=dict)
+    extmetadata: dict[str, CommonsMetadataField] = Field(default_factory=dict)
 
 
 class CommonsPage(BaseModel):

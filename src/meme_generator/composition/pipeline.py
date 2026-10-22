@@ -2,20 +2,13 @@
 
 from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
-from meme_generator.application.protocols.image_provider import (
-    ImageProviderProtocol,
-)
 from meme_generator.application.protocols.scenario_planner import (
     ScenarioPlannerProtocol,
 )
 from meme_generator.composition.catalog import create_catalog
+from meme_generator.composition.images import create_images
 from meme_generator.config.settings import GenerationSettings
-from meme_generator.infrastructure.caption_cards import (
-    CaptionCardImageProvider,
-)
-from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
-from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.llm.planner import LiteLLMPlanner
 
 
@@ -32,17 +25,6 @@ def create_planner(settings: GenerationSettings) -> ScenarioPlannerProtocol:
         api_key=api_key.get_secret_value() if api_key else None,
         retry_attempts=settings.llm.retry_attempts,
     )
-
-
-def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
-    """Use local images or image searches based on root configuration."""
-    if settings.images == 'commons':
-        return CommonsImageProvider()
-    if settings.images == 'cards':
-        return CaptionCardImageProvider()
-    if settings.image_dir is None:
-        raise ValueError('image_dir is required when images=local')
-    return LocalImageProvider(settings.image_dir.resolve())
 
 
 def create_pipeline(settings: GenerationSettings) -> GenerationPipeline:

@@ -12,6 +12,7 @@ from pydantic_settings import (
 
 from meme_generator.config.database import DatabaseSettings
 from meme_generator.config.llm import LLMSettings
+from meme_generator.domain.slide_mode import SlideMode
 
 MAX_CONTEXT_DURATION_SECONDS = 15
 
@@ -36,7 +37,8 @@ class GenerationSettings(BaseSettings):
     )
     catalog: Path = Path('assets/catalog.json')
     output: Path = Path('output/result.mp4')
-    images: Literal['commons', 'local', 'cards'] = 'commons'
+    images: Literal['commons', 'local', 'cards', 'photos'] = 'commons'
+    slide_mode: SlideMode = SlideMode.TEXT_ONLY
     image_dir: Path | None = None
 
     @classmethod

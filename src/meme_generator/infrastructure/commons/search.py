@@ -48,17 +48,22 @@ def is_usable(page: CommonsPage) -> bool:
     )
 
 
+def _title_words(page: CommonsPage) -> set[str]:
+    """Normalize the visible Commons filename for lexical relevance."""
+    return set(page.title.lower().replace('_', ' ').split())
+
+
 def choose_page(pages: list[CommonsPage], query: str) -> CommonsPage:
-    """Select the most relevant eligible image by title overlap."""
-    relevant = [page for page in pages if is_usable(page)]
+    """Never return an image whose title has no search-word overlap."""
+    query_words = set(query.lower().split())
+    relevant = [
+        page
+        for page in pages
+        if is_usable(page) and query_words.intersection(_title_words(page))
+    ]
     if not relevant:
         raise ValueError('No usable Commons image found')
-    query_words = set(query.lower().split())
     return max(
         relevant,
-        key=lambda page: len(
-            query_words.intersection(
-                set(page.title.lower().replace('_', ' ').split())
-            )
-        ),
+        key=lambda page: len(query_words.intersection(_title_words(page))),
     )
