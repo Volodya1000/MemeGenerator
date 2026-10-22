@@ -21,6 +21,9 @@ from meme_generator.infrastructure.commons.search import (
 )
 
 HTTP_TIMEOUT_SECONDS = 30
+WIKIMEDIA_USER_AGENT = (
+    'MemeGenerator/0.1 (https://github.com/Volodya1000/MemeGenerator)'
+)
 
 
 class CommonsImageProvider(ImageProviderProtocol):
@@ -28,7 +31,10 @@ class CommonsImageProvider(ImageProviderProtocol):
 
     def __init__(self, client: httpx.Client | None = None) -> None:
         """Allow offline HTTP transport injection at the service boundary."""
-        self._client = client or httpx.Client(timeout=HTTP_TIMEOUT_SECONDS)
+        self._client = client or httpx.Client(
+            timeout=HTTP_TIMEOUT_SECONDS,
+            headers={'User-Agent': WIKIMEDIA_USER_AGENT},
+        )
 
     def fetch(
         self,
@@ -42,7 +48,7 @@ class CommonsImageProvider(ImageProviderProtocol):
         )
         license_entry = metadata.extmetadata.get('LicenseShortName')
         license_name = (
-            license_entry.license_text
+            str(license_entry.value)
             if license_entry
             else 'Wikimedia Commons'
         )

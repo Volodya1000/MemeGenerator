@@ -1,0 +1,79 @@
+name: Validate real Commons photos in a Gemini meme video
+
+on:
+  push:
+    branches:
+      - feature/21-photo-search-fallback
+    paths:
+      - .github/workflows/photo-search-acceptance.yml
+      - scripts/check_photo_search.py
+      - scripts/verify_searched_photos.py
+      - src/meme_generator/infrastructure/commons/provider.py
+      - src/meme_generator/infrastructure/commons/download.py
+      - src/meme_generator/infrastructure/commons/models.py
+      - src/meme_generator/infrastructure/photo_search.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  photo-provider-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Probe real Wikimedia Commons with a descriptive search
+        run: uv run python scripts/check_photo_search.py
+
+  photos:
+    runs-on: ubuntu-latest
+    environment: MEMEGEN_LLM__API_KEY
+    timeout-minutes: 20
+    env:
+      MEMEGEN_LLM__API_KEY: ${{ secrets.MEMEGEN_LLM__API_KEY }}
+      MEMEGEN_LLM__MODEL: gemini/gemini-3.5-flash-lite
+      MEMEGEN_IMAGES: photos
+      MEMEGEN_SLIDE_MODE: image_with_caption
+      MEMEGEN_CONTEXT_DURATION_SECONDS: '5'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Install FFmpeg and FFprobe
+        run: |
+          sudo apt-get install -y ffmpeg || {
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          }
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Download verified real Tinkov clips
+        run: uv run meme-assets --download --force
+      - name: Create real Gemini scenario and photo-captioned video
+        run: |
+          uv run meme-generator generate \
+            --topic 'Когда купил машину и она сломалась через два дня' \
+            --scenes 2 \
+            --output output/gemini-result.mp4
+      - name: Verify actual reaction footage
+        run: uv run python scripts/verify_generated_video.py
+      - name: Verify photos, not just text fallback
+        run: uv run python scripts/verify_searched_photos.py
+      - name: Upload video and provenance for owner inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meme-generator-photo-search-review
+          path: |
+            output/gemini-result.mp4
+            output/gemini-result.scenario.json
+            output/gemini-result.attribution.json
+          if-no-files-found: error
+          retention-days: 7

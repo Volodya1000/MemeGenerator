@@ -29,8 +29,15 @@ with Gemini > Run workflow**. Fill in:
   `duration` mode. The app computes the approximate scene count using
   the actual average length of the downloaded reaction clips and the
   configured context-card duration.
-- **images**: `cards` for locally rendered text or `commons` for
-  an automatic Wikimedia Commons search. Neither mode generates AI images.
+- **context_duration_seconds**: choose how long each situation is displayed,
+  with five seconds as the default; both scene-count and duration planning
+  use the same setting.
+- **slide_mode**: `text_only`, `image_only` or `image_with_caption`.
+  In the captioned-photo mode, the Russian `description` appears on top of
+  the real searched picture, while `image_query` is used only for search.
+- **images**: choose `photos` (Wikimedia Commons search with a readable
+  text-card fallback), `commons` (strict search), or `cards` (text-only).
+  Neither mode generates AI images.
 
 Wait for **Generate a real LLM-planned reaction video** to succeed, then
 download `meme-generator-gemini-real-review` from the workflow run.
@@ -50,7 +57,10 @@ review permissions before further redistribution.
   quotas are project-level, vary by model and region, and are not guaranteed.
 - **Model not found**: check current Free Tier eligibility and the model
   identifier for your account; no automatic paid-model fallback is used.
-- **Commons image unavailable**: rerun with `cards`; automated image search
-  is a separate optional network dependency.
+- **Photo unavailable**: `images: photos` automatically displays a text card
+  with the original situation if Wikimedia returns no valid picture. Use
+  `images: commons` for strict failures rather than fallback.
+- **Photo licensing**: the attribution JSON stores the original source URL
+  and license when a photo is downloaded.
 - **Output duration**: an estimate, not a promise; original spoken
   reactions are never trimmed merely to hit a specified number of seconds.

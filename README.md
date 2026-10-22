@@ -97,11 +97,17 @@ Commons search is approximate; licenses and attribution must be reviewed.
 
 ## Offline caption cards
 
-Set `images: cards` in `config.yaml` to render readable 16:9 cards from
-scenario text instead of downloading contextual images. This works without
-image search or an additional API key. For a browser-only acceptance run,
-see [remote media review](docs/cloud-acceptance.md); the downloadable preview
-uses clearly labelled synthetic reaction placeholders, not celebrity clips.
+Choose a user-facing slide style with `slide_mode: text_only`,
+`image_only`, or `image_with_caption`. Text cards show the Russian
+`Scene.description`; photographic searches use the independent English
+`Scene.image_query`. Set `images: photos` to search existing Wikimedia Commons
+photographs and fall back to a readable text card if a photo is unavailable.
+No AI-generated images or new API keys are required.
+
+Set `context_duration_seconds: 5` for the default five-second situation
+slides (adjustable in the GitHub Actions form). Full genuine reaction footage
+can be reviewed through [remote media review](docs/cloud-acceptance.md).
+For an original Gemini-planned movie see [browser-only generation](docs/gemini-github-actions.md).
 
 ## Architecture
 
