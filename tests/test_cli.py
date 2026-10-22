@@ -23,3 +23,15 @@ def test_generate_accepts_yaml_config_argument(tmp_path: Path) -> None:
     )
     assert isinstance(invocation.exception, FileNotFoundError)
     assert str(requested) in str(invocation.exception)
+
+
+def test_two_competing_sizing_modes_fail_early() -> None:
+    """A request cannot specify scene count and duration simultaneously."""
+    invocation = CliRunner().invoke(
+        app,
+        [
+            'generate', '--topic', 'Car trouble',
+            '--scenes', '3', '--target-seconds', '20',
+        ],
+    )
+    assert invocation.exit_code != 0

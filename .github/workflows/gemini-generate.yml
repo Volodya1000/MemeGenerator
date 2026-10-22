@@ -1,0 +1,106 @@
+name: Generate real meme video with Gemini
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Theme for an original LLM-planned meme video'
+        required: true
+        type: string
+      sizing_mode:
+        description: 'Choose scene count or target duration'
+        required: true
+        default: scenes
+        type: choice
+        options:
+          - scenes
+          - duration
+      scenes:
+        description: 'Number of scene/reaction pairs (1-10)'
+        required: true
+        default: '3'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          - '7'
+          - '8'
+          - '9'
+          - '10'
+      target_seconds:
+        description: 'Approximate duration in seconds (5-180)'
+        required: true
+        default: 20
+        type: number
+      images:
+        description: 'Context image source (no AI image generation)'
+        required: true
+        default: cards
+        type: choice
+        options:
+          - cards
+          - commons
+
+permissions:
+  contents: read
+
+concurrency:
+  group: meme-generator-gemini-manual
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    name: Generate a real LLM-planned reaction video
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      MEMEGEN_LLM__API_KEY: ${{ secrets.MEMEGEN_LLM__API_KEY }}
+      MEMEGEN_LLM__MODEL: gemini/gemini-3.5-flash-lite
+      MEMEGEN_LLM__RETRY_ATTEMPTS: '2'
+      MEMEGEN_PLANNER: llm
+      MEMEGEN_IMAGES: ${{ inputs.images }}
+      MEMEGEN_CATALOG: assets/catalog.json
+      TOPIC: ${{ inputs.topic }}
+      SIZING_MODE: ${{ inputs.sizing_mode }}
+      SCENES: ${{ inputs.scenes }}
+      TARGET_SECONDS: ${{ inputs.target_seconds }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Check that the Gemini secret is configured
+        run: |
+          if [[ -z "$MEMEGEN_LLM__API_KEY" ]]; then
+            echo "::error::Create Actions secret MEMEGEN_LLM__API_KEY from Google AI Studio"
+            exit 1
+          fi
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install Python dependencies
+        run: uv sync --extra dev
+      - name: Download original reaction clips and validate hashes
+        run: uv run meme-assets --download --force
+      - name: Plan and render the user-requested video with Gemini
+        run: |
+          if [[ "$SIZING_MODE" == "scenes" ]]; then
+            uv run meme-generator generate --topic "$TOPIC" --scenes "$SCENES" --output output/gemini-result.mp4
+          else
+            uv run meme-generator generate --topic "$TOPIC" --target-seconds "$TARGET_SECONDS" --output output/gemini-result.mp4
+          fi
+      - name: Verify generated video contains real source footage
+        run: uv run python scripts/verify_generated_video.py
+      - name: Upload real Gemini-planned video for private review
+        uses: actions/upload-artifact@v4
+        with:
+          name: meme-generator-gemini-real-review
+          path: |
+            output/gemini-result.mp4
+            output/gemini-result.scenario.json
+            output/gemini-result.attribution.json
+          if-no-files-found: error
+          retention-days: 1
