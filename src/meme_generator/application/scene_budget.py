@@ -30,16 +30,8 @@ def estimate_scene_count(
 ) -> int:
     """Estimate scene count from measured reactions and context duration."""
     if not MIN_TARGET_SECONDS <= target_seconds <= MAX_TARGET_SECONDS:
-        raise SceneBudgetError('Requested duration is outside supported bounds')
+        raise SceneBudgetError('Target duration is outside supported bounds')
     if not math.isfinite(context_seconds) or context_seconds <= 0:
         raise SceneBudgetError('Context display duration must be positive')
-    return min(
-        MAX_VIDEO_SCENES,
-        max(
-            1,
-            round(
-                target_seconds
-                / (_mean_clip_duration(clip_durations_seconds) + context_seconds)
-            ),
-        ),
-    )
+    scene_seconds = _mean_clip_duration(clip_durations_seconds) + context_seconds
+    return min(MAX_VIDEO_SCENES, max(1, round(target_seconds / scene_seconds)))

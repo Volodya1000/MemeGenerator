@@ -35,12 +35,14 @@ def calculate_scene_budget(
     settings: GenerationSettings,
     target_seconds: int,
 ) -> int:
-    """Estimate from actual catalog video durations, never guessed constants."""
+    """Use measured clip durations to estimate the number of scenes."""
     durations = [
         probe_clip(meme.video_path).duration_seconds
         for meme in create_catalog(settings).all()
     ]
-    return estimate_scene_count(target_seconds, durations, IMAGE_DURATION_SECONDS)
+    return estimate_scene_count(
+        target_seconds, durations, IMAGE_DURATION_SECONDS
+    )
 
 
 @app.command()
