@@ -20,6 +20,9 @@ MAX_CAPTION_WIDTH = 1020
 CAPTION_BAND = (58, 465, 1222, 684)
 CAPTION_LEFT = 115
 CAPTION_TOP = 535
+CAPTION_RADIUS = 25
+CAPTION_LABEL_SIZE = 27
+CAPTION_LINE_GAP = 12
 
 
 def _wrap_text(
@@ -56,32 +59,50 @@ def _caption_layout(
     raise ValueError('Caption does not fit on the photo')
 
 
-def add_caption(source: Path, caption: str, order: int, output: Path) -> None:
-    """Combine a real downloaded photo and the visible Russian situation."""
-    if not caption.strip():
-        raise ValueError('Photo caption cannot be empty')
-    with Image.open(source) as image:
-        canvas = ImageOps.fit(image.convert('RGB'), CARD_SIZE)
+def _paint_caption(
+    canvas: Image.Image, caption: str, order: int
+) -> None:
+    """Draw a translucent readable label and situation over the photo."""
     drawing = ImageDraw.Draw(canvas, 'RGBA')
-    drawing.rounded_rectangle(CAPTION_BAND, radius=25, fill=(10, 17, 29, 220))
-    label_font = ImageFont.truetype(FONT_NAME, 27)
+    drawing.rounded_rectangle(
+        CAPTION_BAND,
+        radius=CAPTION_RADIUS,
+        fill=(10, 17, 29, 220),
+    )
+    label_font = ImageFont.truetype(FONT_NAME, CAPTION_LABEL_SIZE)
     drawing.text(
         (CAPTION_LEFT, 489),
         f'СИТУАЦИЯ {order}',
         font=label_font,
         fill='#A8E8F9',
     )
+    _paint_lines(drawing, caption)
+
+
+def _paint_lines(drawing: ImageDraw.ImageDraw, caption: str) -> None:
+    """Keep the visible situation within the photographic label."""
     font, lines = _caption_layout(caption, drawing)
     for index, line in enumerate(lines):
         drawing.text(
-            (CAPTION_LEFT, CAPTION_TOP + index * (font.size + 12)),
+            (
+                CAPTION_LEFT,
+                CAPTION_TOP + index * (int(font.size) + CAPTION_LINE_GAP),
+            ),
             line,
             font=font,
             fill='white',
         )
+
+
+def add_caption(source: Path, caption: str, order: int, output: Path) -> None:
+    """Combine a real downloaded photo and the visible Russian situation."""
+    if not caption.strip():
+        raise ValueError('Photo caption cannot be empty')
+    with Image.open(source) as image:
+        canvas = ImageOps.fit(image.convert('RGB'), CARD_SIZE)
+    _paint_caption(canvas, caption, order)
     output.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(output, format='PNG')
-
 
 class CaptionedImageProvider(ImageProviderProtocol):
     """Decorate genuine searched photographs with a visible caption."""
