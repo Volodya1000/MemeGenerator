@@ -56,6 +56,7 @@ jobs:
   generate:
     name: Generate a real LLM-planned reaction video
     runs-on: ubuntu-latest
+    environment: MEMEGEN_LLM__API_KEY
     timeout-minutes: 20
     env:
       MEMEGEN_LLM__API_KEY: ${{ secrets.MEMEGEN_LLM__API_KEY }}
