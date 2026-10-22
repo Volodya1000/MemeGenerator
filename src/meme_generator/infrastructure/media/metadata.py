@@ -1,4 +1,4 @@
-"""Typed representation of the JSON produced by FFprobe."""
+"""Typed FFprobe stream and container metadata shared by media adapters."""
 
 from pydantic import BaseModel
 
