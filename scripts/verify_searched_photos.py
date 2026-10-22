@@ -20,9 +20,7 @@ from meme_generator.persistence.in_memory import InMemoryMemeRepository
 OUTPUT = Path('output/gemini-result.mp4')
 CATALOG = Path('assets/catalog.json')
 TEXT_CARD_LICENSE = 'Original generated typography'
-PHOTO_DOMAINS = frozenset(
-    ('commons.wikimedia.org', 'upload.wikimedia.org')
-)
+PHOTO_DOMAINS = frozenset(('commons.wikimedia.org', 'upload.wikimedia.org'))
 MIN_PHOTO_ENTROPY = 3.0
 LOGGER = logging.getLogger(__name__)
 
@@ -100,8 +98,7 @@ def _verify_scenes(
 ) -> None:
     """Check one authentic photo per scene, not just one per movie."""
     attributions: dict[int, SceneAttribution] = {
-        attribution.scene_order: attribution
-        for attribution in manifest.root
+        attribution.scene_order: attribution for attribution in manifest.root
     }
     if len(attributions) != len(scenario.scenes):
         raise ValueError('Missing or duplicate photo attribution')
@@ -117,9 +114,12 @@ def _verify_scenes(
             attributions.get(scene.order),
         )
         _verify_photo_frame(position + duration / 2, scene.order)
-        position += duration + probe_clip(
-            catalog.get(scene.meme_id).video_path
-        ).duration_seconds
+        position += (
+            duration
+            + probe_clip(
+                catalog.get(scene.meme_id).video_path
+            ).duration_seconds
+        )
     LOGGER.info('ALL_SCENES_CONTAIN_PHOTOS=%d', len(scenario.scenes))
 
 

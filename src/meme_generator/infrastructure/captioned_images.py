@@ -63,9 +63,9 @@ def _caption_start(
         drawing.textbbox((0, 0), line, font=font, anchor='lt')[3]
         for line in lines
     )
-    block_height = (
-        (len(lines) - 1) * (int(font.size) + CAPTION_LINE_GAP) + line_height
-    )
+    block_height = (len(lines) - 1) * (
+        int(font.size) + CAPTION_LINE_GAP
+    ) + line_height
     available_height = CAPTION_BODY_BOTTOM - CAPTION_BODY_TOP
     if block_height > available_height:
         return None

@@ -96,5 +96,3 @@ def test_caption_preserves_source_attribution(tmp_path: Path) -> None:
     assert generated.image_path.is_file()
     assert generated.license_name == 'User-provided'
     assert generated.image_path.suffix == '.png'
-
-
