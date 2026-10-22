@@ -8,6 +8,7 @@ from meme_generator.application.protocols.image_provider import (
     ImageProviderProtocol,
 )
 from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.commons.download import download_image
 from meme_generator.infrastructure.commons.models import (
     CommonsImage,
@@ -31,14 +32,13 @@ class CommonsImageProvider(ImageProviderProtocol):
 
     def fetch(
         self,
-        query: str,
-        scene_order: int,
+        scene: Scene,
         output_dir: Path,
     ) -> ImageAsset:
         """Select and return one locally downloaded, attributed image."""
-        metadata = self._search_metadata(query)
+        metadata = self._search_metadata(scene.image_query)
         image_path = download_image(
-            self._client, metadata, scene_order, output_dir
+            self._client, metadata, scene.order, output_dir
         )
         license_entry = metadata.extmetadata.get('LicenseShortName')
         license_name = (
