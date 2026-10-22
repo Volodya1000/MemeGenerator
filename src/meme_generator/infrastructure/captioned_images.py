@@ -23,7 +23,8 @@ CAPTION_RADIUS = 25
 CAPTION_LABEL_SIZE = 27
 CAPTION_LINE_GAP = 10
 CAPTION_BODY_TOP = 530
-CAPTION_BODY_BOTTOM = CAPTION_BAND[3] - 20
+CAPTION_BOTTOM_PADDING = 20
+CAPTION_BODY_BOTTOM = CAPTION_BAND[3] - CAPTION_BOTTOM_PADDING
 
 
 def _wrap_text(
@@ -31,46 +32,56 @@ def _wrap_text(
     drawing: ImageDraw.ImageDraw,
     font: ImageFont.FreeTypeFont,
 ) -> list[str]:
-    """Wrap whole words to fit a bounded caption strip."""
+    """Wrap whole words without allowing any to exceed the caption width."""
     lines: list[str] = []
     current = ''
     for word in caption.split():
         candidate = ' '.join(filter(None, (current, word)))
-        bounds = drawing.textbbox((0, 0), candidate, font=font)
-        if bounds[2] <= MAX_CAPTION_WIDTH:
+        if drawing.textbbox((0, 0), candidate, font=font)[2] <= MAX_CAPTION_WIDTH:
             current = candidate
-        else:
-            if drawing.textbbox((0, 0), word, font=font)[2] > MAX_CAPTION_WIDTH:
-                raise ValueError('One caption word exceeds the photo width')
-            if current:
-                lines.append(current)
-            current = word
+            continue
+        if drawing.textbbox((0, 0), word, font=font)[2] > MAX_CAPTION_WIDTH:
+            raise ValueError('One caption word exceeds the photo width')
+        if current:
+            lines.append(current)
+        current = word
     if current:
         lines.append(current)
     return lines
+
+
+def _caption_start(
+    lines: list[str],
+    drawing: ImageDraw.ImageDraw,
+    font: ImageFont.FreeTypeFont,
+) -> int | None:
+    """Center the block vertically when all glyphs fit inside the band."""
+    line_height = max(
+        drawing.textbbox((0, 0), line, font=font, anchor='lt')[3]
+        for line in lines
+    )
+    block_height = (
+        (len(lines) - 1) * (int(font.size) + CAPTION_LINE_GAP) + line_height
+    )
+    available_height = CAPTION_BODY_BOTTOM - CAPTION_BODY_TOP
+    if block_height > available_height:
+        return None
+    return CAPTION_BODY_TOP + (available_height - block_height) // 2
 
 
 def _caption_layout(
     caption: str,
     drawing: ImageDraw.ImageDraw,
 ) -> tuple[ImageFont.FreeTypeFont, list[str], int]:
-    """Select a font using both the available width and vertical space."""
+    """Select a readable font that fits the actual drawable body area."""
     for size in CAPTION_FONT_SIZES:
         font = ImageFont.truetype(FONT_NAME, size)
         lines = _wrap_text(caption, drawing, font)
         if len(lines) > MAX_CAPTION_LINES:
             continue
-        line_height = max(
-            drawing.textbbox((0, 0), line, font=font, anchor='lt')[3]
-            for line in lines
-        )
-        block_height = (
-            (len(lines) - 1) * (size + CAPTION_LINE_GAP) + line_height
-        )
-        available_height = CAPTION_BODY_BOTTOM - CAPTION_BODY_TOP
-        if block_height <= available_height:
-            top = CAPTION_BODY_TOP + (available_height - block_height) // 2
-            return font, lines, top
+        start_y = _caption_start(lines, drawing, font)
+        if start_y is not None:
+            return font, lines, start_y
     raise ValueError('Caption does not fit inside the photo caption area')
 
 
