@@ -76,7 +76,7 @@ class GenerationPipeline:
         images_directory.mkdir()
         images = [
             self._images.fetch(
-                scene.image_query, scene.order, images_directory
+                scene, images_directory
             )
             for scene in scenario.scenes
         ]
