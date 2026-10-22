@@ -10,6 +10,7 @@ on:
       - scripts/cloud_demo.py
       - scripts/cloud_story.py
       - scripts/real_media_generation_smoke.py
+      - scripts/real_review_story.py
       - src/meme_generator/infrastructure/caption_cards.py
 
 permissions:
@@ -33,8 +34,18 @@ jobs:
         run: uv run meme-assets --download --force
       - name: Validate seven source files and output catalog
         run: uv run python scripts/verify_real_media.py
-      - name: Verify complete real-media generation
+      - name: Render real reaction footage and verify scenario
         run: uv run python scripts/real_media_generation_smoke.py
+      - name: Upload actual real-reaction video for owner review
+        uses: actions/upload-artifact@v4
+        with:
+          name: meme-generator-REAL-reactions-24h
+          path: |
+            output/real-reactions-review.mp4
+            output/real-reactions-review.scenario.json
+            output/real-reactions-review.attribution.json
+          if-no-files-found: error
+          retention-days: 1
 
   synthetic-preview:
     name: Generate safe preview artifact
