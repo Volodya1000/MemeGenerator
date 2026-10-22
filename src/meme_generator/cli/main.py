@@ -5,7 +5,11 @@ from typing import Annotated
 
 import typer
 
-from meme_generator.application.scene_budget import estimate_scene_count
+from meme_generator.application.scene_budget import (
+    MAX_TARGET_SECONDS,
+    MIN_TARGET_SECONDS,
+    estimate_scene_count,
+)
 from meme_generator.cli.catalog import catalog_app
 from meme_generator.cli.demo import demo
 from meme_generator.composition.catalog import create_catalog
@@ -48,7 +52,8 @@ def generate(
     scenes: Annotated[int | None, typer.Option(min=1)] = None,
     output: Annotated[Path | None, typer.Option()] = None,
     target_seconds: Annotated[
-        int | None, typer.Option(min=5, max=180)
+        int | None,
+        typer.Option(min=MIN_TARGET_SECONDS, max=MAX_TARGET_SECONDS),
     ] = None,
 ) -> None:
     """Generate one MP4 and its source manifests."""

@@ -20,6 +20,14 @@ CATALOG = Path('assets/catalog.json')
 LOGGER = logging.getLogger(__name__)
 
 
+def verify_source_clip(source: Path, start: float) -> None:
+    """Reject movie segments unrelated to their selected real reaction."""
+    distance = frame_distance(OUTPUT, source, start)
+    if distance > MAX_PIXEL_DIFFERENCE:
+        raise ValueError('Generated video contains unexpected media')
+    LOGGER.info('SOURCE_MATCH distance=%.2f', distance)
+
+
 def verify_generated_video() -> None:
     """Require real, source-matching footage in every planned reaction."""
     scenario = Scenario.model_validate_json(
@@ -32,10 +40,8 @@ def verify_generated_video() -> None:
     for scene in scenario.scenes:
         source = catalog.get(scene.meme_id).video_path
         position += IMAGE_DURATION_SECONDS
-        distance = frame_distance(OUTPUT, source, position)
-        if distance > MAX_PIXEL_DIFFERENCE:
-            raise ValueError('Generated video contains unexpected media')
-        LOGGER.info('SCENE_VERIFIED %s distance=%.2f', scene.order, distance)
+        verify_source_clip(source, position)
+        LOGGER.info('SCENE_VERIFIED %s', scene.order)
         position += probe_clip(source).duration_seconds
     if not probe_clip(OUTPUT).has_audio:
         raise ValueError('Generated movie has no audio')
