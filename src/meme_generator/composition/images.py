@@ -5,11 +5,11 @@ from meme_generator.application.protocols.image_provider import (
 )
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.domain.slide_mode import SlideMode
-from meme_generator.infrastructure.captioned_images import (
-    CaptionedImageProvider,
-)
 from meme_generator.infrastructure.caption_cards import (
     CaptionCardImageProvider,
+)
+from meme_generator.infrastructure.captioned_images import (
+    CaptionedImageProvider,
 )
 from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.images import LocalImageProvider
