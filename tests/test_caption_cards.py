@@ -7,6 +7,7 @@ from PIL import Image
 
 from meme_generator.composition.pipeline import create_images
 from meme_generator.config.settings import GenerationSettings
+from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.caption_cards import (
     CaptionCardImageProvider,
     render_caption,
@@ -15,12 +16,22 @@ from meme_generator.infrastructure.caption_cards import (
 COLOR_COUNT_LIMIT = 1_000_000
 
 
+def example_scene(description: str, order: int = 1) -> Scene:
+    """Represent a scene with distinct display and search text."""
+    return Scene(
+        order=order,
+        description=description,
+        image_query='broken car photo',
+        meme_id='approved_reaction',
+    )
+
+
 def test_caption_renders_readable_image(
     tmp_path: Path,
 ) -> None:
     """A contextual sentence produces a readable, nonuniform image."""
     asset = CaptionCardImageProvider().fetch(
-        'Когда CI наконец стал зелёным', 1, tmp_path
+        example_scene('Когда CI наконец стал зелёным'), tmp_path
     )
     with Image.open(asset.image_path) as image:
         assert image.size == (1280, 720)
@@ -45,11 +56,11 @@ def test_caption_wraps_without_truncation(
 def test_blank_caption_is_rejected(tmp_path: Path) -> None:
     """An empty card must not silently become another blue rectangle."""
     with pytest.raises(ValueError, match='cannot be empty'):
-        CaptionCardImageProvider().fetch('   ', 1, tmp_path)
+        CaptionCardImageProvider().fetch(example_scene('   '), tmp_path)
 
 
 def test_cards_provider_selected_from_settings(tmp_path: Path) -> None:
     """Offline cards are available through normal generation settings."""
     provider = create_images(GenerationSettings(images='cards'))
-    image = provider.fetch('Готовый сценарий', 1, tmp_path)
+    image = provider.fetch(example_scene('Готовый сценарий'), tmp_path)
     assert image.image_path.is_file()
