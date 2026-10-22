@@ -44,5 +44,5 @@ def test_search_rejects_svg() -> None:
 def test_search_rejects_unrelated_image_titles() -> None:
     """Unrelated Commons hits are not accepted as photos of the situation."""
     unrelated = sample_page('British Isles winter weather', 'image/png')
-    with pytest.raises(ValueError, match='No relevant Commons image'):
+    with pytest.raises(ValueError, match='No usable Commons image'):
         choose_page([unrelated], 'stranded vehicle roadside')

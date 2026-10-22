@@ -62,7 +62,7 @@ def choose_page(pages: list[CommonsPage], query: str) -> CommonsPage:
         if is_usable(page) and query_words.intersection(_title_words(page))
     ]
     if not relevant:
-        raise ValueError('No relevant Commons image found')
+        raise ValueError('No usable Commons image found')
     return max(
         relevant,
         key=lambda page: len(query_words.intersection(_title_words(page))),
