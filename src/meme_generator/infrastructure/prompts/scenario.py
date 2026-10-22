@@ -6,7 +6,9 @@ PLANNER_SYSTEM_PROMPT = (
     'image_query, meme_id. Choose meme_id ONLY from available_memes. '
     'Write each description in natural Russian as a short complete situation, '
     'suitable for on-screen reading. Each image_query must be a short '
-    'English search query describing an existing photograph. '
+    'English search query of two or three concrete keywords naming '
+    'the primary visible objects in an existing photograph, such as '
+    '"used car" or "broken car". Avoid long detailed phrases. '
     'Select reactions whose tone matches the illustrated situation. '
     'Keep situations connected and avoid unnecessary repetition.'
 )
