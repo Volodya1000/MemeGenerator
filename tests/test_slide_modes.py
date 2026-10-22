@@ -44,7 +44,9 @@ def test_only_image_uses_a_local_photo(tmp_path: Path) -> None:
         image_query='broken down car',
         meme_id='reaction',
     )
-    asset: ImageAsset = create_images(settings).fetch(scene, tmp_path / 'output')
+    asset: ImageAsset = create_images(settings).fetch(
+        scene, tmp_path / 'output'
+    )
     with Image.open(asset.image_path) as image:
         assert image.getpixel((100, 100)) == (255, 0, 0)
 
@@ -54,7 +56,7 @@ def test_image_with_caption_produces_overlay(tmp_path: Path) -> None:
     source = tmp_path / 'source.png'
     output = tmp_path / 'caption.png'
     Image.new('RGB', TEST_IMAGE_SIZE, 'red').save(source)
-    add_caption(source, 'Когда купил машину, а она сломалась', 1, output)
+    add_caption(source, 'Когда купил машину. Она сломалась', 1, output)
     with Image.open(source) as image, Image.open(output) as captioned:
         assert captioned.size == TEST_IMAGE_SIZE
         assert ImageChops.difference(image, captioned).getbbox() is not None
