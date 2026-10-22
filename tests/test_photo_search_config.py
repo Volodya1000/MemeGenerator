@@ -32,3 +32,15 @@ def test_pexels_key_keeps_existing_photo_fallback() -> None:
         )
     )
     assert isinstance(provider, PhotoSearchWithFallback)
+
+
+def test_empty_optional_key_uses_commons() -> None:
+    """A missing GitHub secret stays equivalent to an absent API key."""
+    provider = create_images(
+        GenerationSettings(
+            slide_mode=SlideMode.IMAGE_ONLY,
+            images='photos',
+            pexels=PexelsSettings(api_key=SecretStr('')),
+        )
+    )
+    assert isinstance(provider, PhotoSearchWithFallback)

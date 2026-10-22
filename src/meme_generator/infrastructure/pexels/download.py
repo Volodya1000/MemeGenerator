@@ -46,9 +46,9 @@ def _write_photo(
 ) -> None:
     """Reject redirects, non-image payloads and oversized image bodies."""
     with client.stream('GET', image_url, follow_redirects=False) as response:
-        response.raise_for_status()
         if response.is_redirect:
             raise ValueError('Pexels photo redirects are not permitted')
+        response.raise_for_status()
         mime_type = response.headers.get('content-type', '').split(';')[0]
         if mime_type != MIME_JPEG:
             raise ValueError('Pexels response is not a JPEG photograph')

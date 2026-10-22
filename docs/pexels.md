@@ -32,7 +32,7 @@ images: photos
 slide_mode: image_with_caption
 pexels:
   orientation: landscape
-  size: large
+  size: small
   per_page: 15
   timeout_seconds: 15
 ```
@@ -54,6 +54,9 @@ pexels:
 размещайте рядом с ним [ссылку на Pexels](https://www.pexels.com/)
 и кредит фотографа по [правилам API](https://www.pexels.com/api/documentation/).
 Проверяйте лицензию, особенно при коммерческом использовании.
+
+Размер `small` требует около 4 Мп в оригинале, чего достаточно для
+видео 1280×720 и что не отсекает фотографии с камерами среднего класса.
 
 Pexels ранжирует выдачу сам, но пока **не проверяется** соответствие
 содержимого изображения смыслу всей ситуации. Для этого потребуется

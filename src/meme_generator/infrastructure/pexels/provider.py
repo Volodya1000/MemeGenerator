@@ -31,7 +31,10 @@ class PexelsImageProvider(ImageProviderProtocol):
         client: httpx.Client | None = None,
     ) -> None:
         """Authenticate without ever putting the secret in query params."""
-        if settings.api_key is None:
+        if (
+            settings.api_key is None
+            or not settings.api_key.get_secret_value().strip()
+        ):
             raise ValueError('Pexels requires an API key')
         self._settings = settings
         self._api_key = settings.api_key

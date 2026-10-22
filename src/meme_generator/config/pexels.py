@@ -12,6 +12,6 @@ class PexelsSettings(BaseModel):
 
     api_key: SecretStr | None = None
     orientation: Literal['landscape', 'portrait', 'square'] = 'landscape'
-    size: Literal['large', 'medium', 'small'] = 'large'
+    size: Literal['large', 'medium', 'small'] = 'small'
     per_page: int = Field(default=15, ge=1, le=80)
     timeout_seconds: float = Field(default=15, gt=0, le=60)

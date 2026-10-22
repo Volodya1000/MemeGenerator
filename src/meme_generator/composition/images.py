@@ -20,7 +20,8 @@ from meme_generator.infrastructure.photo_search import PhotoSearchWithFallback
 def _photo_source(settings: GenerationSettings) -> ImageProviderProtocol:
     """Prefer optional Pexels photographs, keeping Commons as the fallback."""
     commons: ImageProviderProtocol = CommonsImageProvider()
-    if settings.pexels.api_key is None:
+    api_key = settings.pexels.api_key
+    if api_key is None or not api_key.get_secret_value().strip():
         return commons
     return PhotoSearchWithFallback(
         PexelsImageProvider(settings.pexels),
