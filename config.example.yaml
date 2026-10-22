@@ -9,5 +9,5 @@ database:
 scenes: 5
 catalog: assets/catalog.json
 output: output/result.mp4
-images: commons
+images: commons  # Alternative: local, cards (offline caption images)
 # Set images: local and image_dir: assets/context for offline images.

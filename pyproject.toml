@@ -11,6 +11,7 @@ requires-python = ">=3.13,<3.14"
 dependencies = [
   "httpx>=0.28,<1",
   "pydantic>=2.10,<3",
+  "pillow>=11,<13",
   "litellm>=1.80,<2",
   "pyyaml>=6,<7",
   "pydantic-settings[yaml]>=2.10,<3",

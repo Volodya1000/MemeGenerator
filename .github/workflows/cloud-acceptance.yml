@@ -1,0 +1,67 @@
+name: REAL meme review video (Cutzo)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/15-cloud-acceptance
+    paths:
+      - .github/workflows/cloud-acceptance.yml
+      - scripts/cloud_demo.py
+      - scripts/cloud_story.py
+      - scripts/real_media_generation_smoke.py
+      - scripts/real_review_story.py
+      - scripts/verify_real_review_frames.py
+      - src/meme_generator/infrastructure/caption_cards.py
+
+permissions:
+  contents: read
+
+jobs:
+  real-media:
+    name: Real seven-video integration check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Download and normalize original media
+        run: uv run meme-assets --download --force
+      - name: Validate seven source files and output catalog
+        run: uv run python scripts/verify_real_media.py
+      - name: Render real reaction footage and verify scenario
+        run: uv run python scripts/real_media_generation_smoke.py
+      - name: Verify output contains original interview frames
+        run: uv run python scripts/verify_real_review_frames.py
+      - name: Upload actual real-reaction video for owner review
+        uses: actions/upload-artifact@v4
+        with:
+          name: meme-generator-REAL-reactions-24h
+          path: |
+            output/real-reactions-review.mp4
+            output/real-reactions-review.scenario.json
+            output/real-reactions-review.attribution.json
+          if-no-files-found: error
+          retention-days: 1
+
+  synthetic-preview:
+    name: Synthetic encoder regression (not a user preview)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Check synthetic encoder path (not a deliverable)
+        run: uv run python scripts/cloud_demo.py

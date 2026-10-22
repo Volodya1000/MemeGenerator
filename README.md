@@ -95,6 +95,14 @@ The output includes `result.mp4`, `result.scenario.json` with the
 validated scene plan, and `result.attribution.json` with image provenance.
 Commons search is approximate; licenses and attribution must be reviewed.
 
+## Offline caption cards
+
+Set `images: cards` in `config.yaml` to render readable 16:9 cards from
+scenario text instead of downloading contextual images. This works without
+image search or an additional API key. For a browser-only acceptance run,
+see [remote media review](docs/cloud-acceptance.md); the downloadable preview
+uses clearly labelled synthetic reaction placeholders, not celebrity clips.
+
 ## Architecture
 
 - `domain/`: individual validated entities and business invariants.
