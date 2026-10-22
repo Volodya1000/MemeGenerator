@@ -5,7 +5,6 @@ from pathlib import Path
 from meme_generator.infrastructure.ffmpeg.command import execute_ffmpeg
 from meme_generator.infrastructure.ffmpeg.settings import (
     FRAMES_PER_SECOND,
-    IMAGE_DURATION_SECONDS,
     SAMPLE_RATE,
     VIDEO_FILTER,
 )
@@ -15,7 +14,7 @@ INPUT_FLAG = '-i'
 MAP_FLAG = '-map'
 
 
-def render_image(source: Path, target: Path) -> None:
+def render_image(source: Path, target: Path, duration_seconds: int) -> None:
     """Encode a static context image as a short H.264/AAC segment."""
     execute_ffmpeg(
         [
@@ -30,7 +29,7 @@ def render_image(source: Path, target: Path) -> None:
             INPUT_FLAG,
             f'anullsrc=channel_layout=stereo:sample_rate={SAMPLE_RATE}',
             '-t',
-            str(IMAGE_DURATION_SECONDS),
+            str(duration_seconds),
             '-vf',
             VIDEO_FILTER,
             MAP_FLAG,
