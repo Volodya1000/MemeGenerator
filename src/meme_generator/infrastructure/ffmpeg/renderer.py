@@ -64,7 +64,8 @@ class FFmpegRenderer(VideoRendererProtocol):
     """Produce an MP4 atomically, preserving pre-existing output on error."""
 
     def __init__(
-        self, context_duration_seconds: int = IMAGE_DURATION_SECONDS,
+        self,
+        context_duration_seconds: int = IMAGE_DURATION_SECONDS,
     ) -> None:
         """Store the context display duration."""
         if context_duration_seconds <= 0:
@@ -88,7 +89,10 @@ class FFmpegRenderer(VideoRendererProtocol):
         ) as temporary:
             directory = Path(temporary)
             playlist = create_playlist(
-                scenario, catalog, images, directory,
+                scenario,
+                catalog,
+                images,
+                directory,
                 self._context_duration_seconds,
             )
             rendered = directory / 'complete.mp4'
