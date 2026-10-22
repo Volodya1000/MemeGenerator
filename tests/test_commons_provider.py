@@ -19,6 +19,8 @@ def example_scene(query: str) -> Scene:
         image_query=query,
         meme_id='reaction',
     )
+
+
 IMAGE_WIDTH = 960
 IMAGE_HEIGHT = 720
 WIKIMEDIA_URL = 'https://upload.wikimedia.org/wikipedia/example.png'
