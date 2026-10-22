@@ -96,3 +96,39 @@ def test_caption_preserves_source_attribution(tmp_path: Path) -> None:
     assert generated.image_path.is_file()
     assert generated.license_name == 'User-provided'
     assert generated.image_path.suffix == '.png'
+
+
+def test_long_photo_caption_stays_clear_of_heading(tmp_path: Path) -> None:
+    """Visible heading and long body never collide or leave the caption band."""
+    source = tmp_path / 'original.png'
+    output = tmp_path / 'captioned.png'
+    Image.new('RGB', TEST_IMAGE_SIZE, 'red').save(source)
+    description = (
+        'Счастливый владелец только что купил '
+        'подержанную машину и едет по городу.'
+    )
+    add_caption(source, description, 1, output)
+    with Image.open(output) as rendered:
+        heading_rows: list[int] = []
+        body_rows: list[int] = []
+        for vertical in range(465, 684):
+            row_pixels = [
+                rendered.getpixel((horizontal, vertical))
+                for horizontal in range(115, 1190)
+            ]
+            if (168, 232, 249) in row_pixels:
+                heading_rows.append(vertical)
+            if (255, 255, 255) in row_pixels:
+                body_rows.append(vertical)
+    assert heading_rows
+    assert body_rows
+    assert max(heading_rows) + 10 < min(body_rows)
+    assert max(body_rows) < 664
+
+
+def test_photo_caption_rejects_unrenderable_text(tmp_path: Path) -> None:
+    """Unrenderable descriptions fail rather than silently overlap labels."""
+    source = tmp_path / 'source.png'
+    Image.new('RGB', TEST_IMAGE_SIZE, 'red').save(source)
+    with pytest.raises(ValueError, match='exceeds the photo width'):
+        add_caption(source, 'я' * 200, 1, tmp_path / 'out.png')
