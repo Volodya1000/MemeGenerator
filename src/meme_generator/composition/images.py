@@ -13,7 +13,19 @@ from meme_generator.infrastructure.captioned_images import (
 )
 from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.images import LocalImageProvider
+from meme_generator.infrastructure.pexels import PexelsImageProvider
 from meme_generator.infrastructure.photo_search import PhotoSearchWithFallback
+
+
+def _photo_source(settings: GenerationSettings) -> ImageProviderProtocol:
+    """Prefer optional Pexels photographs, keeping Commons as the fallback."""
+    commons: ImageProviderProtocol = CommonsImageProvider()
+    if settings.pexels.api_key is None:
+        return commons
+    return PhotoSearchWithFallback(
+        PexelsImageProvider(settings.pexels),
+        commons,
+    )
 
 
 def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
@@ -22,8 +34,10 @@ def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
         return CaptionCardImageProvider()
     if settings.images == 'cards':
         raise ValueError('Choose commons or local for image slide modes')
-    if settings.images in ('commons', 'photos'):
-        photo: ImageProviderProtocol = CommonsImageProvider()
+    if settings.images == 'photos':
+        photo: ImageProviderProtocol = _photo_source(settings)
+    elif settings.images == 'commons':
+        photo = CommonsImageProvider()
     else:
         if settings.image_dir is None:
             raise ValueError('image_dir is required when images=local')
