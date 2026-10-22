@@ -36,6 +36,16 @@ on:
         required: true
         default: 20
         type: number
+      context_duration_seconds:
+        description: 'Seconds each situation remains visible (1-15)'
+        required: true
+        default: '5'
+        type: choice
+        options:
+          - '3'
+          - '5'
+          - '7'
+          - '10'
       images:
         description: 'Context image source (no AI image generation)'
         required: true
@@ -64,6 +74,7 @@ jobs:
       MEMEGEN_LLM__RETRY_ATTEMPTS: '2'
       MEMEGEN_PLANNER: llm
       MEMEGEN_IMAGES: ${{ inputs.images }}
+      MEMEGEN_CONTEXT_DURATION_SECONDS: ${{ inputs.context_duration_seconds }}
       MEMEGEN_CATALOG: assets/catalog.json
       TOPIC: ${{ inputs.topic }}
       SIZING_MODE: ${{ inputs.sizing_mode }}
