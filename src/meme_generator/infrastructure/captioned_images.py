@@ -19,10 +19,11 @@ MAX_CAPTION_LINES = 3
 MAX_CAPTION_WIDTH = 1020
 CAPTION_BAND = (58, 465, 1222, 684)
 CAPTION_LEFT = 115
-CAPTION_TOP = 535
 CAPTION_RADIUS = 25
 CAPTION_LABEL_SIZE = 27
-CAPTION_LINE_GAP = 12
+CAPTION_LINE_GAP = 10
+CAPTION_BODY_TOP = 530
+CAPTION_BODY_BOTTOM = CAPTION_BAND[3] - 20
 
 
 def _wrap_text(
@@ -39,6 +40,8 @@ def _wrap_text(
         if bounds[2] <= MAX_CAPTION_WIDTH:
             current = candidate
         else:
+            if drawing.textbbox((0, 0), word, font=font)[2] > MAX_CAPTION_WIDTH:
+                raise ValueError('One caption word exceeds the photo width')
             if current:
                 lines.append(current)
             current = word
@@ -50,14 +53,25 @@ def _wrap_text(
 def _caption_layout(
     caption: str,
     drawing: ImageDraw.ImageDraw,
-) -> tuple[ImageFont.FreeTypeFont, list[str]]:
-    """Select a readable layout instead of cutting off words."""
+) -> tuple[ImageFont.FreeTypeFont, list[str], int]:
+    """Select a font using both the available width and vertical space."""
     for size in CAPTION_FONT_SIZES:
         font = ImageFont.truetype(FONT_NAME, size)
         lines = _wrap_text(caption, drawing, font)
-        if len(lines) <= MAX_CAPTION_LINES:
-            return font, lines
-    raise ValueError('Caption does not fit on the photo')
+        if len(lines) > MAX_CAPTION_LINES:
+            continue
+        line_height = max(
+            drawing.textbbox((0, 0), line, font=font, anchor='lt')[3]
+            for line in lines
+        )
+        block_height = (
+            (len(lines) - 1) * (size + CAPTION_LINE_GAP) + line_height
+        )
+        available_height = CAPTION_BODY_BOTTOM - CAPTION_BODY_TOP
+        if block_height <= available_height:
+            top = CAPTION_BODY_TOP + (available_height - block_height) // 2
+            return font, lines, top
+    raise ValueError('Caption does not fit inside the photo caption area')
 
 
 def _paint_caption(canvas: Image.Image, caption: str, order: int) -> None:
@@ -80,15 +94,16 @@ def _paint_caption(canvas: Image.Image, caption: str, order: int) -> None:
 
 def _paint_lines(drawing: ImageDraw.ImageDraw, caption: str) -> None:
     """Keep the visible situation within the photographic label."""
-    font, lines = _caption_layout(caption, drawing)
+    font, lines, start_y = _caption_layout(caption, drawing)
     for index, line in enumerate(lines):
         drawing.text(
             (
                 CAPTION_LEFT,
-                CAPTION_TOP + index * (int(font.size) + CAPTION_LINE_GAP),
+                start_y + index * (int(font.size) + CAPTION_LINE_GAP),
             ),
             line,
             font=font,
+            anchor='lt',
             fill='white',
         )
 
