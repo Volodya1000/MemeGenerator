@@ -2,24 +2,13 @@
 
 from meme_generator.application.demo_planner import DemoPlanner
 from meme_generator.application.pipeline import GenerationPipeline
-from meme_generator.application.protocols.image_provider import (
-    ImageProviderProtocol,
-)
 from meme_generator.application.protocols.scenario_planner import (
     ScenarioPlannerProtocol,
 )
 from meme_generator.composition.catalog import create_catalog
+from meme_generator.composition.images import create_images
 from meme_generator.config.settings import GenerationSettings
-from meme_generator.domain.slide_mode import SlideMode
-from meme_generator.infrastructure.captioned_images import (
-    CaptionedImageProvider,
-)
-from meme_generator.infrastructure.caption_cards import (
-    CaptionCardImageProvider,
-)
-from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.ffmpeg.renderer import FFmpegRenderer
-from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.llm.planner import LiteLLMPlanner
 
 
@@ -36,23 +25,6 @@ def create_planner(settings: GenerationSettings) -> ScenarioPlannerProtocol:
         api_key=api_key.get_secret_value() if api_key else None,
         retry_attempts=settings.llm.retry_attempts,
     )
-
-
-def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
-    """Compose real photos, text cards or photos with visible captions."""
-    if settings.slide_mode == SlideMode.TEXT_ONLY:
-        return CaptionCardImageProvider()
-    if settings.images == 'cards':
-        raise ValueError('Choose commons or local for image slide modes')
-    if settings.images == 'commons':
-        source: ImageProviderProtocol = CommonsImageProvider()
-    elif settings.image_dir is not None:
-        source = LocalImageProvider(settings.image_dir.resolve())
-    else:
-        raise ValueError('image_dir is required when images=local')
-    if settings.slide_mode == SlideMode.IMAGE_WITH_CAPTION:
-        return CaptionedImageProvider(source)
-    return source
 
 
 def create_pipeline(settings: GenerationSettings) -> GenerationPipeline:
