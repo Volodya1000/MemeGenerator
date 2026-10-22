@@ -27,6 +27,22 @@ MIN_PHOTO_ENTROPY = 3.0
 LOGGER = logging.getLogger(__name__)
 
 
+def _frame_entropy(encoded: bytes) -> float:
+    """Measure photographic variation outside the text-caption area."""
+    with Image.open(BytesIO(encoded)) as decoded:
+        grayscale = decoded.convert('L')
+        frame_width, frame_height = grayscale.size
+        scene_area = grayscale.crop(
+            (
+                frame_width // 10,
+                frame_height // 10,
+                frame_width * 9 // 10,
+                frame_height // 2,
+            )
+        )
+        return scene_area.entropy()
+
+
 def _verify_photo_frame(position: float, order: int) -> None:
     """Reject flat text-only frames even when metadata claims a photograph."""
     command: list[str] = [
@@ -51,18 +67,7 @@ def _verify_photo_frame(position: float, order: int) -> None:
         check=True,
         capture_output=True,
     )
-    with Image.open(BytesIO(encoded.stdout)) as decoded:
-        grayscale = decoded.convert('L')
-        frame_width, frame_height = grayscale.size
-        scene_area = grayscale.crop(
-            (
-                frame_width // 10,
-                frame_height // 10,
-                frame_width * 9 // 10,
-                frame_height * 11 // 20,
-            )
-        )
-        entropy: float = scene_area.entropy()
+    entropy = _frame_entropy(encoded.stdout)
     LOGGER.info('PHOTO_FRAME scene=%d entropy=%.2f', order, entropy)
     if entropy < MIN_PHOTO_ENTROPY:
         raise ValueError('Video contains a text card instead of a photo')
@@ -89,14 +94,11 @@ def _verify_attribution(
     )
 
 
-def main() -> None:
-    """Verify provenance and an actual photographic frame for every scene."""
-    scenario: Scenario = Scenario.model_validate_json(
-        OUTPUT.with_suffix('.scenario.json').read_text(encoding='utf-8')
-    )
-    manifest: AttributionManifest = AttributionManifest.model_validate_json(
-        OUTPUT.with_suffix('.attribution.json').read_text(encoding='utf-8')
-    )
+def _verify_scenes(
+    scenario: Scenario,
+    manifest: AttributionManifest,
+) -> None:
+    """Check one authentic photo per scene, not just one per movie."""
     attributions: dict[int, SceneAttribution] = {
         attribution.scene_order: attribution
         for attribution in manifest.root
@@ -106,7 +108,7 @@ def main() -> None:
     if len(manifest.root) != len(scenario.scenes):
         raise ValueError('Unexpected number of photo attributions')
     catalog = InMemoryMemeRepository.from_json(CATALOG)
-    position = 0.0
+    position: float = 0
     duration: int = GenerationSettings().context_duration_seconds
     for scene in scenario.scenes:
         _verify_attribution(
@@ -119,6 +121,17 @@ def main() -> None:
             catalog.get(scene.meme_id).video_path
         ).duration_seconds
     LOGGER.info('ALL_SCENES_CONTAIN_PHOTOS=%d', len(scenario.scenes))
+
+
+def main() -> None:
+    """Verify provenance and an actual photographic frame for every scene."""
+    scenario: Scenario = Scenario.model_validate_json(
+        OUTPUT.with_suffix('.scenario.json').read_text(encoding='utf-8')
+    )
+    manifest: AttributionManifest = AttributionManifest.model_validate_json(
+        OUTPUT.with_suffix('.attribution.json').read_text(encoding='utf-8')
+    )
+    _verify_scenes(scenario, manifest)
 
 
 if __name__ == '__main__':
