@@ -60,9 +60,7 @@ def _caption_layout(
     raise ValueError('Caption does not fit on the photo')
 
 
-def _paint_caption(
-    canvas: Image.Image, caption: str, order: int
-) -> None:
+def _paint_caption(canvas: Image.Image, caption: str, order: int) -> None:
     """Draw a translucent readable label and situation over the photo."""
     drawing = ImageDraw.Draw(canvas, 'RGBA')
     drawing.rounded_rectangle(
@@ -104,6 +102,7 @@ def add_caption(source: Path, caption: str, order: int, output: Path) -> None:
     _paint_caption(canvas, caption, order)
     output.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(output, format='PNG')
+
 
 class CaptionedImageProvider(ImageProviderProtocol):
     """Decorate genuine searched photographs with a visible caption."""
