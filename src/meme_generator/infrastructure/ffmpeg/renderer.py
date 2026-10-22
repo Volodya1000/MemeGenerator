@@ -13,6 +13,7 @@ from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.ffmpeg.command import execute_ffmpeg
+from meme_generator.infrastructure.ffmpeg.settings import IMAGE_DURATION_SECONDS
 from meme_generator.infrastructure.ffmpeg.segments import (
     render_clip,
     render_image,
@@ -24,11 +25,12 @@ def prepare_pair(
     image: ImageAsset,
     catalog: MemeRepositoryProtocol,
     directory: Path,
+    context_duration_seconds: int = IMAGE_DURATION_SECONDS,
 ) -> tuple[Path, Path]:
     """Encode one ordered image and reaction pair."""
     context_path = directory / f'{scene.order}-context.mp4'
     reaction_path = directory / f'{scene.order}-reaction.mp4'
-    render_image(image.image_path, context_path)
+    render_image(image.image_path, context_path, context_duration_seconds)
     render_clip(catalog.get(scene.meme_id).video_path, reaction_path)
     return context_path, reaction_path
 
@@ -38,12 +40,15 @@ def create_playlist(
     catalog: MemeRepositoryProtocol,
     images: list[ImageAsset],
     directory: Path,
+    context_duration_seconds: int = IMAGE_DURATION_SECONDS,
 ) -> Path:
     """Prepare all paired segments and a safe relative concat playlist."""
     segments = [
         clip
         for scene, image in zip(scenario.scenes, images, strict=True)
-        for clip in prepare_pair(scene, image, catalog, directory)
+        for clip in prepare_pair(
+            scene, image, catalog, directory, context_duration_seconds
+        )
     ]
     playlist = directory / 'concat.txt'
     playlist.write_text(
@@ -55,6 +60,14 @@ def create_playlist(
 
 class FFmpegRenderer(VideoRendererProtocol):
     """Produce an MP4 atomically, preserving pre-existing output on error."""
+
+    def __init__(
+        self, context_duration_seconds: int = IMAGE_DURATION_SECONDS,
+    ) -> None:
+        """Store the context display duration."""
+        if context_duration_seconds <= 0:
+            raise ValueError('Context duration must be positive')
+        self._context_duration_seconds = context_duration_seconds
 
     def render(
         self,
@@ -72,7 +85,10 @@ class FFmpegRenderer(VideoRendererProtocol):
             dir=output_path.parent,
         ) as temporary:
             directory = Path(temporary)
-            playlist = create_playlist(scenario, catalog, images, directory)
+            playlist = create_playlist(
+                scenario, catalog, images, directory,
+                self._context_duration_seconds,
+            )
             rendered = directory / 'complete.mp4'
             execute_ffmpeg(
                 [
