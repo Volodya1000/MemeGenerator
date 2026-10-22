@@ -49,7 +49,7 @@ def _read_frame(video: Path, seconds: float) -> Image.Image:
         return image.convert('RGB').resize(FRAME_SIZE)
 
 
-def _distance(output: Path, source: Path, start: float) -> float:
+def frame_distance(output: Path, source: Path, start: float) -> float:
     """Measure whether the output reaction resembles its genuine source."""
     original = _read_frame(source, FRAME_SAMPLE_SECONDS)
     rendered = _read_frame(output, start + FRAME_SAMPLE_SECONDS)
@@ -64,7 +64,7 @@ def verify_real_review_frames() -> None:
     for meme_id, _ in REAL_STORY:
         source = catalog.get(meme_id).video_path
         position += IMAGE_DURATION_SECONDS
-        distance = _distance(OUTPUT, source, position)
+        distance = frame_distance(OUTPUT, source, position)
         LOGGER.info('SOURCE_FRAME_MATCH %s distance=%.2f', meme_id, distance)
         if distance > MAX_PIXEL_DIFFERENCE:
             raise ValueError(f'Real source footage missing for {meme_id}')
