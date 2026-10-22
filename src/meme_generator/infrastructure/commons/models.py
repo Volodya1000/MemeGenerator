@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 class CommonsMetadataField(BaseModel):
     """Wikimedia metadata values may be strings or numeric measurements."""
 
-    value: str | float
+    metadata_value: str | float = Field(alias='value')
 
 
 class CommonsImage(BaseModel):
