@@ -12,6 +12,9 @@ on:
       - src/meme_generator/infrastructure/commons/download.py
       - src/meme_generator/infrastructure/commons/models.py
       - src/meme_generator/infrastructure/photo_search.py
+      - src/meme_generator/infrastructure/captioned_images.py
+      - src/meme_generator/infrastructure/commons/search.py
+      - tests/test_slide_modes.py
       - src/meme_generator/infrastructure/prompts/scenario.py
   workflow_dispatch:
 
@@ -65,7 +68,7 @@ jobs:
             --output output/gemini-result.mp4
       - name: Verify actual reaction footage
         run: uv run python scripts/verify_generated_video.py
-      - name: Verify photos, not just text fallback
+      - name: Verify photographic frames and provenance for every scene
         run: uv run python scripts/verify_searched_photos.py
       - name: Upload video and provenance for owner inspection
         if: always()
