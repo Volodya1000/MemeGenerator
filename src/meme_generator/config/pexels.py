@@ -20,4 +20,6 @@ class PexelsSettings(BaseModel):
     per_page: int = Field(
         default=DEFAULT_SEARCH_LIMIT, ge=1, le=MAX_SEARCH_LIMIT
     )
-    timeout_seconds: float = Field(default=DEFAULT_TIMEOUT_SECONDS, gt=0, le=60)
+    timeout_seconds: float = Field(
+        default=DEFAULT_TIMEOUT_SECONDS, gt=0, le=60
+    )
