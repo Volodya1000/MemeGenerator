@@ -94,6 +94,8 @@ the remainder of the settings are explicit YAML keys.
 The output includes `result.mp4`, `result.scenario.json` with the
 validated scene plan, and `result.attribution.json` with image provenance.
 Commons search is approximate; licenses and attribution must be reviewed.
+For optional Pexels-first photo search and secure API key setup, see
+[docs/pexels.md](docs/pexels.md). Commons remains available without a key.
 
 ## Offline caption cards
 

@@ -41,6 +41,7 @@ jobs:
     timeout-minutes: 20
     env:
       MEMEGEN_LLM__API_KEY: ${{ secrets.MEMEGEN_LLM__API_KEY }}
+      MEMEGEN_PEXELS__API_KEY: ${{ secrets.MEMEGEN_PEXELS__API_KEY }}
       MEMEGEN_LLM__MODEL: gemini/gemini-3.5-flash-lite
       MEMEGEN_IMAGES: photos
       MEMEGEN_SLIDE_MODE: image_with_caption

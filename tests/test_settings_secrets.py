@@ -35,6 +35,26 @@ def test_llm_credentials_are_not_allowed_in_yaml(tmp_path: Path) -> None:
         load_settings(path)
 
 
+def test_pexels_credentials_rejected_in_yaml(tmp_path: Path) -> None:
+    """The Pexels key must come from the environment, never from YAML."""
+    path = tmp_path / CONFIG_NAME
+    path.write_text(
+        'pexels:\n  api_key: do-not-commit\n',
+        encoding=TEXT_ENCODING,
+    )
+    with pytest.raises(ValueError, match='environment'):
+        load_settings(path)
+
+
+def test_pexels_key_is_masked(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Environment-provided API keys are masked in settings repr."""
+    monkeypatch.setenv('MEMEGEN_PEXELS__API_KEY', 'secret-value')
+    settings = load_settings(None)
+    assert settings.pexels.api_key is not None
+    assert settings.pexels.api_key.get_secret_value() == 'secret-value'
+    assert 'secret-value' not in repr(settings)
+
+
 def test_secret_values_are_redacted(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

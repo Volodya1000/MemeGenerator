@@ -20,7 +20,9 @@ from meme_generator.persistence.in_memory import InMemoryMemeRepository
 OUTPUT = Path('output/gemini-result.mp4')
 CATALOG = Path('assets/catalog.json')
 TEXT_CARD_LICENSE = 'Original generated typography'
-PHOTO_DOMAINS = frozenset(('commons.wikimedia.org', 'upload.wikimedia.org'))
+PHOTO_DOMAINS = frozenset(
+    ('commons.wikimedia.org', 'upload.wikimedia.org', 'www.pexels.com')
+)
 MIN_PHOTO_ENTROPY = 3.0
 LOGGER = logging.getLogger(__name__)
 
@@ -78,10 +80,10 @@ def _verify_attribution(
 ) -> None:
     """Require provenance for the exact scene and an authentic Commons URL."""
     if attribution is None or attribution.license == TEXT_CARD_LICENSE:
-        raise ValueError('Real Commons photograph missing for scene')
+        raise ValueError('Real searched photograph missing for scene')
     origin = urlsplit(attribution.source_url)
     if origin.scheme != 'https' or origin.hostname not in PHOTO_DOMAINS:
-        raise ValueError('Photo provenance must point to Wikimedia Commons')
+        raise ValueError('Photo provenance must point to an approved source')
     if attribution.query != query:
         raise ValueError('Photo attribution does not match the scene query')
     LOGGER.info(

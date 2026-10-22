@@ -34,9 +34,9 @@ class PexelsImageProvider(ImageProviderProtocol):
         if settings.api_key is None:
             raise ValueError('Pexels requires an API key')
         self._settings = settings
+        self._api_key = settings.api_key
         self._client = client or httpx.Client(
             timeout=settings.timeout_seconds,
-            headers={'Authorization': settings.api_key.get_secret_value()},
         )
 
     def fetch(self, scene: Scene, output_dir: Path) -> ImageAsset:
@@ -59,6 +59,7 @@ class PexelsImageProvider(ImageProviderProtocol):
         response = self._client.get(
             PEXELS_SEARCH_URL,
             params=search_parameters(query, self._settings),
+            headers={'Authorization': self._api_key.get_secret_value()},
         )
         response.raise_for_status()
         photos = PexelsResponse.model_validate(response.json()).photos
