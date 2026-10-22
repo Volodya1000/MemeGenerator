@@ -44,8 +44,8 @@ def test_only_image_uses_a_local_photo(tmp_path: Path) -> None:
         image_query='broken down car',
         meme_id='reaction',
     )
-    result: ImageAsset = create_images(settings).fetch(scene, tmp_path / 'output')
-    with Image.open(result.image_path) as image:
+    asset: ImageAsset = create_images(settings).fetch(scene, tmp_path / 'output')
+    with Image.open(asset.image_path) as image:
         assert image.getpixel((100, 100)) == (255, 0, 0)
 
 
@@ -61,7 +61,7 @@ def test_image_with_caption_produces_overlay(tmp_path: Path) -> None:
         assert captioned.getpixel((100, 100)) == image.getpixel((100, 100))
 
 
-def test_photo_modes_do_not_accept_text_only_image_source() -> None:
+def test_photo_modes_reject_text_source() -> None:
     """A mismatched UI combination is rejected before rendering."""
     with pytest.raises(ValueError, match='commons or local'):
         create_images(
@@ -72,7 +72,7 @@ def test_photo_modes_do_not_accept_text_only_image_source() -> None:
         )
 
 
-def test_photo_caption_provider_uses_original_attribution(tmp_path: Path) -> None:
+def test_caption_preserves_source_attribution(tmp_path: Path) -> None:
     """The overlay does not erase the original photo's source or license."""
     images = tmp_path / 'images'
     images.mkdir()
