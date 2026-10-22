@@ -1,0 +1,59 @@
+name: Gemini real-video integration (PR acceptance)
+
+on:
+  push:
+    branches:
+      - feature/18-cloud-gemini-generation
+    paths:
+      - .github/workflows/gemini-e2e-preview-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  real-gemini-video:
+    name: Generate and verify real video using Gemini
+    runs-on: ubuntu-latest
+    environment: MEMEGEN_LLM__API_KEY
+    timeout-minutes: 20
+    env:
+      MEMEGEN_LLM__API_KEY: ${{ secrets.MEMEGEN_LLM__API_KEY }}
+      MEMEGEN_LLM__MODEL: gemini/gemini-3.5-flash-lite
+      MEMEGEN_PLANNER: llm
+      MEMEGEN_IMAGES: cards
+      MEMEGEN_CATALOG: assets/catalog.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Ensure secret is configured
+        run: |
+          if [[ -z "$MEMEGEN_LLM__API_KEY" ]]; then
+            echo "::error::Environment API secret is missing"
+            exit 1
+          fi
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Install Python dependencies
+        run: uv sync --extra dev
+      - name: Download and validate authentic Tinkov footage
+        run: uv run meme-assets --download --force
+      - name: Generate actual LLM-planned video
+        run: |
+          uv run meme-generator generate \
+            --topic 'Когда купил машину, а она сломалась через два дня' \
+            --scenes 3 \
+            --output output/gemini-result.mp4
+      - name: Validate each real reaction against source frames
+        run: uv run python scripts/verify_generated_video.py
+      - name: Publish genuine video for owner review
+        uses: actions/upload-artifact@v4
+        with:
+          name: meme-generator-gemini-live-e2e
+          path: |
+            output/gemini-result.mp4
+            output/gemini-result.scenario.json
+            output/gemini-result.attribution.json
+          if-no-files-found: error
+          retention-days: 1
