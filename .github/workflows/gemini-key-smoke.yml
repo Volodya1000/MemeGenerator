@@ -1,0 +1,61 @@
+name: Gemini API credentials smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/18-cloud-gemini-generation
+    paths:
+      - .github/workflows/gemini-key-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Verify real Gemini API with protected secret
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    environment: MEMEGEN_LLM__API_KEY
+    env:
+      MEMEGEN_LLM__API_KEY: ${{ secrets.MEMEGEN_LLM__API_KEY }}
+      MEMEGEN_LLM__MODEL: gemini/gemini-3.5-flash-lite
+      MEMEGEN_PLANNER: llm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.13'
+      - name: Check API key presence without exposing it
+        run: |
+          if [[ -z "$MEMEGEN_LLM__API_KEY" ]]; then
+            echo "::error::Environment secret MEMEGEN_LLM__API_KEY is missing"
+            exit 1
+          fi
+      - name: Install dependencies
+        run: uv sync --extra dev
+      - name: Call Gemini via production LiteLLM planner
+        run: |
+          uv run python - <<'PY'
+          from pathlib import Path
+
+          from meme_generator.composition.pipeline import create_planner
+          from meme_generator.config.settings import GenerationSettings
+          from meme_generator.domain.meme import Meme
+
+          source = Meme(
+              meme_id='reaction_test',
+              phrase='Сомнительно, но окей',
+              video_path=Path('unused.mp4'),
+          )
+          scenario = create_planner(GenerationSettings()).plan(
+              theme='Car breaking down after purchase',
+              memes=[source],
+              scene_count=1,
+          )
+          if len(scenario.scenes) != 1:
+              raise ValueError('Gemini returned an incorrect scene count')
+          if scenario.scenes[0].meme_id != source.meme_id:
+              raise ValueError('Gemini selected an unknown reaction')
+          print('GEMINI_API_SMOKE_PASSED: validated one actual LLM scenario')
+          PY
