@@ -54,11 +54,11 @@ def test_pexels_unavailable_uses_commons(tmp_path: Path) -> None:
         lambda _: httpx.Response(HTTP_UNAVAILABLE)
     )
     with httpx.Client(transport=transport) as client:
-        preferred = PexelsImageProvider(
-            PexelsSettings(api_key=SecretStr('offline-key')), client
-        )
         provider = PhotoSearchWithFallback(
-            preferred, OfflineCommonsProvider()
+            PexelsImageProvider(
+                PexelsSettings(api_key=SecretStr('offline-key')), client
+            ),
+            OfflineCommonsProvider(),
         )
         photo = provider.fetch(example_scene(), tmp_path)
     assert photo.license_name == 'CC BY 4.0'
@@ -72,11 +72,11 @@ def test_no_photo_service_uses_readable_card(tmp_path: Path) -> None:
         lambda _: httpx.Response(HTTP_UNAVAILABLE)
     )
     with httpx.Client(transport=transport) as client:
-        preferred = PexelsImageProvider(
-            PexelsSettings(api_key=SecretStr('offline-key')), client
-        )
         commons = PhotoSearchWithFallback(
-            preferred, CaptionCardImageProvider()
+            PexelsImageProvider(
+                PexelsSettings(api_key=SecretStr('offline-key')), client
+            ),
+            CaptionCardImageProvider(),
         )
         asset = commons.fetch(example_scene(), tmp_path)
     assert asset.license_name == 'Original generated typography'
