@@ -2,7 +2,7 @@
 
 FRAMES_PER_SECOND = 30
 SAMPLE_RATE = 48000
-IMAGE_DURATION_SECONDS = 2
+IMAGE_DURATION_SECONDS = 5
 VIDEO_FILTER = (
     'scale=1280:720:force_original_aspect_ratio=decrease,'
     'pad=1280:720:(ow-iw)/2:(oh-ih)/2,'
