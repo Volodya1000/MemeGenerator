@@ -19,8 +19,8 @@ def main() -> None:
         MANIFEST.read_text(encoding='utf-8')
     )
     photos: list[SceneAttribution] = [
-        item for item in manifest.root
-        if item.license != TEXT_CARD_LICENSE
+        attribution for attribution in manifest.root
+        if attribution.license != TEXT_CARD_LICENSE
     ]
     LOGGER.info('ACTUAL_PHOTOS_FOUND=%d', len(photos))
     for photo in photos:
