@@ -13,10 +13,12 @@ from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.scenario import Scenario
 from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.ffmpeg.command import execute_ffmpeg
-from meme_generator.infrastructure.ffmpeg.settings import IMAGE_DURATION_SECONDS
 from meme_generator.infrastructure.ffmpeg.segments import (
     render_clip,
     render_image,
+)
+from meme_generator.infrastructure.ffmpeg.settings import (
+    IMAGE_DURATION_SECONDS,
 )
 
 
