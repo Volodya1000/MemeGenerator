@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from PIL import Image, ImageChops
 
-from meme_generator.composition.pipeline import create_images
+from meme_generator.composition.images import create_images
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.domain.image_asset import ImageAsset
 from meme_generator.domain.scene import Scene
