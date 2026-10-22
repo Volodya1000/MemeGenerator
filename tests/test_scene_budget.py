@@ -31,16 +31,18 @@ def test_target_duration_uses_actual_clip_lengths() -> None:
 
 def test_requested_duration_is_an_estimate() -> None:
     """A measured average, not a hand-picked meme, drives the estimate."""
-    assert estimate_scene_count(
+    actual = estimate_scene_count(
         SHORT_TARGET_SECONDS, [3.0, 5.0], CONTEXT_SECONDS
-    ) == EXPECTED_SCENES
+    )
+    assert actual == EXPECTED_SCENES
 
 
 def test_extreme_target_respects_scene_limit() -> None:
     """The output remains bounded even if clips are exceptionally short."""
-    assert estimate_scene_count(
+    actual = estimate_scene_count(
         MAX_TARGET_SECONDS, [MINIMAL_REACTION_SECONDS], CONTEXT_SECONDS
-    ) == MAX_VIDEO_SCENES
+    )
+    assert actual == MAX_VIDEO_SCENES
 
 
 @pytest.mark.parametrize(

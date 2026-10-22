@@ -30,8 +30,13 @@ def test_two_competing_sizing_modes_fail_early() -> None:
     invocation = CliRunner().invoke(
         app,
         [
-            'generate', '--topic', 'Car trouble',
-            '--scenes', '3', '--target-seconds', '20',
+            'generate',
+            '--topic',
+            'Car trouble',
+            '--scenes',
+            '3',
+            '--target-seconds',
+            '20',
         ],
     )
     assert invocation.exit_code != 0
