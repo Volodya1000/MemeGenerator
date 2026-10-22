@@ -13,7 +13,6 @@ from meme_generator.infrastructure.captioned_images import (
 )
 
 FRAME_SIZE = (1280, 720)
-HEADING_COLOR = (168, 232, 249)
 TEXT_COLOR = (255, 255, 255)
 LONG_WORD_LENGTH = 200
 
@@ -33,8 +32,8 @@ def _colored_rows(
     ]
 
 
-def test_long_caption_has_separate_heading(tmp_path: Path) -> None:
-    """Heading and complete body stay separated inside the photo band."""
+def test_long_caption_has_no_scene_heading(tmp_path: Path) -> None:
+    """A long body fits the photo panel without a numbered heading."""
     source = tmp_path / 'original.png'
     output = tmp_path / 'captioned.png'
     Image.new('RGB', FRAME_SIZE, 'red').save(source)
@@ -42,15 +41,12 @@ def test_long_caption_has_separate_heading(tmp_path: Path) -> None:
         source,
         'Счастливый владелец только что купил '
         'подержанную машину и едет по городу.',
-        1,
         output,
     )
     with Image.open(output) as rendered:
-        heading_rows = _colored_rows(rendered, HEADING_COLOR)
         body_rows = _colored_rows(rendered, TEXT_COLOR)
-    assert heading_rows
     assert body_rows
-    assert max(heading_rows) + 10 < min(body_rows)
+    assert min(body_rows) > CAPTION_BAND[1]
     assert max(body_rows) < CAPTION_BODY_BOTTOM
 
 
@@ -59,4 +55,4 @@ def test_photo_caption_rejects_unrenderable_text(tmp_path: Path) -> None:
     source = tmp_path / 'source.png'
     Image.new('RGB', FRAME_SIZE, 'red').save(source)
     with pytest.raises(ValueError, match='exceeds the photo width'):
-        add_caption(source, 'я' * LONG_WORD_LENGTH, 1, tmp_path / 'out.png')
+        add_caption(source, 'я' * LONG_WORD_LENGTH, tmp_path / 'out.png')

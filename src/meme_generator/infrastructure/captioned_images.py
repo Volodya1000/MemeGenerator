@@ -20,9 +20,8 @@ MAX_CAPTION_WIDTH = 1020
 CAPTION_BAND = (58, 465, 1222, 684)
 CAPTION_LEFT = 115
 CAPTION_RADIUS = 25
-CAPTION_LABEL_SIZE = 27
 CAPTION_LINE_GAP = 10
-CAPTION_BODY_TOP = 530
+CAPTION_BODY_TOP = CAPTION_BAND[1] + 20
 CAPTION_BOTTOM_PADDING = 20
 CAPTION_BODY_BOTTOM = CAPTION_BAND[3] - CAPTION_BOTTOM_PADDING
 
@@ -90,20 +89,13 @@ def _caption_layout(
     raise ValueError('Caption does not fit inside the photo caption area')
 
 
-def _paint_caption(canvas: Image.Image, caption: str, order: int) -> None:
-    """Draw a translucent readable label and situation over the photo."""
+def _paint_caption(canvas: Image.Image, caption: str) -> None:
+    """Draw a translucent panel with the original situation text."""
     drawing = ImageDraw.Draw(canvas, 'RGBA')
     drawing.rounded_rectangle(
         CAPTION_BAND,
         radius=CAPTION_RADIUS,
         fill=(10, 17, 29, 220),
-    )
-    label_font = ImageFont.truetype(FONT_NAME, CAPTION_LABEL_SIZE)
-    drawing.text(
-        (CAPTION_LEFT, 489),
-        f'СИТУАЦИЯ {order}',
-        font=label_font,
-        fill='#A8E8F9',
     )
     _paint_lines(drawing, caption)
 
@@ -124,13 +116,13 @@ def _paint_lines(drawing: ImageDraw.ImageDraw, caption: str) -> None:
         )
 
 
-def add_caption(source: Path, caption: str, order: int, output: Path) -> None:
+def add_caption(source: Path, caption: str, output: Path) -> None:
     """Combine a real downloaded photo and the visible Russian situation."""
     if not caption.strip():
         raise ValueError('Photo caption cannot be empty')
     with Image.open(source) as image:
         canvas = ImageOps.fit(image.convert('RGB'), CARD_SIZE)
-    _paint_caption(canvas, caption, order)
+    _paint_caption(canvas, caption)
     output.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(output, format='PNG')
 
@@ -146,7 +138,5 @@ class CaptionedImageProvider(ImageProviderProtocol):
         """Preserve the source metadata while adding the situation caption."""
         original = self._source.fetch(scene, output_dir)
         destination = output_dir / f'{scene.order}-caption.png'
-        add_caption(
-            original.image_path, scene.description, scene.order, destination
-        )
+        add_caption(original.image_path, scene.description, destination)
         return original.model_copy(update={'image_path': destination})

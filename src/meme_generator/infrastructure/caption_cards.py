@@ -13,7 +13,6 @@ CARD_COLORS = ('#15284A', '#40254F', '#154B48', '#513628')
 ACCENT_COLORS = ('#53D8FB', '#FF8CC6', '#FFE187', '#97F0D1')
 FONT_NAME = 'DejaVuSans.ttf'
 MAX_TEXT_LINES = 5
-CARD_HEADING_SIZE = 32
 CARD_CENTER_Y = 348
 TEXT_SIZES = (76, 68, 60, 52, 44, 36)
 
@@ -54,19 +53,13 @@ def _fit_caption(
     raise ValueError('Caption is too long for the card')
 
 
-def _draw_background(palette: int, label: str) -> Image.Image:
-    """Paint a distinctive situation/reaction frame with an accent stripe."""
+def _draw_background(palette: int) -> Image.Image:
+    """Paint a situation card without a redundant scene number."""
     canvas = Image.new('RGB', CARD_SIZE, CARD_COLORS[palette])
     drawing = ImageDraw.Draw(canvas)
     drawing.rounded_rectangle(
         (92, 92, 110, 627),
         radius=9,
-        fill=ACCENT_COLORS[palette],
-    )
-    drawing.text(
-        (155, 110),
-        label,
-        font=ImageFont.truetype(FONT_NAME, CARD_HEADING_SIZE),
         fill=ACCENT_COLORS[palette],
     )
     drawing.rounded_rectangle(
@@ -100,14 +93,13 @@ def render_caption(
     text: str,
     destination: Path,
     *,
-    label: str,
     variation: int,
 ) -> None:
     """Draw a legible 16:9 card and preserve all supplied words."""
     if not text.strip():
         raise ValueError('Card caption cannot be empty')
     palette = (variation - 1) % len(CARD_COLORS)
-    canvas = _draw_background(palette, label)
+    canvas = _draw_background(palette)
     _draw_caption(canvas, text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(destination, format='PNG')
@@ -126,7 +118,6 @@ class CaptionCardImageProvider:
         render_caption(
             scene.description,
             destination,
-            label=f'СИТУАЦИЯ {scene.order}',
             variation=scene.order,
         )
         return ImageAsset(

@@ -48,7 +48,7 @@ def test_caption_wraps_without_truncation(
         'И в итоге пришлось переписать половину генератора'
     )
     output = tmp_path / 'long.png'
-    render_caption(caption, output, label='ПРОВЕРКА', variation=2)
+    render_caption(caption, output, variation=2)
     with Image.open(output) as image:
         assert image.size == (1280, 720)
 
@@ -64,3 +64,11 @@ def test_cards_provider_selected_from_settings(tmp_path: Path) -> None:
     provider = create_images(GenerationSettings(images='cards'))
     image = provider.fetch(example_scene('Готовый сценарий'), tmp_path)
     assert image.image_path.is_file()
+
+def test_text_cards_have_no_scene_heading(tmp_path: Path) -> None:
+    """Only the situation description appears above the bottom separator."""
+    asset = CaptionCardImageProvider().fetch(
+        example_scene('Купил машину и она сломалась', order=2), tmp_path
+    )
+    with Image.open(asset.image_path) as rendered:
+        assert rendered.getpixel((170, 120)) == rendered.getpixel((500, 120))
