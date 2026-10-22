@@ -7,10 +7,13 @@ This workflow requires no local Python, FFmpeg, or video files.
 1. Visit https://aistudio.google.com/api-keys and create a key in a
    **Free Tier** project. Check the model's current free-tier rate limits.
    Do not enable billing if avoiding any possible charge is important.
-2. Open the MemeGenerator repository's **Settings > Secrets and variables >
-   Actions > New repository secret**.
-3. Name the secret exactly `MEMEGEN_LLM__API_KEY` and paste its value.
-   Never paste the secret into a workflow input, issue, PR, or config file.
+2. Open **Settings > Environments** and create the environment
+   named exactly `MEMEGEN_LLM__API_KEY` (the current repository already has it).
+3. Inside that environment choose **Add environment secret**. Name the
+   secret exactly `MEMEGEN_LLM__API_KEY` and paste the Google API key.
+   The workflow job selects this environment explicitly; no new repository
+   secret is needed. Never paste the key into a workflow input, issue,
+   PR, or config file.
 
 ## Generate
 
@@ -40,7 +43,9 @@ review permissions before further redistribution.
 
 ## Troubleshooting
 
-- **Secret missing**: create `MEMEGEN_LLM__API_KEY` as an Actions secret.
+- **Secret missing**: check the `MEMEGEN_LLM__API_KEY` environment has
+  a secret with the same name. Repository secrets and environment secrets
+  are separate scopes.
 - **429 quota exceeded**: inspect Google AI Studio rate limits. Free-tier
   quotas are project-level, vary by model and region, and are not guaranteed.
 - **Model not found**: check current Free Tier eligibility and the model
