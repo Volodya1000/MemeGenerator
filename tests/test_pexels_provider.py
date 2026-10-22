@@ -102,9 +102,7 @@ def test_missing_key_is_rejected() -> None:
 
 def test_http_error_propagates_for_fallback(tmp_path: Path) -> None:
     """An unavailable Pexels service raises a bounded HTTP error."""
-    transport = httpx.MockTransport(
-        lambda _: httpx.Response(HTTP_UNAVAILABLE)
-    )
+    transport = httpx.MockTransport(lambda _: httpx.Response(HTTP_UNAVAILABLE))
     with (
         httpx.Client(transport=transport) as client,
         pytest.raises(httpx.HTTPStatusError),

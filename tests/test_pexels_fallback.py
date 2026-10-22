@@ -50,9 +50,7 @@ class OfflineCommonsProvider:
 
 def test_pexels_unavailable_uses_commons(tmp_path: Path) -> None:
     """A Pexels outage cannot prevent a genuine Commons photograph."""
-    transport = httpx.MockTransport(
-        lambda _: httpx.Response(HTTP_UNAVAILABLE)
-    )
+    transport = httpx.MockTransport(lambda _: httpx.Response(HTTP_UNAVAILABLE))
     with httpx.Client(transport=transport) as client:
         provider = PhotoSearchWithFallback(
             PexelsImageProvider(
@@ -68,9 +66,7 @@ def test_pexels_unavailable_uses_commons(tmp_path: Path) -> None:
 
 def test_no_photo_service_uses_readable_card(tmp_path: Path) -> None:
     """A missing source still yields a readable locally rendered card."""
-    transport = httpx.MockTransport(
-        lambda _: httpx.Response(HTTP_UNAVAILABLE)
-    )
+    transport = httpx.MockTransport(lambda _: httpx.Response(HTTP_UNAVAILABLE))
     with httpx.Client(transport=transport) as client:
         commons = PhotoSearchWithFallback(
             PexelsImageProvider(

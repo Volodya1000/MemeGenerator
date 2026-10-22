@@ -41,9 +41,6 @@ def search_parameters(
 def choose_photo(photos: list[PexelsPhoto]) -> PexelsPhoto:
     """Use Pexels ranking while enforcing a usable photo resolution."""
     for photo in photos:
-        if (
-            photo.width >= MIN_IMAGE_WIDTH
-            and photo.height >= MIN_IMAGE_HEIGHT
-        ):
+        if photo.width >= MIN_IMAGE_WIDTH and photo.height >= MIN_IMAGE_HEIGHT:
             return photo
     raise ValueError('No usable Pexels photograph found')
