@@ -14,7 +14,6 @@ from meme_generator.config.database import DatabaseSettings
 from meme_generator.config.llm import LLMSettings
 from meme_generator.domain.slide_mode import SlideMode
 
-
 MAX_CONTEXT_DURATION_SECONDS = 15
 
 
