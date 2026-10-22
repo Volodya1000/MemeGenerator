@@ -11,6 +11,7 @@ on:
       - scripts/cloud_story.py
       - scripts/real_media_generation_smoke.py
       - scripts/real_review_story.py
+      - scripts/verify_real_review_frames.py
       - src/meme_generator/infrastructure/caption_cards.py
 
 permissions:
@@ -36,6 +37,8 @@ jobs:
         run: uv run python scripts/verify_real_media.py
       - name: Render real reaction footage and verify scenario
         run: uv run python scripts/real_media_generation_smoke.py
+      - name: Verify output contains original interview frames
+        run: uv run python scripts/verify_real_review_frames.py
       - name: Upload actual real-reaction video for owner review
         uses: actions/upload-artifact@v4
         with:
