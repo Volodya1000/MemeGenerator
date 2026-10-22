@@ -1,4 +1,4 @@
-"""Check that every rendered context scene contains a real Commons photograph."""
+"""Check that rendered scenes include actual Commons photographs."""
 
 import logging
 import subprocess

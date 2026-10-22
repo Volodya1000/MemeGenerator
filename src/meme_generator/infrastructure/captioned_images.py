@@ -37,7 +37,10 @@ def _wrap_text(
     current = ''
     for word in caption.split():
         candidate = ' '.join(filter(None, (current, word)))
-        if drawing.textbbox((0, 0), candidate, font=font)[2] <= MAX_CAPTION_WIDTH:
+        if (
+            drawing.textbbox((0, 0), candidate, font=font)[2]
+            <= MAX_CAPTION_WIDTH
+        ):
             current = candidate
             continue
         if drawing.textbbox((0, 0), word, font=font)[2] > MAX_CAPTION_WIDTH:
