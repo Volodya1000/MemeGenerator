@@ -48,7 +48,7 @@ class CommonsImageProvider(ImageProviderProtocol):
         )
         license_entry = metadata.extmetadata.get('LicenseShortName')
         license_name = (
-            str(license_entry.value)
+            str(license_entry.metadata_value)
             if license_entry
             else 'Wikimedia Commons'
         )
