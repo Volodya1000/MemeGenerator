@@ -24,7 +24,7 @@ LOGGER = logging.getLogger(__name__)
 
 def _read_frame(video: Path, seconds: float) -> Image.Image:
     """Decode a real video frame rather than trusting the file extension."""
-    result = subprocess.run(
+    completed = subprocess.run(
         [
             'ffmpeg', '-hide_banner', '-loglevel', 'error',
             '-ss', str(seconds), '-i', str(video),
@@ -34,7 +34,7 @@ def _read_frame(video: Path, seconds: float) -> Image.Image:
         check=True,
         capture_output=True,
     )
-    with Image.open(io.BytesIO(result.stdout)) as image:
+    with Image.open(io.BytesIO(completed.stdout)) as image:
         return image.convert('RGB').resize(FRAME_SIZE)
 
 
@@ -49,7 +49,7 @@ def _distance(output: Path, source: Path, start: float) -> float:
 def verify_real_review_frames() -> None:
     """Ensure each scene embeds moving interview footage, not a text card."""
     catalog = InMemoryMemeRepository.from_json(CATALOG)
-    position = 0.0
+    position: float = 0
     for meme_id, _ in REAL_STORY:
         source = catalog.get(meme_id).video_path
         position += IMAGE_DURATION_SECONDS
