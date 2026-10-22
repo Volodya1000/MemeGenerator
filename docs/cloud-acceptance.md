@@ -1,31 +1,42 @@
-# Remote acceptance without a local development environment
+# Browser-only acceptance: real curated reactions
 
-On GitHub, open **Actions > Remote acceptance and downloadable synthetic demo**
-and choose **Run workflow**. The workflow needs no API keys or local tools.
+Open **Actions > REAL meme review video (Cutzo)** in GitHub, select
+**Run workflow**, and open the completed run. No local Python, FFmpeg or LLM
+API key is required.
 
-The first job runs `uv run meme-assets --download --force` against the seven
-pinned original source files and executes real-media importer and generator
-verification. No downloaded third-party MP4 or derivative is uploaded or
-committed; the GitHub runner discards them after the run.
+## Real video: download this one
 
-The second job uses original generated typography to illustrate three
-recognizable developer situations and three clearly labelled reaction
-placeholders. It intentionally includes **no synthetic impersonation or
-monotonous sine-wave sound**. The real importer and video-rendering pipeline
-assemble a meaningful, ordered story.
-The `meme-generator-synthetic-preview` artifact contains a playable MP4,
-a poster PNG, and both scenario and attribution manifests. Download that artifact from the
-completed workflow page. GitHub retains it for three days.
+The **Real seven-video integration check** job runs
+`uv run meme-assets --download --force`, validates all seven original
+SHA-256 fingerprints, then renders three distinct genuine Tinkov interview
+reactions, each preceded by a legible contextual caption.
 
-The synthetic video proves media assembly and publication, **not** the
-appearance or wording of the real Tinkov clips. Publishing downloaded real
-media requires checking the applicable rights and permission separately.
+The `meme-generator-REAL-reactions-24h` artifact contains:
 
-Run the strict standard CI checks on the pull request before merging. The
-remote acceptance jobs are additional integration checks, not substitutes
-for the offline tests.
+- `real-reactions-review.mp4`, a playable video with original reaction
+  footage and original speech;
+- `real-reactions-review.scenario.json`, the ordered scene plan;
+- `real-reactions-review.attribution.json`, provenance metadata.
 
-To render situational captions locally without Commons, set `images: cards`
-in `config.yaml`. Each scene's `image_query` becomes the visible caption.
-The real-media acceptance job separately checks a complete three-reaction
-video from the pinned clips, but never uploads that copyrighted output.
+CI additionally decodes the completed movie and compares representative
+reaction frames to the genuine curated source videos. A colored placeholder
+or unrelated clip cannot silently pass this source-footage check.
+
+The artifact is retained for **one day** solely for owner review. Neither
+the original files nor the generated movie is committed to Git. Check the
+applicable rights and permissions before publicly redistributing any
+third-party interview footage.
+
+## Synthetic diagnostic is not the movie
+
+The separate **Synthetic encoder regression (not a user preview)** job
+tests encoding and catalog integration using invented images and audio.
+It does **not** upload a movie, and is not an acceptance result for the
+actual meme content.
+
+Set `images: cards` in `config.yaml` to use readable contextual
+caption cards in ordinary generation without a Commons API or local assets.
+
+A successful real-video job, green strict CI, and a watched output are the
+criteria for technical acceptance. Artistic quality and contextual humor
+still require human evaluation.
