@@ -13,7 +13,6 @@ from pydantic_settings import (
 from meme_generator.config.database import DatabaseSettings
 from meme_generator.config.llm import LLMSettings
 
-
 MAX_CONTEXT_DURATION_SECONDS = 15
 
 
