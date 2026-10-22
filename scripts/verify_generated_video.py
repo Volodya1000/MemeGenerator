@@ -8,8 +8,8 @@ from verify_real_review_frames import (
     frame_distance,
 )
 
-from meme_generator.domain.scenario import Scenario
 from meme_generator.config.settings import GenerationSettings
+from meme_generator.domain.scenario import Scenario
 from meme_generator.infrastructure.media_probe import probe_clip
 from meme_generator.persistence.in_memory import InMemoryMemeRepository
 
