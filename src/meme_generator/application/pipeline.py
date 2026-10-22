@@ -75,9 +75,7 @@ class GenerationPipeline:
         images_directory = directory / 'images'
         images_directory.mkdir()
         images = [
-            self._images.fetch(
-                scene.image_query, scene.order, images_directory
-            )
+            self._images.fetch(scene, images_directory)
             for scene in scenario.scenes
         ]
         staged_video = directory / output_path.name

@@ -13,6 +13,8 @@ from pydantic_settings import (
 from meme_generator.config.database import DatabaseSettings
 from meme_generator.config.llm import LLMSettings
 
+MAX_CONTEXT_DURATION_SECONDS = 15
+
 
 class GenerationSettings(BaseSettings):
     """Root Pydantic Settings object for the entire application."""
@@ -29,6 +31,9 @@ class GenerationSettings(BaseSettings):
     llm: LLMSettings = Field(default_factory=LLMSettings)
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
     scenes: int = Field(default=5, ge=1)
+    context_duration_seconds: int = Field(
+        default=5, ge=1, le=MAX_CONTEXT_DURATION_SECONDS
+    )
     catalog: Path = Path('assets/catalog.json')
     output: Path = Path('output/result.mp4')
     images: Literal['commons', 'local', 'cards'] = 'commons'

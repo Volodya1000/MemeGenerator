@@ -5,9 +5,22 @@ from pathlib import Path
 import httpx
 import pytest
 
+from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.commons import CommonsImageProvider
 
 HTTP_OK = 200
+
+
+def example_scene(query: str) -> Scene:
+    """Use a search query unrelated to the visible caption."""
+    return Scene(
+        order=1,
+        description='Русская ситуация',
+        image_query=query,
+        meme_id='reaction',
+    )
+
+
 IMAGE_WIDTH = 960
 IMAGE_HEIGHT = 720
 WIKIMEDIA_URL = 'https://upload.wikimedia.org/wikipedia/example.png'
@@ -53,7 +66,7 @@ def test_commons_returns_image_with_provenance(tmp_path: Path) -> None:
     """A Commons result keeps its source and license in the image asset."""
     with httpx.Client(transport=httpx.MockTransport(fake_http)) as client:
         image = CommonsImageProvider(client).fetch(
-            'developer errors', 1, tmp_path
+            example_scene('developer errors'), tmp_path
         )
     assert image.image_path.read_bytes() == b'png'
     assert image.license_name == 'CC BY-SA 4.0'
@@ -69,4 +82,4 @@ def test_commons_rejects_empty_search(tmp_path: Path) -> None:
         httpx.Client(transport=transport) as client,
         pytest.raises(ValueError, match='No usable Commons image'),
     ):
-        CommonsImageProvider(client).fetch('nothing', 1, tmp_path)
+        CommonsImageProvider(client).fetch(example_scene('nothing'), tmp_path)

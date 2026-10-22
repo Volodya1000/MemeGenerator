@@ -16,9 +16,6 @@ from meme_generator.composition.catalog import create_catalog
 from meme_generator.composition.pipeline import create_pipeline
 from meme_generator.config.loader import load_settings
 from meme_generator.config.settings import GenerationSettings
-from meme_generator.infrastructure.ffmpeg.settings import (
-    IMAGE_DURATION_SECONDS,
-)
 from meme_generator.infrastructure.media_probe import probe_clip
 
 app = typer.Typer(help='Generate short, themed reaction videos.')
@@ -41,7 +38,7 @@ def calculate_scene_budget(
         for meme in create_catalog(settings).all()
     ]
     return estimate_scene_count(
-        target_seconds, durations, IMAGE_DURATION_SECONDS
+        target_seconds, durations, settings.context_duration_seconds
     )
 
 

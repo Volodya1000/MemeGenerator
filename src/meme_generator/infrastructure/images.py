@@ -7,6 +7,7 @@ from meme_generator.application.protocols.image_provider import (
     ImageProviderProtocol,
 )
 from meme_generator.domain.image_asset import ImageAsset
+from meme_generator.domain.scene import Scene
 
 IMAGE_SUFFIXES = ('.jpg', '.jpeg', '.png', '.webp')
 
@@ -20,18 +21,17 @@ class LocalImageProvider(ImageProviderProtocol):
 
     def fetch(
         self,
-        query: str,
-        scene_order: int,
+        scene: Scene,
         output_dir: Path,
     ) -> ImageAsset:
         """Copy the selected image while recording its local origin."""
         candidates = (
-            self._source_dir / f'{scene_order}{suffix}'
+            self._source_dir / f'{scene.order}{suffix}'
             for suffix in IMAGE_SUFFIXES
         )
         source = next((path for path in candidates if path.is_file()), None)
         if source is None:
-            raise FileNotFoundError(f'Missing local image {scene_order}')
+            raise FileNotFoundError(f'Missing local image {scene.order}')
         output_dir.mkdir(parents=True, exist_ok=True)
         destination = output_dir / source.name
         shutil.copyfile(source, destination)

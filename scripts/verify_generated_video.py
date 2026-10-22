@@ -8,10 +8,8 @@ from verify_real_review_frames import (
     frame_distance,
 )
 
+from meme_generator.config.settings import GenerationSettings
 from meme_generator.domain.scenario import Scenario
-from meme_generator.infrastructure.ffmpeg.settings import (
-    IMAGE_DURATION_SECONDS,
-)
 from meme_generator.infrastructure.media_probe import probe_clip
 from meme_generator.persistence.in_memory import InMemoryMemeRepository
 
@@ -39,7 +37,7 @@ def verify_generated_video() -> None:
     position: float = 0
     for scene in scenario.scenes:
         source = catalog.get(scene.meme_id).video_path
-        position += IMAGE_DURATION_SECONDS
+        position += GenerationSettings().context_duration_seconds
         verify_source_clip(source, position)
         LOGGER.info('SCENE_VERIFIED %s', scene.order)
         position += probe_clip(source).duration_seconds
