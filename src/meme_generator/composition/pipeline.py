@@ -51,5 +51,5 @@ def create_pipeline(settings: GenerationSettings) -> GenerationPipeline:
         catalog=create_catalog(settings),
         planner=create_planner(settings),
         image_provider=create_images(settings),
-        renderer=FFmpegRenderer(),
+        renderer=FFmpegRenderer(settings.context_duration_seconds),
     )
