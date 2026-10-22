@@ -35,10 +35,9 @@ def verify_generated_video() -> None:
     if not OUTPUT.with_suffix('.attribution.json').is_file():
         raise FileNotFoundError('Attribution manifest is missing')
     position: float = 0
-    duration_seconds = GenerationSettings().context_duration_seconds
     for scene in scenario.scenes:
         source = catalog.get(scene.meme_id).video_path
-        position += duration_seconds
+        position += GenerationSettings().context_duration_seconds
         verify_source_clip(source, position)
         LOGGER.info('SCENE_VERIFIED %s', scene.order)
         position += probe_clip(source).duration_seconds
