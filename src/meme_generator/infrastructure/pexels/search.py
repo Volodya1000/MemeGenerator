@@ -4,7 +4,10 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from meme_generator.config.pexels import PexelsSettings
+from meme_generator.config.pexels import (
+    MAX_SEARCH_LIMIT,
+    PexelsSettings,
+)
 from meme_generator.infrastructure.pexels.models import PexelsPhoto
 
 PEXELS_SEARCH_URL = 'https://api.pexels.com/v1/search'
@@ -18,7 +21,7 @@ class PexelsSearchRequest(BaseModel):
     query: str = Field(min_length=1)
     orientation: Literal['landscape', 'portrait', 'square']
     size: Literal['large', 'medium', 'small']
-    per_page: int = Field(ge=1, le=80)
+    per_page: int = Field(ge=1, le=MAX_SEARCH_LIMIT)
 
 
 def search_parameters(

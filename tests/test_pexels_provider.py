@@ -17,6 +17,7 @@ from meme_generator.infrastructure.pexels.provider import (
 HTTP_OK = 200
 HTTP_UNAVAILABLE = 503
 IMAGE_SIZE = (1280, 720)
+TEST_API_KEY = 'offline-key'
 
 
 def example_scene() -> Scene:
@@ -27,13 +28,6 @@ def example_scene() -> Scene:
         image_query='broken car',
         meme_id='reaction',
     )
-
-
-def image_data() -> bytes:
-    """Generate genuine JPEG bytes for verification without the internet."""
-    output = BytesIO()
-    Image.new('RGB', IMAGE_SIZE, 'red').save(output, format='JPEG')
-    return output.getvalue()
 
 
 def search_result(image_url: str) -> dict[str, object]:
@@ -52,36 +46,38 @@ def search_result(image_url: str) -> dict[str, object]:
     }
 
 
-def test_search_preserves_photo_and_credit(tmp_path: Path) -> None:
-    """An authenticated query returns real media with an author credit."""
-    requests: list[httpx.Request] = []
-
-    def respond(request: httpx.Request) -> httpx.Response:
-        """Observe the API call and serve a JPEG from the Pexels CDN."""
-        requests.append(request)
-        if request.url.host == 'api.pexels.com':
-            return httpx.Response(
-                HTTP_OK,
-                json=search_result('https://images.pexels.com/car.jpeg'),
-            )
+def fake_pexels_response(request: httpx.Request) -> httpx.Response:
+    """Verify auth scope and return a valid image from the photo CDN."""
+    if request.url.host == 'api.pexels.com':
+        assert request.headers.get('authorization') == TEST_API_KEY
+        assert request.url.params['orientation'] == 'landscape'
         return httpx.Response(
             HTTP_OK,
-            content=image_data(),
-            headers={'content-type': 'image/jpeg'},
+            json=search_result('https://images.pexels.com/car.jpeg'),
         )
+    assert 'authorization' not in request.headers
+    output = BytesIO()
+    Image.new('RGB', IMAGE_SIZE, 'red').save(output, format='JPEG')
+    return httpx.Response(
+        HTTP_OK,
+        content=output.getvalue(),
+        headers={'content-type': 'image/jpeg'},
+    )
 
-    with httpx.Client(transport=httpx.MockTransport(respond)) as client:
+
+def test_search_preserves_photo_and_credit(tmp_path: Path) -> None:
+    """An authenticated query returns real media with an author credit."""
+    with httpx.Client(
+        transport=httpx.MockTransport(fake_pexels_response)
+    ) as client:
         provider = PexelsImageProvider(
-            PexelsSettings(api_key=SecretStr('offline-key')), client
+            PexelsSettings(api_key=SecretStr(TEST_API_KEY)), client
         )
         photo = provider.fetch(example_scene(), tmp_path)
     with Image.open(photo.image_path) as decoded:
         decoded.verify()
     assert 'Test Photographer' in photo.license_name
     assert photo.source_url.startswith('https://www.pexels.com/')
-    assert requests[0].headers.get('authorization') == 'offline-key'
-    assert 'authorization' not in requests[1].headers
-    assert requests[0].url.params['orientation'] == 'landscape'
 
 
 def test_empty_search_rejects_missing_photos(tmp_path: Path) -> None:
@@ -94,7 +90,7 @@ def test_empty_search_rejects_missing_photos(tmp_path: Path) -> None:
         pytest.raises(ValueError, match='No usable Pexels'),
     ):
         PexelsImageProvider(
-            PexelsSettings(api_key=SecretStr('offline-key')), client
+            PexelsSettings(api_key=SecretStr(TEST_API_KEY)), client
         ).fetch(example_scene(), tmp_path)
 
 
@@ -114,5 +110,5 @@ def test_http_error_propagates_for_fallback(tmp_path: Path) -> None:
         pytest.raises(httpx.HTTPStatusError),
     ):
         PexelsImageProvider(
-            PexelsSettings(api_key=SecretStr('offline-key')), client
+            PexelsSettings(api_key=SecretStr(TEST_API_KEY)), client
         ).fetch(example_scene(), tmp_path)

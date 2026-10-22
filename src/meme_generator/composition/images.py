@@ -13,7 +13,7 @@ from meme_generator.infrastructure.captioned_images import (
 )
 from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.images import LocalImageProvider
-from meme_generator.infrastructure.pexels import PexelsImageProvider
+from meme_generator.infrastructure.pexels.provider import PexelsImageProvider
 from meme_generator.infrastructure.photo_search import PhotoSearchWithFallback
 
 
@@ -29,20 +29,24 @@ def _photo_source(settings: GenerationSettings) -> ImageProviderProtocol:
     )
 
 
+def _configured_photo(settings: GenerationSettings) -> ImageProviderProtocol:
+    """Resolve the requested photo source, retaining the local mode."""
+    if settings.images == 'photos':
+        return _photo_source(settings)
+    if settings.images == 'commons':
+        return CommonsImageProvider()
+    if settings.image_dir is None:
+        raise ValueError('image_dir is required when images=local')
+    return LocalImageProvider(settings.image_dir.resolve())
+
+
 def create_images(settings: GenerationSettings) -> ImageProviderProtocol:
     """Select text cards, genuine pictures, or pictures with captions."""
     if settings.slide_mode == SlideMode.TEXT_ONLY:
         return CaptionCardImageProvider()
     if settings.images == 'cards':
         raise ValueError('Choose commons or local for image slide modes')
-    if settings.images == 'photos':
-        photo: ImageProviderProtocol = _photo_source(settings)
-    elif settings.images == 'commons':
-        photo = CommonsImageProvider()
-    else:
-        if settings.image_dir is None:
-            raise ValueError('image_dir is required when images=local')
-        photo = LocalImageProvider(settings.image_dir.resolve())
+    photo = _configured_photo(settings)
     if settings.slide_mode == SlideMode.IMAGE_WITH_CAPTION:
         photo = CaptionedImageProvider(photo)
     if settings.images == 'photos':
