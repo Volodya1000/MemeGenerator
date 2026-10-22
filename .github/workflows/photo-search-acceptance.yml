@@ -12,6 +12,7 @@ on:
       - src/meme_generator/infrastructure/commons/download.py
       - src/meme_generator/infrastructure/commons/models.py
       - src/meme_generator/infrastructure/photo_search.py
+      - src/meme_generator/infrastructure/prompts/scenario.py
   workflow_dispatch:
 
 permissions:
