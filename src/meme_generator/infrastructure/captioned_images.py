@@ -59,8 +59,8 @@ def _caption_start(
     font: ImageFont.FreeTypeFont,
 ) -> int | None:
     """Center the block vertically when all glyphs fit inside the band."""
-    line_height = max(
-        drawing.textbbox((0, 0), line, font=font, anchor='lt')[3]
+    line_height: int = max(
+        int(drawing.textbbox((0, 0), line, font=font, anchor='lt')[3])
         for line in lines
     )
     block_height = (len(lines) - 1) * (
