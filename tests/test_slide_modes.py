@@ -14,11 +14,19 @@ from meme_generator.infrastructure.caption_cards import (
     CaptionCardImageProvider,
 )
 from meme_generator.infrastructure.captioned_images import (
+    CAPTION_BAND,
+    CAPTION_BODY_BOTTOM,
+    CAPTION_LEFT,
     CaptionedImageProvider,
     add_caption,
 )
 
 TEST_IMAGE_SIZE = (1280, 720)
+IMAGE_MODE = 'RGB'
+PHOTO_COLOR = 'red'
+HEADING_COLOR = (168, 232, 249)
+TEXT_COLOR = (255, 255, 255)
+LONG_WORD_LENGTH = 200
 
 
 def test_only_text_ignores_remote_image_search() -> None:
@@ -37,7 +45,7 @@ def test_only_image_uses_a_local_photo(tmp_path: Path) -> None:
         images='local',
         image_dir=tmp_path,
     )
-    Image.new('RGB', TEST_IMAGE_SIZE, 'red').save(tmp_path / '1.png')
+    Image.new(IMAGE_MODE, TEST_IMAGE_SIZE, PHOTO_COLOR).save(tmp_path / '1.png')
     scene = Scene(
         order=1,
         description='Машина сломалась',
@@ -55,7 +63,7 @@ def test_image_with_caption_produces_overlay(tmp_path: Path) -> None:
     """Russian text visibly changes the image while keeping its base photo."""
     source = tmp_path / 'source.png'
     output = tmp_path / 'caption.png'
-    Image.new('RGB', TEST_IMAGE_SIZE, 'red').save(source)
+    Image.new(IMAGE_MODE, TEST_IMAGE_SIZE, PHOTO_COLOR).save(source)
     add_caption(source, 'Когда купил машину. Она сломалась', 1, output)
     with Image.open(source) as image, Image.open(output) as captioned:
         assert captioned.size == TEST_IMAGE_SIZE
@@ -78,7 +86,7 @@ def test_caption_preserves_source_attribution(tmp_path: Path) -> None:
     """The overlay does not erase the original photo's source or license."""
     images = tmp_path / 'images'
     images.mkdir()
-    Image.new('RGB', TEST_IMAGE_SIZE, 'green').save(images / '1.png')
+    Image.new(IMAGE_MODE, TEST_IMAGE_SIZE, 'green').save(images / '1.png')
     settings = GenerationSettings(
         slide_mode=SlideMode.IMAGE_WITH_CAPTION,
         images='local',
@@ -98,37 +106,45 @@ def test_caption_preserves_source_attribution(tmp_path: Path) -> None:
     assert generated.image_path.suffix == '.png'
 
 
-def test_long_photo_caption_stays_clear_of_heading(tmp_path: Path) -> None:
-    """Visible heading and long body never collide or leave the caption band."""
+def _colored_rows(
+    rendered: Image.Image,
+    expected: tuple[int, int, int],
+) -> list[int]:
+    """Locate visible text pixels in the caption strip."""
+    return [
+        vertical
+        for vertical in range(CAPTION_BAND[1], CAPTION_BAND[3])
+        if any(
+            rendered.getpixel((horizontal, vertical)) == expected
+            for horizontal in range(CAPTION_LEFT, CAPTION_BAND[2])
+        )
+    ]
+
+
+def test_long_caption_has_separate_heading(tmp_path: Path) -> None:
+    """Visible heading and body stay separated inside the photograph band."""
     source = tmp_path / 'original.png'
     output = tmp_path / 'captioned.png'
-    Image.new('RGB', TEST_IMAGE_SIZE, 'red').save(source)
-    description = (
+    Image.new(IMAGE_MODE, TEST_IMAGE_SIZE, PHOTO_COLOR).save(source)
+    add_caption(
+        source,
         'Счастливый владелец только что купил '
-        'подержанную машину и едет по городу.'
+        'подержанную машину и едет по городу.',
+        1,
+        output,
     )
-    add_caption(source, description, 1, output)
     with Image.open(output) as rendered:
-        heading_rows: list[int] = []
-        body_rows: list[int] = []
-        for vertical in range(465, 684):
-            row_pixels = [
-                rendered.getpixel((horizontal, vertical))
-                for horizontal in range(115, 1190)
-            ]
-            if (168, 232, 249) in row_pixels:
-                heading_rows.append(vertical)
-            if (255, 255, 255) in row_pixels:
-                body_rows.append(vertical)
+        heading_rows = _colored_rows(rendered, HEADING_COLOR)
+        body_rows = _colored_rows(rendered, TEXT_COLOR)
     assert heading_rows
     assert body_rows
     assert max(heading_rows) + 10 < min(body_rows)
-    assert max(body_rows) < 664
+    assert max(body_rows) < CAPTION_BODY_BOTTOM
 
 
 def test_photo_caption_rejects_unrenderable_text(tmp_path: Path) -> None:
     """Unrenderable descriptions fail rather than silently overlap labels."""
     source = tmp_path / 'source.png'
-    Image.new('RGB', TEST_IMAGE_SIZE, 'red').save(source)
+    Image.new(IMAGE_MODE, TEST_IMAGE_SIZE, PHOTO_COLOR).save(source)
     with pytest.raises(ValueError, match='exceeds the photo width'):
-        add_caption(source, 'я' * 200, 1, tmp_path / 'out.png')
+        add_caption(source, 'я' * LONG_WORD_LENGTH, 1, tmp_path / 'out.png')
