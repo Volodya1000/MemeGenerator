@@ -7,10 +7,8 @@ PLANNER_SYSTEM_PROMPT = (
     'Write each description in natural Russian as a short complete situation, '
     'suitable for on-screen reading. Each image_query must be a short '
     'English search query of two or three concrete keywords naming '
-    'the whole subject and its surroundings in a photograph, such as '
-    '"used car" or "stranded vehicle roadside". Avoid search phrases '
-    'about isolated parts, close-ups or detached components. '
-    'Avoid long detailed phrases. '
+    'the primary visible objects in an existing photograph, such as '
+    '"used car" or "broken car". Avoid long detailed phrases. '
     'Select reactions whose tone matches the illustrated situation. '
     'Keep situations connected and avoid unnecessary repetition.'
 )
