@@ -65,10 +65,12 @@ def test_cards_provider_selected_from_settings(tmp_path: Path) -> None:
     image = provider.fetch(example_scene('Готовый сценарий'), tmp_path)
     assert image.image_path.is_file()
 
+
 def test_text_cards_have_no_scene_heading(tmp_path: Path) -> None:
     """Only the situation description appears above the bottom separator."""
     asset = CaptionCardImageProvider().fetch(
         example_scene('Купил машину и она сломалась', order=2), tmp_path
     )
     with Image.open(asset.image_path) as rendered:
-        assert rendered.getpixel((170, 120)) == rendered.getpixel((500, 120))
+        heading_area = rendered.crop((155, 95, 1100, 180))
+        assert len(heading_area.getcolors(maxcolors=2) or []) == 1

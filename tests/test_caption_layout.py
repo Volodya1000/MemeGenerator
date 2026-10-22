@@ -14,6 +14,7 @@ from meme_generator.infrastructure.captioned_images import (
 
 FRAME_SIZE = (1280, 720)
 TEXT_COLOR = (255, 255, 255)
+HEADING_COLOR = (168, 232, 249)
 LONG_WORD_LENGTH = 200
 
 
@@ -45,6 +46,8 @@ def test_long_caption_has_no_scene_heading(tmp_path: Path) -> None:
     )
     with Image.open(output) as rendered:
         body_rows = _colored_rows(rendered, TEXT_COLOR)
+        heading_rows = _colored_rows(rendered, HEADING_COLOR)
+    assert not heading_rows
     assert body_rows
     assert min(body_rows) > CAPTION_BAND[1]
     assert max(body_rows) < CAPTION_BODY_BOTTOM
