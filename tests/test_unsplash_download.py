@@ -41,7 +41,8 @@ def test_incorrect_mime_is_rejected(tmp_path: Path, mime: str) -> None:
     """Never treat HTML or arbitrary bytes as a valid JPEG."""
     transport = httpx.MockTransport(
         lambda _: httpx.Response(
-            HTTP_OK, content=b'invalid',
+            HTTP_OK,
+            content=b'invalid',
             headers={'content-type': mime},
         )
     )
@@ -57,7 +58,8 @@ def test_oversized_photo_is_removed(tmp_path: Path) -> None:
     """Bound memory and disk consumption in CI."""
     transport = httpx.MockTransport(
         lambda _: httpx.Response(
-            HTTP_OK, content=b'x' * (MAX_IMAGE_BYTES + 1),
+            HTTP_OK,
+            content=b'x' * (MAX_IMAGE_BYTES + 1),
             headers={'content-type': 'image/jpeg'},
         )
     )

@@ -38,20 +38,22 @@ def search_response(
 ) -> dict[str, object]:
     """Return the Unsplash fields required to download and credit a photo."""
     return {
-        'results': [{
-            'id': 'phototest',
-            'width': FRAME_SIZE[0],
-            'height': FRAME_SIZE[1],
-            'urls': {'regular': 'https://images.unsplash.com/car.jpg'},
-            'links': {
-                'html': 'https://unsplash.com/photos/phototest',
-                'download_location': tracking_url,
-            },
-            'user': {
-                'name': 'Sample Author',
-                'links': {'html': 'https://unsplash.com/@sample'},
-            },
-        }],
+        'results': [
+            {
+                'id': 'phototest',
+                'width': FRAME_SIZE[0],
+                'height': FRAME_SIZE[1],
+                'urls': {'regular': 'https://images.unsplash.com/car.jpg'},
+                'links': {
+                    'html': 'https://unsplash.com/photos/phototest',
+                    'download_location': tracking_url,
+                },
+                'user': {
+                    'name': 'Sample Author',
+                    'links': {'html': 'https://unsplash.com/@sample'},
+                },
+            }
+        ],
     }
 
 
@@ -60,11 +62,10 @@ def mock_api(request: httpx.Request) -> httpx.Response:
     if request.url.host == 'images.unsplash.com':
         assert 'authorization' not in request.headers
         encoded_photo = BytesIO()
-        Image.new('RGB', FRAME_SIZE, 'red').save(
-            encoded_photo, format='JPEG'
-        )
+        Image.new('RGB', FRAME_SIZE, 'red').save(encoded_photo, format='JPEG')
         return httpx.Response(
-            HTTP_OK, content=encoded_photo.getvalue(),
+            HTTP_OK,
+            content=encoded_photo.getvalue(),
             headers={'content-type': 'image/jpeg'},
         )
     assert request.headers.get('authorization') == f'Client-ID {TEST_KEY}'
@@ -95,9 +96,7 @@ def test_unavailable_search_uses_fallback(
     tmp_path: Path,
 ) -> None:
     """An Unsplash outage propagates to the existing fallback adapter."""
-    transport = httpx.MockTransport(
-        lambda _: httpx.Response(HTTP_UNAVAILABLE)
-    )
+    transport = httpx.MockTransport(lambda _: httpx.Response(HTTP_UNAVAILABLE))
     with (
         httpx.Client(transport=transport) as client,
         pytest.raises(httpx.HTTPStatusError),

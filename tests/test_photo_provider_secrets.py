@@ -10,11 +10,12 @@ CONFIG_NAME = 'config.yaml'
 TEXT_ENCODING = 'utf-8'
 ENVIRONMENT_ERROR = 'environment'
 
+
 def test_pexels_credentials_rejected_in_yaml(tmp_path: Path) -> None:
     """The Pexels key must come from the environment, never from YAML."""
     path = tmp_path / CONFIG_NAME
     path.write_text(
-        'pexels:\n' '  api_key: do-not-commit\n',
+        'pexels:\n  api_key: do-not-commit\n',
         encoding=TEXT_ENCODING,
     )
     with pytest.raises(ValueError, match=ENVIRONMENT_ERROR):
@@ -34,7 +35,7 @@ def test_unsplash_credentials_rejected_in_yaml(tmp_path: Path) -> None:
     """The Unsplash access key is only read from the environment."""
     path = tmp_path / CONFIG_NAME
     path.write_text(
-        'unsplash:\n' '  access_key: do-not-commit\n',
+        'unsplash:\n  access_key: do-not-commit\n',
         encoding=TEXT_ENCODING,
     )
     with pytest.raises(ValueError, match=ENVIRONMENT_ERROR):

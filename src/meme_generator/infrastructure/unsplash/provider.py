@@ -48,9 +48,7 @@ class UnsplashImageProvider(ImageProviderProtocol):
             raise ValueError('Unsplash requires an access key')
         self._settings = settings
         self._authorization = f'Client-ID {key.get_secret_value()}'
-        self._client = client or httpx.Client(
-            timeout=settings.timeout_seconds
-        )
+        self._client = client or httpx.Client(timeout=settings.timeout_seconds)
 
     def fetch(self, scene: Scene, output_dir: Path) -> ImageAsset:
         """Download one photo and register the real image selection."""
