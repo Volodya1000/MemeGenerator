@@ -15,7 +15,9 @@ from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.pexels.provider import PexelsImageProvider
 from meme_generator.infrastructure.photo_search import PhotoSearchWithFallback
-from meme_generator.infrastructure.unsplash.provider import UnsplashImageProvider
+from meme_generator.infrastructure.unsplash.provider import (
+    UnsplashImageProvider,
+)
 
 
 def _photo_source(settings: GenerationSettings) -> ImageProviderProtocol:
