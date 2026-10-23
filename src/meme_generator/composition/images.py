@@ -15,18 +15,24 @@ from meme_generator.infrastructure.commons import CommonsImageProvider
 from meme_generator.infrastructure.images import LocalImageProvider
 from meme_generator.infrastructure.pexels.provider import PexelsImageProvider
 from meme_generator.infrastructure.photo_search import PhotoSearchWithFallback
+from meme_generator.infrastructure.unsplash.provider import UnsplashImageProvider
 
 
 def _photo_source(settings: GenerationSettings) -> ImageProviderProtocol:
-    """Prefer optional Pexels photographs, keeping Commons as the fallback."""
+    """Try Unsplash first, then optional Pexels and finally Commons."""
     commons: ImageProviderProtocol = CommonsImageProvider()
-    api_key = settings.pexels.api_key
-    if api_key is None or not api_key.get_secret_value().strip():
-        return commons
-    return PhotoSearchWithFallback(
-        PexelsImageProvider(settings.pexels),
-        commons,
-    )
+    photo: ImageProviderProtocol = commons
+    pexels_key = settings.pexels.api_key
+    if pexels_key is not None and pexels_key.get_secret_value().strip():
+        photo = PhotoSearchWithFallback(
+            PexelsImageProvider(settings.pexels), photo
+        )
+    unsplash_key = settings.unsplash.access_key
+    if unsplash_key is not None and unsplash_key.get_secret_value().strip():
+        photo = PhotoSearchWithFallback(
+            UnsplashImageProvider(settings.unsplash), photo
+        )
+    return photo
 
 
 def _configured_photo(settings: GenerationSettings) -> ImageProviderProtocol:

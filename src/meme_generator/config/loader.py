@@ -12,6 +12,7 @@ _ENVIRONMENT_ONLY_FIELDS: tuple[tuple[str, str], ...] = (
     ('database', 'url'),
     ('llm', 'api_key'),
     ('pexels', 'api_key'),
+    ('unsplash', 'access_key'),
 )
 
 

@@ -4,6 +4,7 @@ from pydantic import SecretStr
 
 from meme_generator.composition.images import create_images
 from meme_generator.config.pexels import PexelsSettings
+from meme_generator.config.unsplash import UnsplashSettings
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.domain.slide_mode import SlideMode
 from meme_generator.infrastructure.photo_search import (
@@ -41,6 +42,18 @@ def test_empty_optional_key_uses_commons() -> None:
             slide_mode=SlideMode.IMAGE_ONLY,
             images='photos',
             pexels=PexelsSettings(api_key=SecretStr('')),
+        )
+    )
+    assert isinstance(provider, PhotoSearchWithFallback)
+
+
+def test_unsplash_key_keeps_existing_fallback() -> None:
+    """Adding an Unsplash key preserves the Commons and caption fallback."""
+    provider = create_images(
+        GenerationSettings(
+            slide_mode=SlideMode.IMAGE_WITH_CAPTION,
+            images='photos',
+            unsplash=UnsplashSettings(access_key=SecretStr('offline-key')),
         )
     )
     assert isinstance(provider, PhotoSearchWithFallback)

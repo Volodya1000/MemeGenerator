@@ -1,4 +1,4 @@
-name: Validate real Commons photos in a Gemini meme video
+name: Validate real Unsplash photos in a Gemini meme video
 
 on:
   push:
@@ -42,6 +42,7 @@ jobs:
     env:
       MEMEGEN_LLM__API_KEY: ${{ secrets.MEMEGEN_LLM__API_KEY }}
       MEMEGEN_PEXELS__API_KEY: ${{ secrets.MEMEGEN_PEXELS__API_KEY }}
+      MEMEGEN_UNSPLASH__ACCESS_KEY: ${{ secrets.MEMEGEN_UNSPLASH__ACCESS_KEY }}
       MEMEGEN_LLM__MODEL: gemini/gemini-3.5-flash-lite
       MEMEGEN_IMAGES: photos
       MEMEGEN_SLIDE_MODE: image_with_caption
@@ -51,6 +52,12 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.13'
+      - name: Require Unsplash access key for this real-image acceptance
+        run: |
+          if [[ -z "$MEMEGEN_UNSPLASH__ACCESS_KEY" ]]; then
+            echo '::error::Set MEMEGEN_UNSPLASH__ACCESS_KEY in Actions secrets'
+            exit 1
+          fi
       - name: Install FFmpeg and FFprobe
         run: |
           sudo apt-get install -y ffmpeg || {

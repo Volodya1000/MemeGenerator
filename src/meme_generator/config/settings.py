@@ -13,6 +13,7 @@ from pydantic_settings import (
 from meme_generator.config.database import DatabaseSettings
 from meme_generator.config.llm import LLMSettings
 from meme_generator.config.pexels import PexelsSettings
+from meme_generator.config.unsplash import UnsplashSettings
 from meme_generator.domain.slide_mode import SlideMode
 
 MAX_CONTEXT_DURATION_SECONDS = 15
@@ -32,6 +33,7 @@ class GenerationSettings(BaseSettings):
     planner: Literal['llm', 'demo'] = 'llm'
     llm: LLMSettings = Field(default_factory=LLMSettings)
     pexels: PexelsSettings = Field(default_factory=PexelsSettings)
+    unsplash: UnsplashSettings = Field(default_factory=UnsplashSettings)
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
     scenes: int = Field(default=5, ge=1)
     context_duration_seconds: int = Field(

@@ -94,16 +94,17 @@ the remainder of the settings are explicit YAML keys.
 The output includes `result.mp4`, `result.scenario.json` with the
 validated scene plan, and `result.attribution.json` with image provenance.
 Commons search is approximate; licenses and attribution must be reviewed.
-For optional Pexels-first photo search and secure API key setup, see
-[docs/pexels.md](docs/pexels.md). Commons remains available without a key.
+For optional Unsplash-first photo search and secure Access Key setup, see
+[docs/unsplash.md](docs/unsplash.md). Pexels remains optional; Commons works
+without a key.
 
 ## Offline caption cards
 
 Choose a user-facing slide style with `slide_mode: text_only`,
 `image_only`, or `image_with_caption`. Text cards show the Russian
 `Scene.description`; photographic searches use the independent English
-`Scene.image_query`. Set `images: photos` to search existing Wikimedia Commons
-photographs and fall back to a readable text card if a photo is unavailable.
+`Scene.image_query`. Set `images: photos` to search Unsplash (when configured), optional Pexels,
+then Wikimedia Commons photographs and fall back to a readable text card if a photo is unavailable.
 No AI-generated images or new API keys are required.
 
 Set `context_duration_seconds: 5` for the default five-second situation

@@ -21,7 +21,8 @@ OUTPUT = Path('output/gemini-result.mp4')
 CATALOG = Path('assets/catalog.json')
 TEXT_CARD_LICENSE = 'Original generated typography'
 PHOTO_DOMAINS = frozenset(
-    ('commons.wikimedia.org', 'upload.wikimedia.org', 'www.pexels.com')
+    ('commons.wikimedia.org', 'upload.wikimedia.org', 'www.pexels.com',
+     'unsplash.com', 'www.unsplash.com')
 )
 MIN_PHOTO_ENTROPY = 3.0
 LOGGER = logging.getLogger(__name__)
