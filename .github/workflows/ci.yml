@@ -2,18 +2,31 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: '3.13'
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Ensure FFmpeg is available
+        timeout-minutes: 3
+        run: |
+          if ! command -v ffmpeg || ! command -v ffprobe; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
       - name: Install dependencies
         run: uv sync --extra dev
       - name: Wemake all checks (no WPS exceptions)
@@ -31,6 +44,7 @@ jobs:
 
   postgres-integration:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     services:
       postgres:
         image: postgres:17

@@ -49,10 +49,15 @@ def _read_frame(video: Path, seconds: float) -> Image.Image:
         return image.convert('RGB').resize(FRAME_SIZE)
 
 
-def frame_distance(output: Path, source: Path, start: float) -> float:
+def frame_distance(
+    output: Path,
+    source: Path,
+    start: float,
+    sample_seconds: float = FRAME_SAMPLE_SECONDS,
+) -> float:
     """Measure whether the output reaction resembles its genuine source."""
-    original = _read_frame(source, FRAME_SAMPLE_SECONDS)
-    rendered = _read_frame(output, start + FRAME_SAMPLE_SECONDS)
+    original = _read_frame(source, sample_seconds)
+    rendered = _read_frame(output, start + sample_seconds)
     difference = ImageChops.difference(original, rendered)
     return sum(ImageStat.Stat(difference).mean) / 3
 

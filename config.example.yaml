@@ -11,5 +11,5 @@ context_duration_seconds: 5  # Seconds to show the situation
 catalog: assets/catalog.json
 output: output/result.mp4
 slide_mode: text_only  # text_only / image_only / image_with_caption
-images: photos  # Auto-search Commons with readable card fallback
+images: photos  # Pexels when configured, Commons, then text
 # Set images: local and image_dir: assets/context for offline images.
