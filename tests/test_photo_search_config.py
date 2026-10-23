@@ -4,14 +4,14 @@ from pydantic import SecretStr
 
 from meme_generator.composition.images import create_images
 from meme_generator.config.pexels import PexelsSettings
-from meme_generator.config.unsplash import UnsplashSettings
-
-PHOTO_MODE = 'photos'
 from meme_generator.config.settings import GenerationSettings
+from meme_generator.config.unsplash import UnsplashSettings
 from meme_generator.domain.slide_mode import SlideMode
 from meme_generator.infrastructure.photo_search import (
     PhotoSearchWithFallback,
 )
+
+PHOTO_MODE = 'photos'
 
 
 def test_photo_search_needs_no_new_api_key() -> None:
