@@ -60,18 +60,17 @@ class UnsplashImageProvider(ImageProviderProtocol):
             self._client, photo.urls.regular, scene.order, output_dir
         )
         try:
-            with Image.open(destination) as decoded:
-                decoded.verify()
-            self._track_download(photo)
+            self._validate_and_track(photo, destination)
         except (OSError, ValueError, httpx.HTTPError):
             destination.unlink(missing_ok=True)
             raise
-        photographer = _attributed_url(str(photo.user.links.html))
+        photographer: str = _attributed_url(str(photo.user.links.html))
+        author: str = photo.user.name
         return ImageAsset(
             image_path=destination,
             source_url=_attributed_url(str(photo.links.html)),
             license_name=(
-                f'Unsplash License; Photo by {photo.user.name} on Unsplash '
+                f'Unsplash License; Photo by {author} on Unsplash '
                 f'({photographer})'
             ),
         )
@@ -87,8 +86,18 @@ class UnsplashImageProvider(ImageProviderProtocol):
         response.raise_for_status()
         if response.is_redirect:
             raise ValueError('Unexpected Unsplash search redirect')
-        photos = UnsplashResponse.model_validate(response.json()).results
+        photos = UnsplashResponse.model_validate(response.json()).photos
         return choose_photo(photos)
+
+    def _validate_and_track(
+        self,
+        photo: UnsplashPhoto,
+        destination: Path,
+    ) -> None:
+        """Reject invalid JPEG bytes before counting a completed download."""
+        with Image.open(destination) as decoded:
+            decoded.verify()
+        self._track_download(photo)
 
     def _track_download(self, photo: UnsplashPhoto) -> None:
         """Record the required download event for a selected photograph."""

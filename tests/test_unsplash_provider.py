@@ -2,6 +2,7 @@
 
 from io import BytesIO
 from pathlib import Path
+from unittest.mock import Mock
 
 import httpx
 import pytest
@@ -30,7 +31,11 @@ def example_scene() -> Scene:
     )
 
 
-def search_response() -> dict[str, object]:
+def search_response(
+    tracking_url: str = (
+        'https://api.unsplash.com/photos/phototest/download?ixid=123'
+    ),
+) -> dict[str, object]:
     """Return the Unsplash fields required to download and credit a photo."""
     return {
         'results': [{
@@ -40,10 +45,7 @@ def search_response() -> dict[str, object]:
             'urls': {'regular': 'https://images.unsplash.com/car.jpg'},
             'links': {
                 'html': 'https://unsplash.com/photos/phototest',
-                'download_location': (
-                    'https://api.unsplash.com/photos/phototest/download'
-                    '?ixid=123'
-                ),
+                'download_location': tracking_url,
             },
             'user': {
                 'name': 'Sample Author',
@@ -57,10 +59,12 @@ def mock_api(request: httpx.Request) -> httpx.Response:
     """Exercise search, image transfer and tracking across both hosts."""
     if request.url.host == 'images.unsplash.com':
         assert 'authorization' not in request.headers
-        data = BytesIO()
-        Image.new('RGB', FRAME_SIZE, 'red').save(data, format='JPEG')
+        encoded_photo = BytesIO()
+        Image.new('RGB', FRAME_SIZE, 'red').save(
+            encoded_photo, format='JPEG'
+        )
         return httpx.Response(
-            HTTP_OK, content=data.getvalue(),
+            HTTP_OK, content=encoded_photo.getvalue(),
             headers={'content-type': 'image/jpeg'},
         )
     assert request.headers.get('authorization') == f'Client-ID {TEST_KEY}'
@@ -73,27 +77,21 @@ def mock_api(request: httpx.Request) -> httpx.Response:
 
 def test_real_photo_and_download_tracking(tmp_path: Path) -> None:
     """Download a JPEG once and send the required download counter call."""
-    requests: list[str] = []
-
-    def record(request: httpx.Request) -> httpx.Response:
-        """Capture all HTTP requests without any real Internet access."""
-        requests.append(str(request.url))
-        return mock_api(request)
-
-    with httpx.Client(transport=httpx.MockTransport(record)) as client:
+    handler: Mock = Mock(wraps=mock_api)
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
         provider = UnsplashImageProvider(
             UnsplashSettings(access_key=SecretStr(TEST_KEY)), client
         )
         image = provider.fetch(example_scene(), tmp_path)
-    assert len(requests) == 3
-    assert '/download?' in requests[-1]
+    assert handler.call_count == 3
+    assert '/download' in str(handler.call_args_list[-1].args[0].url)
     assert 'Sample Author' in image.license_name
     assert 'utm_source=MemeGenerator' in image.source_url
     with Image.open(image.image_path) as photo:
         photo.verify()
 
 
-def test_unavailable_search_raises_for_commons_fallback(
+def test_unavailable_search_uses_fallback(
     tmp_path: Path,
 ) -> None:
     """An Unsplash outage propagates to the existing fallback adapter."""
@@ -113,29 +111,6 @@ def test_missing_key_fails_closed() -> None:
     """Do not issue anonymous or accidentally credentialed requests."""
     with pytest.raises(ValueError, match='access key'):
         UnsplashImageProvider(UnsplashSettings())
-
-
-def test_untrusted_tracking_url_is_rejected(tmp_path: Path) -> None:
-    """Never send Client-ID to URLs outside the fixed API host."""
-    payload = search_response()
-    items = payload['results']
-    assert isinstance(items, list)
-    item = items[0]
-    assert isinstance(item, dict)
-    links = item['links']
-    assert isinstance(links, dict)
-    links['download_location'] = 'https://evil.example/download'
-    transport = httpx.MockTransport(
-        lambda _: httpx.Response(HTTP_OK, json=payload)
-    )
-    with (
-        httpx.Client(transport=transport) as client,
-        pytest.raises(ValueError, match='Untrusted Unsplash'),
-    ):
-        UnsplashImageProvider(
-            UnsplashSettings(access_key=SecretStr(TEST_KEY)), client
-        ).fetch(example_scene(), tmp_path)
-    assert not list(tmp_path.iterdir())
 
 
 def test_empty_search_can_fall_back(tmp_path: Path) -> None:

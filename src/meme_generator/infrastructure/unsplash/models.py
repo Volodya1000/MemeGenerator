@@ -43,4 +43,4 @@ class UnsplashPhoto(BaseModel):
 class UnsplashResponse(BaseModel):
     """Public photo search results."""
 
-    results: list[UnsplashPhoto] = Field(default_factory=list)
+    photos: list[UnsplashPhoto] = Field(default_factory=list, alias='results')
