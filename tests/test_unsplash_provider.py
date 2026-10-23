@@ -77,14 +77,15 @@ def mock_api(request: httpx.Request) -> httpx.Response:
 
 def test_real_photo_and_download_tracking(tmp_path: Path) -> None:
     """Download a JPEG once and send the required download counter call."""
-    handler: Mock = Mock(wraps=mock_api)
-    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+    request_mock: Mock = Mock(wraps=mock_api)
+    with httpx.Client(transport=httpx.MockTransport(request_mock)) as client:
         provider = UnsplashImageProvider(
             UnsplashSettings(access_key=SecretStr(TEST_KEY)), client
         )
         image = provider.fetch(example_scene(), tmp_path)
-    assert handler.call_count == 3
-    assert '/download' in str(handler.call_args_list[-1].args[0].url)
+    assert request_mock.call_count == 3
+    last_request: httpx.Request = request_mock.call_args.args[0]
+    assert '/download' in str(last_request.url)
     assert 'Sample Author' in image.license_name
     assert 'utm_source=MemeGenerator' in image.source_url
     with Image.open(image.image_path) as photo:
