@@ -1,5 +1,7 @@
 """Selection contract for the automatic real-photo search source."""
 
+from typing import Literal
+
 from pydantic import SecretStr
 
 from meme_generator.composition.images import create_images
@@ -11,7 +13,7 @@ from meme_generator.infrastructure.photo_search import (
     PhotoSearchWithFallback,
 )
 
-PHOTO_MODE = 'photos'
+PHOTO_MODE: Literal['photos'] = 'photos'
 
 
 def test_photo_search_needs_no_new_api_key() -> None:
