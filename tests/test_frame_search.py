@@ -20,7 +20,8 @@ NO_MATCH_DISTANCE = 100.0
 
 def shifted_frame(position: float, sample: float) -> float:
     """Represent footage shifted back after several concatenated clips."""
-    if isclose(position, MATCHED_START, abs_tol=MATCH_TOLERANCE) and sample > 0:
+    aligned: bool = isclose(position, MATCHED_START, abs_tol=MATCH_TOLERANCE)
+    if aligned and sample > 0:
         return MATCH_DISTANCE
     return NO_MATCH_DISTANCE
 

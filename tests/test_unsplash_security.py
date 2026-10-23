@@ -10,7 +10,11 @@ from meme_generator.config.unsplash import UnsplashSettings
 from meme_generator.infrastructure.unsplash.provider import (
     UnsplashImageProvider,
 )
-from tests.test_unsplash_provider import TEST_KEY, example_scene, search_response
+from tests.test_unsplash_provider import (
+    TEST_KEY,
+    example_scene,
+    search_response,
+)
 
 HTTP_OK = 200
 

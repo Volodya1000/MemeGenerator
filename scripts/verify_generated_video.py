@@ -1,4 +1,4 @@
-"""Verify all generated reaction scenes against actual catalog source frames."""
+"""Verify generated reaction scenes against genuine source video frames."""
 
 import logging
 from functools import partial
@@ -11,8 +11,8 @@ from verify_real_review_frames import (
 
 from meme_generator.config.settings import GenerationSettings
 from meme_generator.domain.clip_info import ClipInfo
-from meme_generator.domain.scene import Scene
 from meme_generator.domain.scenario import Scenario
+from meme_generator.domain.scene import Scene
 from meme_generator.infrastructure.media.frame_search import find_frame_match
 from meme_generator.infrastructure.media_probe import probe_clip
 from meme_generator.persistence.in_memory import InMemoryMemeRepository
