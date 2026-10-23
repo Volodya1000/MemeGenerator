@@ -7,7 +7,7 @@ from dataclasses import dataclass
 FRAME_SAMPLE_SECONDS = 0.75
 MIN_SAMPLE_SECONDS = 0.05
 TIMESTAMP_OFFSETS: tuple[float, ...] = (
-    0.0,
+    0,
     -0.25,
     0.25,
     -0.5,
@@ -43,6 +43,27 @@ def _sample_seconds(source_duration: float) -> float:
     )
 
 
+def _safe_compare(
+    compare: Callable[[float, float], float],
+    candidate: float,
+    sample_seconds: float,
+) -> float | None:
+    """Treat missing decoded frames as non-matches, not successful results."""
+    try:
+        return compare(candidate, sample_seconds)
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        return None
+
+
+def _is_within_video(
+    candidate: float,
+    sample_seconds: float,
+    output_duration: float,
+) -> bool:
+    """Bound every attempted timestamp to frames inside the MP4."""
+    return candidate >= 0 and candidate + sample_seconds < output_duration
+
+
 def find_frame_match(
     expected_start: float,
     source_duration: float,
@@ -54,12 +75,9 @@ def find_frame_match(
     sample: float = _sample_seconds(source_duration)
     for offset in TIMESTAMP_OFFSETS:
         candidate: float = expected_start + offset
-        if candidate < 0 or candidate + sample >= output_duration:
+        if not _is_within_video(candidate, sample, output_duration):
             continue
-        try:
-            distance: float = compare(candidate, sample)
-        except (OSError, ValueError, subprocess.CalledProcessError):
-            continue
-        if distance <= max_difference:
+        distance: float | None = _safe_compare(compare, candidate, sample)
+        if distance is not None and distance <= max_difference:
             return MatchedFrame(position=candidate, distance=distance)
     return None

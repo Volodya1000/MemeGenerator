@@ -9,7 +9,9 @@ from verify_real_review_frames import (
     frame_distance,
 )
 
+from meme_generator.config.settings import GenerationSettings
 from meme_generator.domain.clip_info import ClipInfo
+from meme_generator.domain.scene import Scene
 from meme_generator.domain.scenario import Scenario
 from meme_generator.infrastructure.media.frame_search import find_frame_match
 from meme_generator.infrastructure.media_probe import probe_clip
@@ -48,6 +50,26 @@ def verify_source_clip(
     )
 
 
+def _verify_scene(
+    scene: Scene,
+    catalog: InMemoryMemeRepository,
+    position: float,
+    output_duration: float,
+) -> float:
+    """Check one genuine reaction and calculate the next nominal offset."""
+    source: Path = catalog.get(scene.meme_id).video_path
+    source_clip: ClipInfo = probe_clip(source)
+    start: float = position + GenerationSettings().context_duration_seconds
+    verify_source_clip(
+        source,
+        start,
+        source_clip.duration_seconds,
+        output_duration,
+    )
+    LOGGER.info('SCENE_VERIFIED %s', scene.order)
+    return start + source_clip.duration_seconds
+
+
 def verify_generated_video() -> None:
     """Require audio and authentic reactions for all generated scenes."""
     scenario: Scenario = Scenario.model_validate_json(
@@ -59,26 +81,11 @@ def verify_generated_video() -> None:
         raise FileNotFoundError('Attribution manifest is missing')
     position: float = 0
     for scene in scenario.scenes:
-        source: Path = catalog.get(scene.meme_id).video_path
-        source_clip: ClipInfo = probe_clip(source)
-        position += _context_duration_seconds()
-        verify_source_clip(
-            source,
-            position,
-            source_clip.duration_seconds,
-            output_clip.duration_seconds,
+        position = _verify_scene(
+            scene, catalog, position, output_clip.duration_seconds
         )
-        LOGGER.info('SCENE_VERIFIED %s', scene.order)
-        position += source_clip.duration_seconds
     if not output_clip.has_audio:
         raise ValueError('Generated movie has no audio')
-
-
-def _context_duration_seconds() -> int:
-    """Use the same configured slide duration as the renderer."""
-    from meme_generator.config.settings import GenerationSettings
-
-    return GenerationSettings().context_duration_seconds
 
 
 if __name__ == '__main__':

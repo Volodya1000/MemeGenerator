@@ -1,41 +1,54 @@
-"""Regression tests for cumulative timestamp drift in rendered reaction clips."""
+"""Regression tests for encoder timestamp drift in rendered reactions."""
+
+from math import isclose
+
+import pytest
 
 from meme_generator.infrastructure.media.frame_search import find_frame_match
 
 DISTANCE_LIMIT = 30.0
+MATCHED_START = 17.0
+EXPECTED_START = 19.0
+SOURCE_DURATION = 2.0
+OUTPUT_DURATION = 25.0
+OUTSIDE_OUTPUT = 50.0
+SHORT_OUTPUT = 10.0
+MATCH_TOLERANCE = 0.01
+MATCH_DISTANCE = 4.0
+NO_MATCH_DISTANCE = 100.0
 
 
 def shifted_frame(position: float, sample: float) -> float:
-    """Represent footage shifted back two seconds after several clips."""
-    if abs(position - 17.0) < 0.01 and sample > 0:
-        return 4.0
-    return 100.0
+    """Represent footage shifted back after several concatenated clips."""
+    if isclose(position, MATCHED_START, abs_tol=MATCH_TOLERANCE) and sample > 0:
+        return MATCH_DISTANCE
+    return NO_MATCH_DISTANCE
 
 
 def absent_frame(position: float, sample: float) -> float:
-    """Never match if source footage is absent from the video."""
-    return 100.0
+    """Never match if genuine source footage is missing."""
+    return NO_MATCH_DISTANCE
 
 
 def test_recovers_from_accumulated_encoder_drift() -> None:
-    """An otherwise correct sixth scene must survive slight timestamp drift."""
+    """A valid later scene can match despite a small timestamp shift."""
     match = find_frame_match(
-        expected_start=19.0,
-        source_duration=2.0,
-        output_duration=25.0,
+        expected_start=EXPECTED_START,
+        source_duration=SOURCE_DURATION,
+        output_duration=OUTPUT_DURATION,
         compare=shifted_frame,
         max_difference=DISTANCE_LIMIT,
     )
     assert match is not None
-    assert match.position == 17.0
+    assert match.position == pytest.approx(MATCHED_START)
 
 
 def test_does_not_accept_unrelated_video() -> None:
-    """A failed source-image check must not be silently skipped."""
+    """A genuinely absent reaction still fails the authenticity check."""
     match = find_frame_match(
-        expected_start=19.0,
-        source_duration=2.0,
-        output_duration=25.0,
+        expected_start=EXPECTED_START,
+        source_duration=SOURCE_DURATION,
+        output_duration=OUTPUT_DURATION,
         compare=absent_frame,
         max_difference=DISTANCE_LIMIT,
     )
@@ -43,11 +56,11 @@ def test_does_not_accept_unrelated_video() -> None:
 
 
 def test_keeps_samples_inside_output() -> None:
-    """Never decode a future frame beyond the rendered MP4 duration."""
+    """Never request output frames past the end of the MP4."""
     match = find_frame_match(
-        expected_start=50.0,
-        source_duration=1.0,
-        output_duration=10.0,
+        expected_start=OUTSIDE_OUTPUT,
+        source_duration=SOURCE_DURATION,
+        output_duration=SHORT_OUTPUT,
         compare=shifted_frame,
         max_difference=DISTANCE_LIMIT,
     )
