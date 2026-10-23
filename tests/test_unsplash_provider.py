@@ -84,8 +84,7 @@ def test_real_photo_and_download_tracking(tmp_path: Path) -> None:
         )
         image = provider.fetch(example_scene(), tmp_path)
     assert request_mock.call_count == 3
-    last_request: httpx.Request = request_mock.call_args.args[0]
-    assert '/download' in str(last_request.url)
+    assert '/download' in str(request_mock.call_args.args[0].url)
     assert 'Sample Author' in image.license_name
     assert 'utm_source=MemeGenerator' in image.source_url
     with Image.open(image.image_path) as photo:
