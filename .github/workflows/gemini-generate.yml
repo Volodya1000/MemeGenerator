@@ -103,8 +103,19 @@ jobs:
             echo "::error::Create Actions secret MEMEGEN_LLM__API_KEY from Google AI Studio"
             exit 1
           fi
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Ensure FFmpeg and FFprobe are available
+        run: |
+          if ! command -v ffmpeg || ! command -v ffprobe; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+      - name: Require Unsplash key when searching photographs
+        if: inputs.images == 'photos' && inputs.slide_mode != 'text_only'
+        run: |
+          if [[ -z "$MEMEGEN_UNSPLASH__ACCESS_KEY" ]]; then
+            echo "::error::Create Repository secret MEMEGEN_UNSPLASH__ACCESS_KEY (not an Environment secret)"
+            exit 1
+          fi
       - name: Install Python dependencies
         run: uv sync --extra dev
       - name: Download original reaction clips and validate hashes
@@ -121,7 +132,8 @@ jobs:
       - name: Verify every requested photographic scene
         if: inputs.images == 'photos' && inputs.slide_mode != 'text_only'
         run: uv run python scripts/verify_searched_photos.py
-      - name: Upload real Gemini-planned video for private review
+      - name: Upload video and diagnostics even if validation fails
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: meme-generator-gemini-real-review
@@ -129,5 +141,5 @@ jobs:
             output/gemini-result.mp4
             output/gemini-result.scenario.json
             output/gemini-result.attribution.json
-          if-no-files-found: error
-          retention-days: 1
+          if-no-files-found: warn
+          retention-days: 7
